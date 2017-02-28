@@ -1,8 +1,11 @@
 module.exports = (role, body) => {
 
     const rolePart = role
-        .toLowerCase()
-        .replace(/_([a-z])]/g, (matched, firsChar) => firsChar.toUpperCase());
+            .toLowerCase()
+            .replace(
+                    /_([a-z])]/g,
+                    (matched, firsChar) => firsChar.toUpperCase()
+            );
 
     const bodyElementsCounter = new Map();
 
@@ -13,10 +16,11 @@ module.exports = (role, body) => {
     });
 
     const bodyPart = [ ...bodyElementsCounter ]
-        .map(mapEntry => mapEntry[ 1 ] + mapEntry[ 0 ])
-        .join("");
+            .map(mapEntry =>
+                    mapEntry[ 1 ] + mapEntry[ 0 ].substr(0, 1).toLowerCase())
+            .join("");
 
-    const epochInSeconds = new Date().valueOf() / 1000;
+    const epochInSeconds = Math.round(new Date().valueOf() / 1000);
 
     return [ rolePart, bodyPart, epochInSeconds ].join("_");
 };
