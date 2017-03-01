@@ -28,7 +28,8 @@ module.exports.loop = () => {
             console.log("no role assigned to creep: " + creepName);
             return;
         }
-        const action = actions[creepRole];
+
+        const action = actions.get(creepRole);
 
         if (!action) {
             console.log("no action for role: " + creepRole);
