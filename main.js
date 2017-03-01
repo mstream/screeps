@@ -1,6 +1,12 @@
 const roles = require("const.roles");
+
 const clearCreepsMemory = require("func.clearCreepsMemory");
 const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
+
+const actions = new Map([
+    [roles.HARVESTER, require("action.harvest")]
+]);
+
 
 module.exports.loop = () => {
 
@@ -13,5 +19,22 @@ module.exports.loop = () => {
             [roles.HARVESTER, 1],
             [roles.UPGRADER, 1]
         ]));
+    });
+
+    Object.keys(Game.creeps).forEach((creepName) => {
+        const creep = Game.creeps[creepName];
+        const creepRole = creep.memory.role;
+        if (!creepRole) {
+            console.log("no role assigned to creep: " + creepName);
+            return;
+        }
+        const action = actions[creepRole];
+
+        if (!action) {
+            console.log("no action for role: " + creepRole);
+            return;
+        }
+
+        action(creep);
     });
 };
