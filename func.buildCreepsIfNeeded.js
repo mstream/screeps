@@ -27,9 +27,9 @@ module.exports = (spawn, rolesSlots) => {
         }
     });
 
-    rolesSlots.forEach((slotsCount, role) => {
+    desiredRoles.forEach((desiredCount, role) => {
         const body = chooseCreepBody();
-        if (!spawn.canCreateCreep(body)) {
+        if (!spawn.canCreateCreep(body) == OK) {
             return;
         }
         const name = generateCreepName();
