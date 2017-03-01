@@ -32,7 +32,7 @@ module.exports = (spawn, rolesSlots) => {
         if (!spawn.canCreateCreep(body) == OK) {
             return;
         }
-        const name = generateCreepName();
+        const name = generateCreepName(role, body);
         spawn.createCreep(body, name, { role });
     });
 };
