@@ -4,6 +4,7 @@ const clearCreepsMemory = require("func.clearCreepsMemory");
 const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
 
 const actions = new Map([
+    [roles.BUILDER, require("action.build")],
     [roles.HARVESTER, require("action.harvest")],
     [roles.UPGRADER, require("action.upgrade")]
 ]);
