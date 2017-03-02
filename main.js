@@ -1,7 +1,6 @@
 const roles = require("const.roles");
 
 const clearCreepsMemory = require("func.clearCreepsMemory");
-const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
 const drawCreepStatuses = require("func.drawCreepStatuses");
 const createRoadsBlueprint = require("func.createRoadsBlueprint");
 
@@ -10,6 +9,8 @@ const actions = new Map([
     [roles.HARVESTER, require("action.harvest")],
     [roles.UPGRADER, require("action.upgrade")]
 ]);
+
+const RoomController = require("class.RoomController");
 
 
 module.exports.loop = () => {
@@ -20,13 +21,9 @@ module.exports.loop = () => {
     createRoadsBlueprint();
     drawCreepStatuses();
 
-    Object.keys(Game.spawns).forEach((spawnName) => {
-        const spawn = Game.spawns[spawnName];
-        buildCreepsIfNeeded(spawn, new Map([
-            [roles.BUILDER, 1],
-            [roles.HARVESTER, 1],
-            [roles.UPGRADER, 1]
-        ]));
+    _.forOwn(Game.rooms, (room) => {
+        const roomController = new RoomController(room, Memory);
+        roomController.buildCreeps();
     });
 
     Object.keys(Game.creeps).forEach((creepName) => {

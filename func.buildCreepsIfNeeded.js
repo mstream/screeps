@@ -3,6 +3,14 @@ const generateCreepName = require("func.generateCreepName");
 
 module.exports = (spawn, rolesSlots) => {
 
+    if (!spawn) {
+        throw new Error("spawn can't be null");
+    }
+
+    if (!rolesSlots) {
+        throw new Error("rolesSlots can't be null");
+    }
+
     const existingRolesCounter = new Map();
 
     const existingRoles = Object.keys(Game.creeps)
