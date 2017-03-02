@@ -2,7 +2,6 @@ const roles = require("const.roles");
 
 const clearCreepsMemory = require("func.clearCreepsMemory");
 const drawCreepStatuses = require("func.drawCreepStatuses");
-const createRoadsBlueprint = require("func.createRoadsBlueprint");
 
 const actions = new Map([
     [roles.BUILDER, require("action.build")],
@@ -18,11 +17,12 @@ module.exports.loop = () => {
     PathFinder.use(true);
 
     clearCreepsMemory();
-    createRoadsBlueprint();
     drawCreepStatuses();
 
     _.forOwn(Game.rooms, (room) => {
         const roomController = new RoomController(room, Memory);
+        roomController.calculatePaths();
+        roomController.buildRoadBlueprints();
         roomController.buildCreeps();
     });
 

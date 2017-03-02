@@ -35,6 +35,49 @@ module.exports = class {
     }
 
     calculatePaths() {
+
+        const serializedPaths = [];
+
+        this._findObjects(objectTypes.SPAWN).forEach((spawn) => {
+            this._findObjects(objectTypes.SOURCES).forEach((source) => {
+                const result = PathFinder.search(
+                    spawn.pos,
+                    [{pos: source.pos, range: 1}],
+                    {
+                        maxRooms: 1,
+                        plainCost: 1,
+                        swampCost: 2,
+                    }
+                );
+                if (result.incomplete) {
+                    console.log("could not finish a path calculation");
+                    return;
+                }
+                serializedPaths.push(result.path.map(pos =>
+                    ({x: pos.x, y: pos.y})
+                ));
+            });
+        });
+
+        this._roomMemory.paths = serializedPaths;
+    }
+
+    buildRoadBlueprints() {
+
+        const serializedPaths = this._roomMemory.paths;
+
+        if (!serializedPaths || !serializedPaths.length) {
+            throw new Error("no stored paths");
+        }
+
+        serializedPaths.forEach((serializedPath) => {
+            const path = serializedPath.map((cord) =>
+                new RoomPosition(cord.x, cord.y, this._room.name)
+            );
+            path.forEach((pos) =>
+                this._room.createConstructionSite(pos, STRUCTURE_ROAD)
+            );
+        });
     }
 
     _loadObjectsFromMemory() {
