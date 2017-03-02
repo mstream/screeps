@@ -1,0 +1,5 @@
+module.exports = {
+    BUILDING: "BUILDING",
+    HARVESTING: "HARVESTING",
+    UPGRADING: "UPGRADING"
+};
