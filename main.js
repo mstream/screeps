@@ -13,6 +13,8 @@ const actions = new Map([
 
 module.exports.loop = () => {
 
+    PathFinder.use(true);
+
     clearCreepsMemory();
     drawCreepStatuses();
 
