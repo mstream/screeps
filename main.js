@@ -3,6 +3,7 @@ const roles = require("const.roles");
 const clearCreepsMemory = require("func.clearCreepsMemory");
 const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
 const drawCreepStatuses = require("func.drawCreepStatuses");
+const createRoadsBlueprint = require("func.createRoadsBlueprint");
 
 const actions = new Map([
     [roles.BUILDER, require("action.build")],
@@ -16,6 +17,7 @@ module.exports.loop = () => {
     PathFinder.use(true);
 
     clearCreepsMemory();
+    createRoadsBlueprint();
     drawCreepStatuses();
 
     Object.keys(Game.spawns).forEach((spawnName) => {
