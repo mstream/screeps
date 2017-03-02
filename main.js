@@ -2,6 +2,7 @@ const roles = require("const.roles");
 
 const clearCreepsMemory = require("func.clearCreepsMemory");
 const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
+const drawCreepStatuses = require("func.drawCreepStatuses");
 
 const actions = new Map([
     [roles.BUILDER, require("action.build")],
@@ -13,6 +14,7 @@ const actions = new Map([
 module.exports.loop = () => {
 
     clearCreepsMemory();
+    drawCreepStatuses();
 
     Object.keys(Game.spawns).forEach((spawnName) => {
         const spawn = Game.spawns[spawnName];
