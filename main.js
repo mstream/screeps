@@ -20,12 +20,11 @@ module.exports.loop = () => {
     drawCreepStatuses();
 
     _.forOwn(Game.rooms, (room) => {
-        const roomController = new RoomController(room, Memory);
+        const roomController = new RoomController(room, Game, Memory);
         roomController.buildCreeps();
-        if (Game.time % 10 == 0) {
-            roomController.calculatePaths();
-            roomController.buildRoadBlueprints();
-        }
+        roomController.calculatePaths();
+        roomController.buildRoadBlueprints();
+        roomController.executeTasks();
     });
 
     Object.keys(Game.creeps).forEach((creepName) => {

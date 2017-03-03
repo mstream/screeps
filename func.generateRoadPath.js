@@ -9,8 +9,8 @@ module.exports = (from, to) => {
     }
 
     return PathFinder.search(
-        from.pos,
-        [{pos: to.pos, range: 1}],
+        from,
+        [{pos: to, range: 1}],
         {
             maxRooms: 1,
             plainCost: 1,
