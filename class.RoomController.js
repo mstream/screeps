@@ -2,6 +2,7 @@ const objectTypes = require("const.objectTypes");
 const roles = require("const.roles");
 
 const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
+const generateRoadPath = require("func.generateRoadPath");
 
 
 module.exports = class {
@@ -40,15 +41,7 @@ module.exports = class {
 
         this._findObjects(objectTypes.SPAWN).forEach((spawn) => {
             this._findObjects(objectTypes.SOURCES).forEach((source) => {
-                const result = PathFinder.search(
-                    spawn.pos,
-                    [{pos: source.pos, range: 1}],
-                    {
-                        maxRooms: 1,
-                        plainCost: 1,
-                        swampCost: 2,
-                    }
-                );
+                const result = generateRoadPath(spawn, source);
                 if (result.incomplete) {
                     console.log("could not finish a path calculation");
                     return;
