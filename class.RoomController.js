@@ -89,23 +89,30 @@ module.exports = class {
     }
 
     requestPathsCalculation() {
-        this.findObjects(objectTypes.SPAWN).forEach((spawn) => {
-            this.findObjects(objectTypes.SOURCE).forEach((source) => {
-                const path = new Path(
-                    Cord.fromPos(spawn.pos),
-                    Cord.fromPos(source.pos)
-                );
-                const task = new Task(
-                    taskTypes.PATH_COMPUTING,
-                    {path}
-                );
-                if (this._isPathRequested(path)) {
-                    return;
-                }
-                this._requestPath(path);
-                this._queueTask(task);
+        this.findObjects(objectTypes.SOURCE).forEach((source) => {
+            this.findObjects(objectTypes.SPAWN).forEach((spawn) => {
+                this._requestPathCalculation(source, spawn)
+            });
+            this.findObjects(objectTypes.ROOM_CONTROLLER).forEach((roomCtrl) => {
+                this._requestPathCalculation(source, roomCtrl)
             });
         });
+    }
+
+    _requestPathCalculation(fromObj, toObj) {
+        const path = new Path(
+            Cord.fromPos(fromObj.pos),
+            Cord.fromPos(toObj.pos)
+        );
+        const task = new Task(
+            taskTypes.PATH_COMPUTING,
+            {path}
+        );
+        if (this._isPathRequested(path)) {
+            return;
+        }
+        this._requestPath(path);
+        this._queueTask(task);
     }
 
     buildRoadBlueprints() {
@@ -127,6 +134,36 @@ module.exports = class {
             );
         });
     }
+
+
+    findObjects(objectsType) {
+        const objects = this._objects[objectsType];
+        if (objects) {
+            return objects;
+        }
+        if (objectsType == objectTypes.ROOM_CONTROLLER) {
+            const controllers = [this._room.controller];
+            return controllers;
+        }
+        if (objectsType == objectTypes.SPAWN) {
+            const spawns = [];
+            _.forOwn(this._game.spawns, (spawn) => {
+                if (spawn.room.name != this._room.name) {
+                    return;
+                }
+                spawns.push(spawn);
+            });
+            this._objects[objectsType] = spawns;
+            this._roomMemory.objectIds[objectTypes.SPAWN] = getIds(spawns);
+            return spawns;
+        }
+        if (objectsType == objectTypes.SOURCE) {
+            const sources = this._room.find(FIND_SOURCES);
+            this._objects[objectsType] = sources;
+            this._roomMemory.objectIds[objectTypes.SOURCE] = getIds(sources);
+            return sources;
+        }
+    };
 
     _initializeMemory() {
         if (!this._roomMemory.objectIds) {
@@ -159,31 +196,6 @@ module.exports = class {
             this._objects[objectType] =
                 ids.map((id) => this._game.getObjectById(id));
         });
-    };
-
-    findObjects(objectsType) {
-        const objects = this._objects[objectsType];
-        if (objects) {
-            return objects;
-        }
-        if (objectsType == objectTypes.SPAWN) {
-            const spawns = [];
-            _.forOwn(this._game.spawns, (spawn) => {
-                if (spawn.room.name != this._room.name) {
-                    return;
-                }
-                spawns.push(spawn);
-            });
-            this._objects[objectsType] = spawns;
-            this._roomMemory.objectIds[objectTypes.SPAWN] = getIds(spawns);
-            return spawns;
-        }
-        if (objectsType == objectTypes.SOURCE) {
-            const sources = this._room.find(FIND_SOURCES);
-            this._objects[objectsType] = sources;
-            this._roomMemory.objectIds[objectTypes.SOURCE] = getIds(sources);
-            return sources;
-        }
     };
 
     _queueTask(task) {
