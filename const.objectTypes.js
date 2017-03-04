@@ -1,4 +1,4 @@
 module.exports = {
-    SOURCES: "SOURCES",
+    SOURCE: "SOURCE",
     SPAWN: "SPAWN"
 };

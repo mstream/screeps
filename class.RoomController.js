@@ -5,11 +5,12 @@ const taskTypes = require("const.taskTypes");
 const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
 const generateRoadPath = require("func.generateRoadPath");
 
+const Cord = require("class.Cord");
+const Path = require("class.Path");
 const Task = require("class.Task");
 
 
 const getIds = (objects) => objects.map((object) => object.id);
-const posToCord = (pos) => ({x: pos.x, y: pos.y});
 
 
 module.exports = class {
@@ -43,7 +44,6 @@ module.exports = class {
 
         this._initializeMemory();
         this._loadObjectsFromMemory();
-        this._loadTaskHashesFromMemory();
     }
 
     executeTasks() {
@@ -62,17 +62,17 @@ module.exports = class {
         }
 
         if (task.type == taskTypes.PATH_COMPUTING) {
-            const options = task.options;
+            const path = Path.fromJSON(task.options.path);
             const result = generateRoadPath(
-                this._cordToPos(options.from),
-                this._cordToPos(options.to)
+                this._cordToPos(path.from),
+                this._cordToPos(path.to)
             );
             if (result.incomplete) {
                 console.log("could not finish a path calculation");
                 return;
             }
-            const path = _.map(result.path, pos => posToCord(pos));
-            this._roomMemory.paths.push(path);
+            this._roomMemory.paths[path.hash] =
+                _.map(result.path, pos => Cord.fromPos(pos));
             this._completeLastTask();
         }
     }
@@ -88,37 +88,42 @@ module.exports = class {
         );
     }
 
-    calculatePaths() {
+    requestPathsCalculation() {
         this._findObjects(objectTypes.SPAWN).forEach((spawn) => {
-            this._findObjects(objectTypes.SOURCES).forEach((source) => {
-                const task = new Task({
-                    type: taskTypes.PATH_COMPUTING,
-                    options: {
-                        from: posToCord(spawn.pos),
-                        to: posToCord(source.pos)
-                    }
-                });
-                if (this._taskExists(task)) {
+            this._findObjects(objectTypes.SOURCE).forEach((source) => {
+                const path = new Path(
+                    Cord.fromPos(spawn.pos),
+                    Cord.fromPos(source.pos)
+                );
+                const task = new Task(
+                    taskTypes.PATH_COMPUTING,
+                    {path}
+                );
+                if (this._isPathRequested(path)) {
                     return;
                 }
+                this._requestPath(path);
                 this._queueTask(task);
             });
         });
     }
 
     buildRoadBlueprints() {
-        const serializedPaths = this._roomMemory.paths;
+        const paths = this._roomMemory.paths;
 
-        if (!serializedPaths || !serializedPaths.length) {
+        if (!paths) {
             return;
         }
 
-        serializedPaths.forEach((serializedPath) => {
-            const path = serializedPath.map((cord) =>
-                new RoomPosition(cord.x, cord.y, this._room.name)
-            );
-            path.forEach((pos) =>
-                this._room.createConstructionSite(pos, STRUCTURE_ROAD)
+        _.forOwn(paths, (pathSegments) => {
+            if (!pathSegments || !pathSegments.length) {
+                return;
+            }
+            pathSegments.forEach((pathSegment) =>
+                this._room.createConstructionSite(
+                    this._cordToPos(pathSegment),
+                    STRUCTURE_ROAD
+                )
             );
         });
     }
@@ -133,7 +138,7 @@ module.exports = class {
         }
 
         if (!this._roomMemory.paths) {
-            this._roomMemory.paths = [];
+            this._roomMemory.paths = {};
         }
     }
 
@@ -151,14 +156,10 @@ module.exports = class {
                 this._objects[objectType] = [];
                 return;
             }
-            const objects = ids.map((id) => this._game.getObjectById(id));
-            this._objects[objectType] = objects;
+            this._objects[objectType] =
+                ids.map((id) => this._game.getObjectById(id));
         });
     };
-
-    _loadTaskHashesFromMemory() {
-        this._taskHashes = new Map(this._roomMemory.tasks);
-    }
 
     _findObjects(objectsType) {
         const objects = this._objects[objectsType];
@@ -177,28 +178,27 @@ module.exports = class {
             this._roomMemory.objectIds[objectTypes.SPAWN] = getIds(spawns);
             return spawns;
         }
-        if (objectsType == objectTypes.SOURCES) {
+        if (objectsType == objectTypes.SOURCE) {
             const sources = this._room.find(FIND_SOURCES);
             this._objects[objectsType] = sources;
-            this._roomMemory.objectIds[objectTypes.SOURCES] = getIds(sources);
+            this._roomMemory.objectIds[objectTypes.SOURCE] = getIds(sources);
             return sources;
         }
     };
 
     _queueTask(task) {
-        const hashAndTask = [task.hash, task.toJSON()];
         if (!this._roomMemory.tasks) {
-            this._roomMemory.tasks = [hashAndTask];
+            this._roomMemory.tasks = [task];
             return;
         }
-        this._roomMemory.tasks.push(hashAndTask);
+        this._roomMemory.tasks.push(task);
     }
 
     _nextTask() {
         if (!this._roomMemory.tasks.length) {
             return;
         }
-        return new Task(this._roomMemory.tasks[0][1]);
+        return Task.fromJSON(this._roomMemory.tasks[0]);
     }
 
     _completeLastTask() {
@@ -208,8 +208,12 @@ module.exports = class {
         this._roomMemory.tasks.shift();
     }
 
-    _taskExists(task) {
-        return this._taskHashes.has(task.hash);
+    _isPathRequested(path) {
+        return this._roomMemory.paths[path.hash];
+    }
+
+    _requestPath(path) {
+        return this._roomMemory.paths[path.hash] = [];
     }
 
     _cordToPos(cord) {

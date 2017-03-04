@@ -5,12 +5,13 @@ const taskCost = {
 };
 
 
-const serializeCord = (cord) => "(" + cord.x + "," + cord.y + ")";
+class Task {
 
+    static fromJSON({type, options}) {
+        return new Task(type, options);
+    }
 
-module.exports = class {
-
-    constructor({type, options}) {
+    constructor(type, options) {
 
         if (!type) {
             throw new Error("type can't be null");
@@ -35,17 +36,8 @@ module.exports = class {
     get cost() {
         return taskCost[this.type];
     }
+}
 
-    get hash() {
-        const prefix = this.type;
-        if (this.type == taskTypes.PATH_COMPUTING) {
-            const cordsHash =
-                "FROM_" +
-                serializeCord(this.options.from) +
-                "_TO_" +
-                serializeCord(this.options.to);
-            return prefix + "_" + cordsHash;
-        }
-    }
-};
+
+module.exports = Task;
 
