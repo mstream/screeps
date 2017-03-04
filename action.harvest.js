@@ -1,35 +1,32 @@
-module.exports = (creep) => {
+const objectTypes = require("const.objectTypes");
+
+
+module.exports = (creep, roomController) => {
 
     const remainingEnergyCapacity = creep.carryCapacity - creep.carry.energy;
 
     if (remainingEnergyCapacity) {
-        const sources = creep.room.find(FIND_SOURCES);
+        const sources = roomController.findObjects(objectTypes.SOURCE);
         const bestSource = sources[0];
 
         if (creep.harvest(bestSource) == ERR_NOT_IN_RANGE) {
             creep.moveTo(bestSource, {visualizePathStyle: {stroke: "#ffaa00"}});
         }
     } else {
-        const targets = creep.room.find(
-            FIND_STRUCTURES,
-            {
-                filter: (structure) =>
-                (
-                    structure.structureType == STRUCTURE_EXTENSION ||
-                    structure.structureType == STRUCTURE_SPAWN ||
-                    structure.structureType == STRUCTURE_TOWER
-                ) &&
-                structure.energy < structure.energyCapacity
-            });
+        const spawns = roomController.findObjects(objectTypes.SPAWN);
+        const spawnsNeedingEnergy = _.filter(
+            spawns,
+            (spawn) => spawn.energy < spawn.energyCapacity
+        );
 
-        if (!targets.length) {
+        if (!spawnsNeedingEnergy.length) {
             return;
         }
 
-        const bestTarget = targets[0];
+        const bestSpawn = spawnsNeedingEnergy[0];
 
-        if (creep.transfer(bestTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(bestTarget, {visualizePathStyle: {stroke: '#ffffff'}});
+        if (creep.transfer(bestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(bestSpawn, {visualizePathStyle: {stroke: '#ffffff'}});
         }
     }
 };

@@ -79,7 +79,7 @@ module.exports = class {
 
     buildCreeps() {
         buildCreepsIfNeeded(
-            this._findObjects(objectTypes.SPAWN)[0],
+            this.findObjects(objectTypes.SPAWN)[0],
             new Map([
                 [roles.BUILDER, 1],
                 [roles.HARVESTER, 1],
@@ -89,8 +89,8 @@ module.exports = class {
     }
 
     requestPathsCalculation() {
-        this._findObjects(objectTypes.SPAWN).forEach((spawn) => {
-            this._findObjects(objectTypes.SOURCE).forEach((source) => {
+        this.findObjects(objectTypes.SPAWN).forEach((spawn) => {
+            this.findObjects(objectTypes.SOURCE).forEach((source) => {
                 const path = new Path(
                     Cord.fromPos(spawn.pos),
                     Cord.fromPos(source.pos)
@@ -161,7 +161,7 @@ module.exports = class {
         });
     };
 
-    _findObjects(objectsType) {
+    findObjects(objectsType) {
         const objects = this._objects[objectsType];
         if (objects) {
             return objects;

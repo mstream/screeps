@@ -1,6 +1,8 @@
 const actions = require("const.actions");
+const objectTypes = require("const.objectTypes");
 
-module.exports = (creep) => {
+
+module.exports = (creep, roomController) => {
 
     const remainingEnergyCapacity = creep.carryCapacity - creep.carry.energy;
     let currentAction = creep.memory.action;
@@ -14,7 +16,7 @@ module.exports = (creep) => {
     }
 
     if (currentAction == actions.HARVESTING) {
-        const sources = creep.room.find(FIND_SOURCES);
+        const sources = roomController.findObjects(objectTypes.SOURCE);
         const bestSource = sources[0];
 
         if (creep.harvest(bestSource) == ERR_NOT_IN_RANGE) {
