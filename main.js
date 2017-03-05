@@ -1,5 +1,4 @@
 const clearCreepsMemory = require("func.clearCreepsMemory");
-const drawCreepStatuses = require("func.drawCreepStatuses");
 
 const CreepController = require("class.CreepController");
 const RoomController = require("class.RoomController");
@@ -10,7 +9,6 @@ module.exports.loop = () => {
     PathFinder.use(true);
 
     clearCreepsMemory();
-    drawCreepStatuses();
 
     _.forOwn(Game.rooms, (room) => {
         const roomController = new RoomController(room, Game, Memory);

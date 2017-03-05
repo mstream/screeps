@@ -161,6 +161,10 @@ module.exports = class {
         sourceMemory.harvesters--;
     }
 
+    drawText(x, y, text) {
+        this._room.visual.text(text, x, y)
+    }
+
     _scheduleTasks() {
         _.forOwn(schedulingFrequencies, (frequency, taskType) => {
             const lastUpdate = this._roomMemory.lastUpdates[taskType];
