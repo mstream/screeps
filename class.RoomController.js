@@ -90,13 +90,17 @@ module.exports = class {
     }
 
     buildCreeps() {
+
+        const sorcesNumber = this.findObjects(objectTypes.SOURCE).length;
+
         buildCreepsIfNeeded(
+            this._game,
             this.findObjects(objectTypes.SPAWN)[0],
-            new Map([
-                [roles.BUILDER, 1],
-                [roles.HARVESTER, 1],
-                [roles.UPGRADER, 1]
-            ])
+            {
+                [roles.HARVESTER]: sorcesNumber,
+                [roles.UPGRADER]: sorcesNumber,
+                [roles.BUILDER]: sorcesNumber
+            }
         );
     }
 

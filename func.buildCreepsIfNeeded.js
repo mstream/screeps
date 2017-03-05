@@ -1,7 +1,12 @@
 const chooseCreepBody = require("func.chooseCreepBody");
 const generateCreepName = require("func.generateCreepName");
 
-module.exports = (spawn, rolesSlots) => {
+
+module.exports = (game, spawn, rolesSlots) => {
+
+    if (!game) {
+        throw new Error("game can't be null");
+    }
 
     if (!spawn) {
         throw new Error("spawn can't be null");
@@ -11,36 +16,34 @@ module.exports = (spawn, rolesSlots) => {
         throw new Error("rolesSlots can't be null");
     }
 
-    const existingRolesCounter = new Map();
+    const existingRolesCounter = {};
 
-    const existingRoles = Object.keys(Game.creeps)
-        .map((creepName) => Game.creeps[ creepName ].memory.role);
-
-    existingRoles.forEach((role) => {
-        const prevCount = existingRolesCounter.get(role);
+    _.forOwn(game.creeps, (creep) => {
+        const role = creep.memory.role;
+        const prevCount = existingRolesCounter[role];
         const nextCount = prevCount ? prevCount + 1 : 1;
-        existingRolesCounter.set(role, nextCount);
+        existingRolesCounter[role] = nextCount;
     });
 
-    const desiredRoles = new Map();
+    const desiredRoles = {};
 
-    rolesSlots.forEach((slotsCount, role) => {
-        const existingCount = existingRolesCounter.get(role);
+    _.forOwn(rolesSlots, (slotsCount, role) => {
+        const existingCount = existingRolesCounter[role];
         let desiredCount = slotsCount;
         if (existingCount) {
             desiredCount -= existingCount;
         }
         if (desiredCount > 0) {
-            desiredRoles.set(role, desiredCount);
+            desiredRoles[role] = desiredCount;
         }
     });
 
-    desiredRoles.forEach((desiredCount, role) => {
-        const body = chooseCreepBody();
-        if (!spawn.canCreateCreep(body) == OK) {
+    _.forOwn(desiredRoles, (desiredCount, role) => {
+        const creepBody = chooseCreepBody();
+        if (!spawn.canCreateCreep(creepBody) == OK) {
             return;
         }
-        const name = generateCreepName(role, body);
-        spawn.createCreep(body, name, { role });
+        const creepName = generateCreepName(role, creepBody);
+        spawn.createCreep(creepBody, creepName, { role });
     });
 };
