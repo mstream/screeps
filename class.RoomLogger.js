@@ -12,13 +12,18 @@ const padEnd = (text, paddingLength) => {
 
 module.exports = class {
 
-    constructor(room) {
+    constructor(room, game) {
 
         if (!room) {
             throw new Error("room can't be null");
         }
 
+        if (!game) {
+            throw new Error("game can't be null");
+        }
+
         this._room = room;
+        this._game = game;
     }
 
     debug(message) {
@@ -38,7 +43,7 @@ module.exports = class {
     }
 
     _log(level, message) {
-        const paddedTime = padEnd(Game.time.toString(), 9);
+        const paddedTime = padEnd(this._game.time.toString(), 9);
         const paddedLevel = padEnd(level, 5);
         const paddedRoomName = padEnd(this._room.name, 10);
 
