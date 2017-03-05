@@ -35,7 +35,7 @@ module.exports = (creep, roomController) => {
 
         // TODO cache objects by their ID
         if (creep.memory.action.type == actionTypes.HARVESTING) {
-            const source = Game.getObjectById(creep.memory.action.target);
+            const source = Game.getObjectById(creep.memory.action.targetId);
             roomController.unassignHarvesterFrom(source);
         }
 

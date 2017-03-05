@@ -161,8 +161,8 @@ module.exports = class {
         sourceMemory.harvesters--;
     }
 
-    drawText(x, y, text) {
-        this._room.visual.text(text, x, y)
+    drawText(x, y, style, text) {
+        this._room.visual.text(text, x, y, style);
     }
 
     _scheduleTasks() {

@@ -6,6 +6,9 @@ const actions = new Map([
     [roles.UPGRADER, require("action.upgrade")]
 ]);
 
+const statusTextStyle = {
+    font: 0.5
+};
 
 module.exports = class {
 
@@ -44,10 +47,18 @@ module.exports = class {
     }
 
     _drawStatus() {
+        const creepRole = this._creepMemory.role;
+        const currentHp = this._creep.hits;
+        const maxHp = this._creep.hitsMax;
+
+        const status = `${creepRole} (${currentHp}/${maxHp})`;
+
         this._roomController.drawText(
             this._creep.pos.x,
-            this._creep.pos.y,
-            this._creepMemory.role);
+            this._creep.pos.y - 0.5,
+            statusTextStyle,
+            status
+        );
     }
 
     _initializeMemory() {
