@@ -11,6 +11,10 @@ const Path = require("class.Path");
 const Task = require("class.Task");
 
 
+const schedulingFrequency = {
+    [taskTypes.PATH_COMPUTING]: 100
+};
+
 const getIds = (objects) => objects.map((object) => object.id);
 
 
@@ -46,6 +50,7 @@ module.exports = class {
 
         this._initializeMemory();
         this._loadObjectsFromMemory();
+        this._scheduleTasks();
     }
 
     executeTasks() {
@@ -95,7 +100,51 @@ module.exports = class {
         );
     }
 
-    requestPathsCalculation() {
+
+    findObjects(objectsType) {
+        const objects = this._objects[objectsType];
+        if (objects) {
+            return objects;
+        }
+        if (objectsType == objectTypes.ROOM_CONTROLLER) {
+            return [this._room.controller];
+        }
+        if (objectsType == objectTypes.SPAWN) {
+            const spawns = [];
+            _.forOwn(this._game.spawns, (spawn) => {
+                if (spawn.room.name != this._room.name) {
+                    return;
+                }
+                spawns.push(spawn);
+            });
+            this._objects[objectsType] = spawns;
+            this._roomMemory.objectIds[objectTypes.SPAWN] = getIds(spawns);
+            return spawns;
+        }
+        if (objectsType == objectTypes.SOURCE) {
+            const sources = this._room.find(FIND_SOURCES);
+            this._objects[objectsType] = sources;
+            this._roomMemory.objectIds[objectTypes.SOURCE] = getIds(sources);
+            return sources;
+        }
+    };
+
+    _scheduleTasks() {
+        _.forOwn(schedulingFrequency, (frequency, taskType) => {
+            const lastUpdate = this._roomMemory.lastUpdates[taskTypes];
+            const gameTime = this._game.time;
+            if (lastUpdate && gameTime - lastUpdate < frequency) {
+                return;
+            }
+            this._logger.info(`scheduling tasks: ${taskType}`);
+            if (taskType == taskTypes.PATH_COMPUTING) {
+                this._requestPathsCalculation();
+            }
+            this._roomMemory.lastUpdates[taskTypes] = gameTime;
+        });
+    }
+
+    _requestPathsCalculation() {
         this.findObjects(objectTypes.SOURCE).forEach((source) => {
             this.findObjects(objectTypes.SPAWN).forEach((spawn) => {
                 this._requestPathCalculation(source, spawn)
@@ -142,35 +191,6 @@ module.exports = class {
         });
     }
 
-
-    findObjects(objectsType) {
-        const objects = this._objects[objectsType];
-        if (objects) {
-            return objects;
-        }
-        if (objectsType == objectTypes.ROOM_CONTROLLER) {
-            return [this._room.controller];
-        }
-        if (objectsType == objectTypes.SPAWN) {
-            const spawns = [];
-            _.forOwn(this._game.spawns, (spawn) => {
-                if (spawn.room.name != this._room.name) {
-                    return;
-                }
-                spawns.push(spawn);
-            });
-            this._objects[objectsType] = spawns;
-            this._roomMemory.objectIds[objectTypes.SPAWN] = getIds(spawns);
-            return spawns;
-        }
-        if (objectsType == objectTypes.SOURCE) {
-            const sources = this._room.find(FIND_SOURCES);
-            this._objects[objectsType] = sources;
-            this._roomMemory.objectIds[objectTypes.SOURCE] = getIds(sources);
-            return sources;
-        }
-    };
-
     _initializeMemory() {
         if (!this._roomMemory.objectIds) {
             this._roomMemory.objectIds = {};
@@ -182,6 +202,10 @@ module.exports = class {
 
         if (!this._roomMemory.paths) {
             this._roomMemory.paths = {};
+        }
+
+        if (!this._roomMemory.lastUpdates) {
+            this._roomMemory.lastUpdates = {};
         }
     }
 
