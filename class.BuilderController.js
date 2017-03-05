@@ -12,48 +12,58 @@ module.exports = class extends CreepController {
         super(creep, room);
     }
 
-    work() {
+    _chooseAction() {
+        const currentAction = this._getAction();
+
         const remainingCapacity =
-            this._creep.carryCapacity - creep.carry.energy;
+            this._creep.carryCapacity - this._creep.carry.energy;
 
-        let currentAction = this._creep.memory.action;
-
-        if (!currentAction) {
-            currentAction = actionTypes.HARVESTING;
-        } else if (currentAction == actionTypes.HARVESTING && !remainingCapacity) {
-            currentAction = actionTypes.BUILDING;
-        } else if (currentAction == actionTypes.BUILDING && !this._creep.carry.energy) {
-            currentAction = actionTypes.HARVESTING;
-        }
-
-        if (currentAction == actionTypes.HARVESTING) {
-            const sources = this._room.findObjects(objectTypes.SOURCE);
-            const bestSource = sources[0];
-
-            if (this._creep.harvest(bestSource) == ERR_NOT_IN_RANGE) {
-                this._creep.moveTo(
-                    bestSource,
-                    {visualizePathStyle: {stroke: "#ffaa00"}}
-                );
-            }
-        } else if (currentAction == actionTypes.BUILDING) {
-            const targets = this._creep.room.find(FIND_CONSTRUCTION_SITES);
-
-            if (!targets.length) {
-                return;
-            }
-
-            const bestTarget = targets[0];
-
-            if (this._creep.build(bestTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                this._creep.moveTo(
-                    bestTarget,
-                    {visualizePathStyle: {stroke: '#ffffff'}}
-                );
+        if (currentAction.type == actionTypes.IDLE) {
+            if (remainingCapacity) {
+                this._harvestBestSource();
+            } else {
+                this._buildBestStructure();
             }
         }
 
-        creep.memory.action = currentAction;
+        if (currentAction.type == actionTypes.HARVESTING && !remainingCapacity) {
+            this._buildBestStructure();
+        }
+
+        if (currentAction.type == actionTypes.BUILDING && !this._creep.carry.energy) {
+            this._harvestBestSource();
+        }
+    }
+
+    _executeAction() {
+        const currentAction = this._getAction();
+
+        switch (currentAction.type) {
+            case actionTypes.IDLE:
+                break;
+            case actionTypes.HARVESTING:
+                // TODO cache objects by their ID
+                const source = Game.getObjectById(currentAction.targetId);
+                if (this._creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                    this._creep.moveTo(
+                        source,
+                        {visualizePathStyle: {stroke: "#ffaa00"}}
+                    );
+                }
+                break;
+            case actionTypes.BUILDING:
+                // TODO cache objects by their ID
+                const constructionSite = Game.getObjectById(currentAction.targetId);
+                if (this._creep.build(constructionSite, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    this._creep.moveTo(
+                        constructionSite,
+                        {visualizePathStyle: {stroke: '#ffffff'}}
+                    );
+                }
+                break;
+            default:
+                throw new Error(`Unknown action type: ${currentAction.type}`);
+        }
     }
 };
 

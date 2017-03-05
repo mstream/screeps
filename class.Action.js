@@ -21,8 +21,15 @@ class Action {
             throw new Error("unknown action type: " + type);
         }
 
-        if (!targetId) {
-            throw new Error("targetId can't be null");
+        if (type != actionTypes.IDLE) {
+
+            if (!targetId) {
+                throw new Error("targetId can't be null");
+            }
+
+            if (typeof targetId != "string") {
+                throw new Error("targetId should be a string");
+            }
         }
 
         this.type = type;

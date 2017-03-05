@@ -15,6 +15,12 @@ const schedulingFrequencies = {
     [taskTypes.PATH_COMPUTING]: 100
 };
 
+const objectTypesToFindMappings = {
+    SOURCE: FIND_SOURCES,
+    CONSTRUCTION_SITE: FIND_CONSTRUCTION_SITES
+
+};
+
 const getIds = (objects) => objects.map((object) => object.id);
 
 
@@ -109,26 +115,28 @@ module.exports = class {
         if (objects) {
             return objects;
         }
-        if (objectsType == objectTypes.ROOM_CONTROLLER) {
-            return [this._room.controller];
-        }
-        if (objectsType == objectTypes.SPAWN) {
-            const spawns = [];
-            _.forOwn(this._game.spawns, (spawn) => {
-                if (spawn.room.name != this._room.name) {
-                    return;
-                }
-                spawns.push(spawn);
-            });
-            this._objects[objectsType] = spawns;
-            this._roomMemory.objectIds[objectTypes.SPAWN] = getIds(spawns);
-            return spawns;
-        }
-        if (objectsType == objectTypes.SOURCE) {
-            const sources = this._room.find(FIND_SOURCES);
-            this._objects[objectsType] = sources;
-            this._roomMemory.objectIds[objectTypes.SOURCE] = getIds(sources);
-            return sources;
+        switch (objectsType) {
+            case objectTypes.CONTROLLER:
+                const controllers = [this._room.controller];
+                this._objects[objectsType] = controllers;
+                this._roomMemory.objectIds[objectTypes.CONTROLLER] = getIds(controllers);
+                return controllers;
+            case objectTypes.SPAWN:
+                const spawns = [];
+                _.forOwn(this._game.spawns, (spawn) => {
+                    if (spawn.room.name != this._room.name) {
+                        return;
+                    }
+                    spawns.push(spawn);
+                });
+                this._objects[objectsType] = spawns;
+                this._roomMemory.objectIds[objectTypes.SPAWN] = getIds(spawns);
+                return spawns;
+            default:
+                const objects = this._room.find(objectTypesToFindMappings[objectsType]);
+                this._objects[objectsType] = objects;
+                this._roomMemory.objectIds[objectsType] = getIds(objects);
+                return objects;
         }
     }
 
@@ -185,7 +193,7 @@ module.exports = class {
             this.findObjects(objectTypes.SPAWN).forEach((spawn) => {
                 this._requestPathCalculation(source, spawn)
             });
-            this.findObjects(objectTypes.ROOM_CONTROLLER).forEach((roomCtrl) => {
+            this.findObjects(objectTypes.CONTROLLER).forEach((roomCtrl) => {
                 this._requestPathCalculation(source, roomCtrl)
             });
         });

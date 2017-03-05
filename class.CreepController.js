@@ -1,3 +1,6 @@
+const actionTypes = require("const.actionTypes");
+const objectTypes = require("const.objectTypes");
+
 const Action = require("class.Action");
 
 const statusTextStyle = {
@@ -25,7 +28,8 @@ module.exports = class {
     }
 
     work() {
-        throw new Error("creep behaviour should be implemented");
+        this._chooseAction();
+        this._executeAction();
     }
 
     _drawStatus() {
@@ -44,9 +48,97 @@ module.exports = class {
     }
 
     _initializeMemory() {
-        if (!this._creepMemory.action) {
-            this._creepMemory.action = Action.idle();
+        if (!this._getAction()) {
+            this._setAction(Action.idle());
         }
+    }
+
+    _harvestBestSource() {
+        const sources = this._room.findObjects(objectTypes.SOURCE);
+        const bestSource = _.sortBy(
+            sources,
+            (source) => this._room.harvestersAssignedToSource(source)
+        )[0];
+
+        this._setAction(new Action(
+            actionTypes.HARVESTING,
+            bestSource.id
+        ));
+
+        this._room.assignHarvesterTo(bestSource);
+    }
+
+    _transferToBestSpawn() {
+        const currentAction = this._getAction();
+
+        if (currentAction.type == actionTypes.HARVESTING) {
+            // TODO cache objects by their ID
+            const source = Game.getObjectById(currentAction.targetId);
+            this._room.unassignHarvesterFrom(source);
+        }
+
+        const spawns = this._room.findObjects(objectTypes.SPAWN);
+        const spawnsWithRemainingCapacity = _.filter(
+            spawns,
+            (spawn) => spawn.energy < spawn.energyCapacity
+        );
+
+        if (!spawnsWithRemainingCapacity.length) {
+            this._setAction(Action.idle());
+            return;
+        }
+
+        const bestSpawn = spawnsWithRemainingCapacity[0];
+
+        this._setAction(new Action(
+            actionTypes.TRANSFERRING,
+            bestSpawn.id
+        ));
+    }
+
+    _buildBestStructure() {
+        const currentAction = this._getAction();
+
+        if (currentAction.type == actionTypes.HARVESTING) {
+            // TODO cache objects by their ID
+            const source = Game.getObjectById(currentAction.targetId);
+            this._room.unassignHarvesterFrom(source);
+        }
+
+        const constructionSites = this._room.findObjects(objectTypes.CONSTRUCTION_SITE);
+
+        if (!constructionSites.length) {
+            this._setAction(Action.idle());
+            return;
+        }
+
+        const bestConstructionSite = constructionSites[0];
+
+        this._setAction(new Action(
+            actionTypes.BUILDING,
+            bestConstructionSite.id
+        ));
+    }
+
+    _upgradeController() {
+
+        const controller = this._room.findObjects(objectTypes.CONTROLLER)[0];
+
+        this._setAction(new Action(
+            actionTypes.UPGRADING,
+            controller.id
+        ));
+    }
+
+    _setAction(action) {
+        if (typeof action != "object" || typeof action.type != "string") {
+            throw new Error("action type is not supported: " + action);
+        }
+        this._creep.memory.action = action;
+    }
+
+    _getAction() {
+        return this._creep.memory.action;
     }
 };
 

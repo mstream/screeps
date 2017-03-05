@@ -12,41 +12,58 @@ module.exports = class extends CreepController {
         super(creep, room);
     }
 
-    work() {
+    _chooseAction() {
+        const currentAction = this._getAction();
+
         const remainingCapacity =
             this._creep.carryCapacity - this._creep.carry.energy;
-        let currentAction = this._creep.memory.action;
 
-        if (currentAction.type == actionTypes.IDLE && remainingCapacity) {
-            currentAction = actionTypes.HARVESTING;
-        } else if (currentAction == actionTypes.HARVESTING && !remainingCapacity) {
-            currentAction = actionTypes.UPGRADING;
-        } else if (currentAction == actionTypes.UPGRADING && !this._creep.carry.energy) {
-            currentAction = actionTypes.HARVESTING;
-        }
-
-        if (currentAction == actionTypes.HARVESTING) {
-            const sources = this._room.findObjects(objectTypes.SOURCE);
-            const bestSource = sources[0];
-
-            if (this._creep.harvest(bestSource) == ERR_NOT_IN_RANGE) {
-                this._creep.moveTo(
-                    bestSource,
-                    {visualizePathStyle: {stroke: "#ffaa00"}}
-                );
-            }
-        } else if (currentAction == actionTypes.UPGRADING) {
-            const controller = this._creep.room.controller;
-
-            if (this._creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
-                this._creep.moveTo(
-                    controller,
-                    {visualizePathStyle: {stroke: '#ffffff'}}
-                );
+        if (currentAction.type == actionTypes.IDLE) {
+            if (remainingCapacity) {
+                this._harvestBestSource();
+            } else {
+                this._upgradeController();
             }
         }
 
-        this._creep.memory.action = currentAction;
+        if (currentAction.type == actionTypes.HARVESTING && !remainingCapacity) {
+            this._upgradeController();
+        }
+
+        if (currentAction.type == actionTypes.UPGRADING && !this._creep.carry.energy) {
+            this._harvestBestSource();
+        }
+    }
+
+    _executeAction() {
+        const currentAction = this._getAction();
+
+        switch (currentAction.type) {
+            case actionTypes.IDLE:
+                break;
+            case actionTypes.HARVESTING:
+                // TODO cache objects by their ID
+                const source = Game.getObjectById(currentAction.targetId);
+                if (this._creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                    this._creep.moveTo(
+                        source,
+                        {visualizePathStyle: {stroke: "#ffaa00"}}
+                    );
+                }
+                break;
+            case actionTypes.UPGRADING:
+                const controller = this._room.findObjects(objectTypes.CONTROLLER)[0];
+
+                if (this._creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
+                    this._creep.moveTo(
+                        controller,
+                        {visualizePathStyle: {stroke: '#ffffff'}}
+                    );
+                }
+                break;
+            default:
+                throw new Error(`Unknown action type: ${currentAction.type}`);
+        }
     }
 };
 

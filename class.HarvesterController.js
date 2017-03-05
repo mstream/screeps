@@ -12,56 +12,57 @@ module.exports = class extends CreepController {
         super(creep, room);
     }
 
-    work() {
+    _chooseAction() {
+        const currentAction = this._getAction();
+
         const remainingCapacity =
             this._creep.carryCapacity - this._creep.carry.energy;
 
-        if (remainingCapacity) {
-            const sources = this._room.findObjects(objectTypes.SOURCE);
-            const bestSource = _.sortBy(sources, (source) =>
-                room.harvestersAssignedToSource(source)
-            )[0];
-            this._creep.memory.action = new Action(
-                actionTypes.HARVESTING,
-                bestSource.id
-            );
-            this._room.assignHarvesterTo(bestSource);
-            if (this._creep.harvest(bestSource) == ERR_NOT_IN_RANGE) {
-                this._creep.moveTo(
-                    bestSource,
-                    {visualizePathStyle: {stroke: "#ffaa00"}}
-                );
+        if (currentAction.type == actionTypes.IDLE) {
+            if (remainingCapacity) {
+                this._harvestBestSource();
+            } else {
+                this._transferToBestSpawn();
             }
-        } else {
-            const spawns = this._room.findObjects(objectTypes.SPAWN);
-            const spawnsNeedingEnergy = _.filter(
-                spawns,
-                (spawn) => spawn.energy < spawn.energyCapacity
-            );
+        }
 
-            if (!spawnsNeedingEnergy.length) {
-                return;
-            }
+        if (currentAction.type == actionTypes.HARVESTING && !remainingCapacity) {
+            this._transferToBestSpawn();
+        }
 
-            const bestSpawn = spawnsNeedingEnergy[0];
+        if (currentAction.type == actionTypes.TRANSFERRING && !this._creep.carry.energy) {
+            this._harvestBestSource();
+        }
+    }
 
-            // TODO cache objects by their ID
-            if (this._creep.memory.action.type == actionTypes.HARVESTING) {
-                const source = Game.getObjectById(this._creep.memory.action.targetId);
-                this._room.unassignHarvesterFrom(source);
-            }
+    _executeAction() {
+        const currentAction = this._getAction();
 
-            this._creep.memory.action = new Action(
-                actionTypes.CARRYING_ENERGY,
-                bestSpawn
-            );
-
-            if (this._creep.transfer(bestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                this._creep.moveTo(
-                    bestSpawn,
-                    {visualizePathStyle: {stroke: '#ffffff'}}
-                );
-            }
+        switch (currentAction.type) {
+            case actionTypes.IDLE:
+                break;
+            case actionTypes.HARVESTING:
+                // TODO cache objects by their ID
+                const source = Game.getObjectById(currentAction.targetId);
+                if (this._creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                    this._creep.moveTo(
+                        source,
+                        {visualizePathStyle: {stroke: "#ffaa00"}}
+                    );
+                }
+                break;
+            case actionTypes.TRANSFERRING:
+                // TODO cache objects by their ID
+                const spawn = Game.getObjectById(currentAction.targetId);
+                if (this._creep.transfer(spawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    this._creep.moveTo(
+                        spawn,
+                        {visualizePathStyle: {stroke: '#ffffff'}}
+                    );
+                }
+                break;
+            default:
+                throw new Error(`Unknown action type: ${currentAction.type}`);
         }
     }
 };
