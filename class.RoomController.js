@@ -11,7 +11,7 @@ const Path = require("class.Path");
 const Task = require("class.Task");
 
 
-const schedulingFrequency = {
+const schedulingFrequencies = {
     [taskTypes.PATH_COMPUTING]: 100
 };
 
@@ -130,8 +130,8 @@ module.exports = class {
     };
 
     _scheduleTasks() {
-        _.forOwn(schedulingFrequency, (frequency, taskType) => {
-            const lastUpdate = this._roomMemory.lastUpdates[taskTypes];
+        _.forOwn(schedulingFrequencies, (frequency, taskType) => {
+            const lastUpdate = this._roomMemory.lastUpdates[taskType];
             const gameTime = this._game.time;
             if (lastUpdate && gameTime - lastUpdate < frequency) {
                 return;
@@ -140,7 +140,7 @@ module.exports = class {
             if (taskType == taskTypes.PATH_COMPUTING) {
                 this._requestPathsCalculation();
             }
-            this._roomMemory.lastUpdates[taskTypes] = gameTime;
+            this._roomMemory.lastUpdates[taskType] = gameTime;
         });
     }
 
