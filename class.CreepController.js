@@ -21,6 +21,9 @@ module.exports = class {
 
         this._creep = creep;
         this._roomController = roomController;
+        this._creepMemory = creep.memory;
+
+        this._initializeMemory();
     }
 
     work() {
@@ -37,6 +40,12 @@ module.exports = class {
         }
 
         action(this._creep, this._roomController);
+    }
+
+    _initializeMemory() {
+        if (!this._creepMemory.action) {
+            this._creepMemory.action = {};
+        }
     }
 };
 

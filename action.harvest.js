@@ -1,5 +1,7 @@
+const actionTypes = require("const.actionTypes");
 const objectTypes = require("const.objectTypes");
 
+const Action = require("class.Action");
 
 module.exports = (creep, roomController) => {
 
@@ -7,8 +9,14 @@ module.exports = (creep, roomController) => {
 
     if (remainingEnergyCapacity) {
         const sources = roomController.findObjects(objectTypes.SOURCE);
-        const bestSource = sources[0];
-
+        const bestSource = _.sortBy(sources, (source) =>
+            roomController.harvestersAssignedToSource(source)
+        )[0];
+        creep.memory.action = new Action(
+            actionTypes.HARVESTING,
+            bestSource.id
+        );
+        roomController.assignHarvesterTo(bestSource);
         if (creep.harvest(bestSource) == ERR_NOT_IN_RANGE) {
             creep.moveTo(bestSource, {visualizePathStyle: {stroke: "#ffaa00"}});
         }
@@ -24,6 +32,17 @@ module.exports = (creep, roomController) => {
         }
 
         const bestSpawn = spawnsNeedingEnergy[0];
+
+        // TODO cache objects by their ID
+        if (creep.memory.action.type == actionTypes.HARVESTING) {
+            const source = Game.getObjectById(creep.memory.action.target);
+            roomController.unassignHarvesterFrom(source);
+        }
+
+        creep.memory.action = new Action(
+            actionTypes.CARRYING_ENERGY,
+            bestSpawn
+        );
 
         if (creep.transfer(bestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             creep.moveTo(bestSpawn, {visualizePathStyle: {stroke: '#ffffff'}});

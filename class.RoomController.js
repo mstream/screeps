@@ -104,7 +104,6 @@ module.exports = class {
         );
     }
 
-
     findObjects(objectsType) {
         const objects = this._objects[objectsType];
         if (objects) {
@@ -131,7 +130,36 @@ module.exports = class {
             this._roomMemory.objectIds[objectTypes.SOURCE] = getIds(sources);
             return sources;
         }
-    };
+    }
+
+    harvestersAssignedToSource(source) {
+        const sourceId = source.id;
+        const sourceMemory = this._roomMemory.objects[sourceId];
+        if (!sourceMemory || !sourceMemory.harvesters) {
+            return 0;
+        }
+        return sourceMemory.harvesters;
+    }
+
+    assignHarvesterTo(source) {
+        const sourceId = source.id;
+        if (!this._roomMemory.objects[sourceId]) {
+            this._roomMemory.objects[sourceId] = {
+                harvesters: 0
+            }
+        }
+        this._roomMemory.objects[sourceId].harvesters++;
+    }
+
+    unassignHarvesterFrom(source) {
+        const sourceId = source.id;
+        const sourceMemory = this._roomMemory.objects[sourceId];
+        if (!sourceMemory || !sourceMemory.harvesters) {
+            throw new Error(
+                `no harvester has ever being assign to source ${sourceId}`);
+        }
+        sourceMemory.harvesters--;
+    }
 
     _scheduleTasks() {
         _.forOwn(schedulingFrequencies, (frequency, taskType) => {
@@ -198,6 +226,10 @@ module.exports = class {
     _initializeMemory() {
         if (!this._roomMemory.objectIds) {
             this._roomMemory.objectIds = {};
+        }
+
+        if (!this._roomMemory.objects) {
+            this._roomMemory.objects = {};
         }
 
         if (!this._roomMemory.tasks) {
