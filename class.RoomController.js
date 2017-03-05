@@ -6,6 +6,7 @@ const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
 const generateRoadPath = require("func.generateRoadPath");
 
 const Cord = require("class.Cord");
+const RoomLogger = require("class.RoomLogger");
 const Path = require("class.Path");
 const Task = require("class.Task");
 
@@ -31,6 +32,7 @@ module.exports = class {
 
         this._room = room;
         this._game = game;
+        this._logger = new RoomLogger(room);
 
         if (!memory.rooms) {
             memory.rooms = {};
@@ -63,15 +65,20 @@ module.exports = class {
 
         if (task.type == taskTypes.PATH_COMPUTING) {
             const path = Path.fromJSON(task.options.path);
+            const pathHash = path.hash;
+            this._logger.info(`started path calculation: ${pathHash}`);
             const result = generateRoadPath(
                 this._cordToPos(path.from),
                 this._cordToPos(path.to)
             );
             if (result.incomplete) {
-                console.log("could not finish a path calculation");
+                this._logger.warn(
+                    `could not finish path calculation: ${pathHash}`
+                );
                 return;
             }
-            this._roomMemory.paths[path.hash] =
+            this._logger.info(`finished path calculation: ${pathHash}`);
+            this._roomMemory.paths[pathHash] =
                 _.map(result.path, pos => Cord.fromPos(pos));
             this._completeLastTask();
         }
@@ -142,8 +149,7 @@ module.exports = class {
             return objects;
         }
         if (objectsType == objectTypes.ROOM_CONTROLLER) {
-            const controllers = [this._room.controller];
-            return controllers;
+            return [this._room.controller];
         }
         if (objectsType == objectTypes.SPAWN) {
             const spawns = [];
