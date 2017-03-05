@@ -7,6 +7,10 @@ class Action {
         return new Action(type, targetId);
     }
 
+    static idle() {
+        return new Action(actionTypes.IDLE, null);
+    }
+
     constructor(type, targetId) {
 
         if (!type) {

@@ -1,10 +1,4 @@
-const roles = require("const.roles");
-
-const actions = new Map([
-    [roles.BUILDER, require("action.build")],
-    [roles.HARVESTER, require("action.harvest")],
-    [roles.UPGRADER, require("action.upgrade")]
-]);
+const Action = require("class.Action");
 
 const statusTextStyle = {
     font: 0.5
@@ -12,18 +6,18 @@ const statusTextStyle = {
 
 module.exports = class {
 
-    constructor(creep, roomController) {
+    constructor(creep, room) {
 
         if (!creep) {
             throw new Error("creep can't be null");
         }
 
-        if (!roomController) {
-            throw new Error("roomController can't be null");
+        if (!room) {
+            throw new Error("room can't be null");
         }
 
         this._creep = creep;
-        this._roomController = roomController;
+        this._room = room;
         this._creepMemory = creep.memory;
 
         this._initializeMemory();
@@ -31,19 +25,7 @@ module.exports = class {
     }
 
     work() {
-        const creepRole = this._creep.memory.role;
-
-        if (!creepRole) {
-            throw new Error("no role assigned to creep: " + this._creep.name);
-        }
-
-        const action = actions.get(creepRole);
-
-        if (!action) {
-            throw new Error("no action for role: " + creepRole);
-        }
-
-        action(this._creep, this._roomController);
+        throw new Error("creep behaviour should be implemented");
     }
 
     _drawStatus() {
@@ -53,7 +35,7 @@ module.exports = class {
 
         const status = `${creepRole} (${currentHp}/${maxHp})`;
 
-        this._roomController.drawText(
+        this._room.drawText(
             this._creep.pos.x,
             this._creep.pos.y - 0.5,
             statusTextStyle,
@@ -63,7 +45,7 @@ module.exports = class {
 
     _initializeMemory() {
         if (!this._creepMemory.action) {
-            this._creepMemory.action = {};
+            this._creepMemory.action = Action.idle();
         }
     }
 };

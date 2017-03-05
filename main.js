@@ -1,6 +1,6 @@
 const clearCreepsMemory = require("func.clearCreepsMemory");
+const createController = require("func.createController");
 
-const CreepController = require("class.CreepController");
 const RoomController = require("class.RoomController");
 
 
@@ -20,7 +20,7 @@ module.exports.loop = () => {
             if (room.name != creep.room.name) {
                 return;
             }
-            const creepController = new CreepController(creep, roomController);
+            const creepController = createController(creep, roomController);
             creepController.work();
         });
     });
