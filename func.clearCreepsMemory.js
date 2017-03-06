@@ -4,7 +4,7 @@ module.exports = () => {
         return;
     }
 
-    _.keys(Memory.creeps, (creepName) => {
+    _.keys(Memory.creeps).forEach((creepName) => {
         const creepDead = !Game.creeps[creepName];
         if (creepDead) {
             delete Memory.creeps[creepName];
