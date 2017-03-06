@@ -23,6 +23,8 @@ const objectTypesToFindMappings = {
 
 const getIds = (objects) => objects.map((object) => object.id);
 
+const roomSize = 50;
+
 
 module.exports = class {
 
@@ -169,11 +171,32 @@ module.exports = class {
         sourceMemory.harvesters--;
     }
 
+    buildRoadBlueprints() {
+        const paths = this._roomMemory.paths;
+
+        if (!paths) {
+            return;
+        }
+
+        _.forOwn(paths, (pathSegments) => {
+            if (!pathSegments || !pathSegments.length) {
+                return;
+            }
+            pathSegments.forEach((pathSegment) =>
+                this._room.createConstructionSite(
+                    this._cordToPos(pathSegment),
+                    STRUCTURE_ROAD
+                )
+            );
+        });
+    }
+
     drawText(x, y, style, text) {
         this._room.visual.text(text, x, y, style);
     }
 
     _scheduleTasks() {
+        this._requestExitsCalculation();
         _.forOwn(schedulingFrequencies, (frequency, taskType) => {
             const lastUpdate = this._roomMemory.lastUpdates[taskType];
             const gameTime = this._game.time;
@@ -215,24 +238,149 @@ module.exports = class {
         this._queueTask(task);
     }
 
-    buildRoadBlueprints() {
-        const paths = this._roomMemory.paths;
+    _requestExitsCalculation() {
+        const exits = this._roomMemory.exits;
 
-        if (!paths) {
+        if (exits.top && exits.right && exits.bottom && exits.left) {
             return;
         }
 
-        _.forOwn(paths, (pathSegments) => {
-            if (!pathSegments || !pathSegments.length) {
-                return;
+        this._calculateTopExit();
+        this._calculateRightExit();
+        this._calculateBottomExit();
+        this._calculateLeftExit();
+    }
+
+    _calculateTopExit() {
+
+        const terrain = this._room.lookForAtArea(
+            LOOK_TERRAIN, 0, 0, 0, roomSize - 1
+        );
+
+        const exits = [];
+
+        for (let x = 0, start = null, end = null; x < roomSize; x++) {
+
+            const structures = terrain[0][x];
+            const wall = structures && structures[0] == "wall";
+
+            if (wall || x == roomSize - 1) {
+                if (start != null) {
+                    exits.push(new Path(
+                        new Cord(start, 0),
+                        new Cord(end, 0))
+                    );
+                    start = null;
+                    end = null;
+                }
+                continue;
             }
-            pathSegments.forEach((pathSegment) =>
-                this._room.createConstructionSite(
-                    this._cordToPos(pathSegment),
-                    STRUCTURE_ROAD
-                )
-            );
-        });
+            if (!start) {
+                start = x;
+            }
+            end = x;
+        }
+
+        this._roomMemory.exits.top = exits;
+    }
+
+    _calculateRightExit() {
+
+        const terrain = this._room.lookForAtArea(
+            LOOK_TERRAIN, 0, roomSize - 1, roomSize - 1, roomSize - 1
+        );
+
+        const exits = [];
+
+        for (let y = 0, start = null, end = null; y < roomSize; y++) {
+
+            const structures = terrain[y][roomSize - 1];
+            const wall = structures && structures[0] == "wall";
+
+            if (wall || y == roomSize - 1) {
+                if (start != null) {
+                    exits.push(new Path(
+                        new Cord(roomSize - 1, start),
+                        new Cord(roomSize - 1, end))
+                    );
+                    start = null;
+                    end = null;
+                }
+                continue;
+            }
+            if (!start) {
+                start = y;
+            }
+            end = y;
+        }
+
+        this._roomMemory.exits.right = exits;
+    }
+
+    _calculateBottomExit() {
+
+        const terrain = this._room.lookForAtArea(
+            LOOK_TERRAIN, roomSize - 1, 0, roomSize - 1, roomSize - 1
+        );
+
+        const exits = [];
+
+        for (let x = 0, start = null, end = null; x < roomSize; x++) {
+
+            const structures = terrain[roomSize - 1][x];
+            const wall = structures && structures[0] == "wall";
+
+            if (wall || x == roomSize - 1) {
+                if (start != null) {
+                    exits.push(new Path(
+                        new Cord(start, roomSize - 1),
+                        new Cord(end, roomSize - 1))
+                    );
+                    start = null;
+                    end = null;
+                }
+                continue;
+            }
+            if (!start) {
+                start = x;
+            }
+            end = x;
+        }
+
+        this._roomMemory.exits.bottom = exits;
+    }
+
+    _calculateLeftExit() {
+
+        const terrain = this._room.lookForAtArea(
+            LOOK_TERRAIN, 0, 0, roomSize - 1, 0
+        );
+
+        const exits = [];
+
+        for (let y = 0, start = null, end = null; y < roomSize; y++) {
+
+            const structures = terrain[y][0];
+            const wall = structures && structures[0] == "wall";
+
+            if (wall || y == roomSize - 1) {
+                if (start != null) {
+                    exits.push(new Path(
+                        new Cord(0, start),
+                        new Cord(0, end))
+                    );
+                    start = null;
+                    end = null;
+                }
+                continue;
+            }
+            if (!start) {
+                start = y;
+            }
+            end = y;
+        }
+
+        this._roomMemory.exits.left = exits;
     }
 
     _initializeMemory() {
@@ -254,6 +402,15 @@ module.exports = class {
 
         if (!this._roomMemory.lastUpdates) {
             this._roomMemory.lastUpdates = {};
+        }
+
+        if (!this._roomMemory.exits) {
+            this._roomMemory.exits = {
+                top: null,
+                right: null,
+                bottom: null,
+                left: null
+            };
         }
     }
 

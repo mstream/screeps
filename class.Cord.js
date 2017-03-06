@@ -10,12 +10,20 @@ class Cord {
 
     constructor(x, y) {
 
-        if (!x) {
+        if (x == null) {
             throw new Error("x can't be null");
         }
 
-        if (!y) {
+        if (typeof x != "number") {
+            throw new Error("x has to be a number");
+        }
+
+        if (y == null) {
             throw new Error("y can't be null");
+        }
+
+        if (typeof y != "number") {
+            throw new Error("y has to be a number");
         }
 
         this.x = x;
