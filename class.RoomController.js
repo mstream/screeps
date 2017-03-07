@@ -6,6 +6,7 @@ const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
 const generateRoadPath = require("func.generateRoadPath");
 
 const Cord = require("class.Cord");
+const ExitsCalculator = require("class.ExitsCalculator");
 const RoomLogger = require("class.RoomLogger");
 const Path = require("class.Path");
 const Task = require("class.Task");
@@ -22,9 +23,6 @@ const objectTypesToFindMappings = {
 };
 
 const getIds = (objects) => objects.map((object) => object.id);
-
-const roomSize = 50;
-
 
 module.exports = class {
 
@@ -59,6 +57,10 @@ module.exports = class {
         this._initializeMemory();
         this._loadObjectsFromMemory();
         this._scheduleTasks();
+    }
+
+    objectsInArea(type, top, left, bottom, right) {
+        return this._room.lookForAtArea(type, top, left, bottom, right);
     }
 
     executeTasks() {
@@ -101,10 +103,18 @@ module.exports = class {
 
             case taskTypes.EXITS_COMPUTING:
                 const edge = task.options.edge;
+
+                if (edge != "top" && edge != "right" && edge != "bottom" && edge != "left") {
+                    throw new Error(`unknown room edge ${edge}`);
+                }
+
                 const upperFirstEdge =
                     edge.charAt(0).toUpperCase() + edge.slice(1);
-                const calculationMethod = `_calculate${upperFirstEdge}Exits`;
-                this[calculationMethod]();
+
+                const calculationMethod = `calculate${upperFirstEdge}Exits`;
+                const exitsCalculator = new ExitsCalculator(this);
+                const exits = exitsCalculator[calculationMethod]();
+                this._roomMemory.exits[edge] = exits;
                 break;
 
             default:
@@ -115,15 +125,15 @@ module.exports = class {
 
     buildCreeps() {
 
-        const sorcesNumber = this.findObjects(objectTypes.SOURCE).length;
+        const sourcesNumber = this.findObjects(objectTypes.SOURCE).length;
 
         buildCreepsIfNeeded(
             this._game,
             this.findObjects(objectTypes.SPAWN)[0],
             {
-                [roles.HARVESTER]: sorcesNumber,
-                [roles.UPGRADER]: sorcesNumber,
-                [roles.BUILDER]: sorcesNumber
+                [roles.HARVESTER]: sourcesNumber,
+                [roles.UPGRADER]: sourcesNumber,
+                [roles.BUILDER]: sourcesNumber
             }
         );
     }
@@ -211,6 +221,10 @@ module.exports = class {
         this._room.visual.text(text, x, y, style);
     }
 
+    get size() {
+        return 50;
+    }
+
     _scheduleTasks() {
         this._requestExitsCalculation();
         _.forOwn(schedulingFrequencies, (frequency, taskType) => {
@@ -266,138 +280,6 @@ module.exports = class {
                 {edge}
             ));
         });
-    }
-
-    _calculateTopExits() {
-
-        const terrain = this._room.lookForAtArea(
-            LOOK_TERRAIN, 0, 0, 0, roomSize - 1
-        );
-
-        const exits = [];
-
-        for (let x = 0, start = null, end = null; x < roomSize; x++) {
-
-            const structures = terrain[0][x];
-            const wall = structures && structures[0] == "wall";
-
-            if (wall || x == roomSize - 1) {
-                if (start != null) {
-                    exits.push(new Path(
-                        new Cord(start, 0),
-                        new Cord(end, 0))
-                    );
-                    start = null;
-                    end = null;
-                }
-                continue;
-            }
-            if (!start) {
-                start = x;
-            }
-            end = x;
-        }
-
-        this._roomMemory.exits.top = exits;
-    }
-
-    _calculateRightExits() {
-
-        const terrain = this._room.lookForAtArea(
-            LOOK_TERRAIN, 0, roomSize - 1, roomSize - 1, roomSize - 1
-        );
-
-        const exits = [];
-
-        for (let y = 0, start = null, end = null; y < roomSize; y++) {
-
-            const structures = terrain[y][roomSize - 1];
-            const wall = structures && structures[0] == "wall";
-
-            if (wall || y == roomSize - 1) {
-                if (start != null) {
-                    exits.push(new Path(
-                        new Cord(roomSize - 1, start),
-                        new Cord(roomSize - 1, end))
-                    );
-                    start = null;
-                    end = null;
-                }
-                continue;
-            }
-            if (!start) {
-                start = y;
-            }
-            end = y;
-        }
-
-        this._roomMemory.exits.right = exits;
-    }
-
-    _calculateBottomExits() {
-
-        const terrain = this._room.lookForAtArea(
-            LOOK_TERRAIN, roomSize - 1, 0, roomSize - 1, roomSize - 1
-        );
-
-        const exits = [];
-
-        for (let x = 0, start = null, end = null; x < roomSize; x++) {
-
-            const structures = terrain[roomSize - 1][x];
-            const wall = structures && structures[0] == "wall";
-
-            if (wall || x == roomSize - 1) {
-                if (start != null) {
-                    exits.push(new Path(
-                        new Cord(start, roomSize - 1),
-                        new Cord(end, roomSize - 1))
-                    );
-                    start = null;
-                    end = null;
-                }
-                continue;
-            }
-            if (!start) {
-                start = x;
-            }
-            end = x;
-        }
-
-        this._roomMemory.exits.bottom = exits;
-    }
-
-    _calculateLeftExits() {
-
-        const terrain = this._room.lookForAtArea(
-            LOOK_TERRAIN, 0, 0, roomSize - 1, 0
-        );
-
-        const exits = [];
-
-        for (let y = 0, start = null, end = null; y < roomSize; y++) {
-
-            const structures = terrain[y][0];
-            const wall = structures && structures[0] == "wall";
-
-            if (wall || y == roomSize - 1) {
-                if (start != null) {
-                    exits.push(new Path(
-                        new Cord(0, start),
-                        new Cord(0, end))
-                    );
-                    start = null;
-                    end = null;
-                }
-                continue;
-            }
-            if (!start) {
-                start = y;
-            }
-            end = y;
-        }
-
-        this._roomMemory.exits.left = exits;
     }
 
     _initializeMemory() {
