@@ -2,7 +2,7 @@ const taskTypes = require("const.taskTypes");
 
 const taskCost = {
     [taskTypes.EXITS_COMPUTING]: 10,
-    [taskTypes.PATH_COMPUTING]: 10
+    [taskTypes.PATH_COMPUTING]: 20
 };
 
 

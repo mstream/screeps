@@ -9,20 +9,18 @@ const Cord = require("class.Cord");
 const ExitsCalculator = require("class.ExitsCalculator");
 const RoomLogger = require("class.RoomLogger");
 const Path = require("class.Path");
-const Task = require("class.Task");
+const TaskScheduler = require("class.TaskScheduler");
 
-
-const schedulingFrequencies = {
-    [taskTypes.PATH_COMPUTING]: 100
-};
 
 const objectTypesToFindMappings = {
     SOURCE: FIND_SOURCES,
     CONSTRUCTION_SITE: FIND_CONSTRUCTION_SITES
-
 };
 
+const REQUESTED = "REQUESTED";
+
 const getIds = (objects) => objects.map((object) => object.id);
+
 
 module.exports = class {
 
@@ -52,19 +50,42 @@ module.exports = class {
             memory.rooms[room.name] = {};
         }
 
-        this._roomMemory = memory.rooms[room.name];
+        this._memory = memory.rooms[room.name];
+
+        this._taskScheduler = new TaskScheduler(
+            this._game, this, this._memory, this._logger
+        );
 
         this._initializeMemory();
         this._loadObjectsFromMemory();
         this._scheduleTasks();
     }
 
-    objectsInArea(type, top, left, bottom, right) {
-        return this._room.lookForAtArea(type, top, left, bottom, right);
+    _initializeMemory() {
+        if (!this._memory.objectIds) {
+            this._memory.objectIds = {};
+        }
+
+        if (!this._memory.objects) {
+            this._memory.objects = {};
+        }
+
+        if (!this._memory.paths) {
+            this._memory.paths = {};
+        }
+
+        if (!this._memory.exits) {
+            this._memory.exits = {
+                top: null,
+                right: null,
+                bottom: null,
+                left: null
+            };
+        }
     }
 
     executeTasks() {
-        const task = this._nextTask();
+        const task = this._taskScheduler.nextTask();
 
         if (!task) {
             return;
@@ -97,7 +118,7 @@ module.exports = class {
                     return;
                 }
                 this._logger.info(`finished path calculation: ${pathHash}`);
-                this._roomMemory.paths[pathHash] =
+                this._memory.paths[pathHash] =
                     _.map(result.path, pos => Cord.fromPos(pos));
                 break;
 
@@ -112,15 +133,17 @@ module.exports = class {
                     edge.charAt(0).toUpperCase() + edge.slice(1);
 
                 const calculationMethod = `calculate${upperFirstEdge}Exits`;
+                this._logger.info(`started exits calculation: ${edge}`);
                 const exitsCalculator = new ExitsCalculator(this);
                 const exits = exitsCalculator[calculationMethod]();
-                this._roomMemory.exits[edge] = exits;
+                this._memory.exits[edge] = exits;
+                this._logger.info(`finished exits calculation: ${edge}`);
                 break;
 
             default:
                 throw new Error(`unknown task type in the queue: ${taskType}`);
         }
-        this._completeLastTask();
+        this._taskScheduler.completeLastTask();
     }
 
     buildCreeps() {
@@ -138,6 +161,10 @@ module.exports = class {
         );
     }
 
+    objectsInArea(type, top, left, bottom, right) {
+        return this._room.lookForAtArea(type, top, left, bottom, right);
+    }
+
     findObjects(objectsType) {
         const objects = this._objects[objectsType];
         if (objects) {
@@ -147,7 +174,7 @@ module.exports = class {
             case objectTypes.CONTROLLER:
                 const controllers = [this._room.controller];
                 this._objects[objectsType] = controllers;
-                this._roomMemory.objectIds[objectTypes.CONTROLLER] = getIds(controllers);
+                this._memory.objectIds[objectTypes.CONTROLLER] = getIds(controllers);
                 return controllers;
             case objectTypes.SPAWN:
                 const spawns = [];
@@ -158,19 +185,19 @@ module.exports = class {
                     spawns.push(spawn);
                 });
                 this._objects[objectsType] = spawns;
-                this._roomMemory.objectIds[objectTypes.SPAWN] = getIds(spawns);
+                this._memory.objectIds[objectTypes.SPAWN] = getIds(spawns);
                 return spawns;
             default:
                 const objects = this._room.find(objectTypesToFindMappings[objectsType]);
                 this._objects[objectsType] = objects;
-                this._roomMemory.objectIds[objectsType] = getIds(objects);
+                this._memory.objectIds[objectsType] = getIds(objects);
                 return objects;
         }
     }
 
     harvestersAssignedToSource(source) {
         const sourceId = source.id;
-        const sourceMemory = this._roomMemory.objects[sourceId];
+        const sourceMemory = this._memory.objects[sourceId];
         if (!sourceMemory || !sourceMemory.harvesters) {
             return 0;
         }
@@ -179,17 +206,17 @@ module.exports = class {
 
     assignHarvesterTo(source) {
         const sourceId = source.id;
-        if (!this._roomMemory.objects[sourceId]) {
-            this._roomMemory.objects[sourceId] = {
+        if (!this._memory.objects[sourceId]) {
+            this._memory.objects[sourceId] = {
                 harvesters: 0
             }
         }
-        this._roomMemory.objects[sourceId].harvesters++;
+        this._memory.objects[sourceId].harvesters++;
     }
 
     unassignHarvesterFrom(source) {
         const sourceId = source.id;
-        const sourceMemory = this._roomMemory.objects[sourceId];
+        const sourceMemory = this._memory.objects[sourceId];
         if (!sourceMemory || !sourceMemory.harvesters) {
             throw new Error(
                 `no harvester has ever being assign to source ${sourceId}`);
@@ -198,14 +225,14 @@ module.exports = class {
     }
 
     buildRoadBlueprints() {
-        const paths = this._roomMemory.paths;
+        const paths = this._memory.paths;
 
         if (!paths) {
             return;
         }
 
         _.forOwn(paths, (pathSegments) => {
-            if (!pathSegments || !pathSegments.length) {
+            if (!pathSegments || pathSegments == REQUESTED) {
                 return;
             }
             pathSegments.forEach((pathSegment) =>
@@ -225,92 +252,32 @@ module.exports = class {
         return 50;
     }
 
+    isPathRequested(path) {
+        return this._memory.paths[path.hash] == REQUESTED;
+    }
+
+    isPathComputed(path) {
+        return this._memory.paths[path.hash] != null;
+    }
+
+    requestPath(path) {
+        return this._memory.paths[path.hash] = REQUESTED;
+    }
+
+    areExitsRequested(edge) {
+        return this._memory.exits[edge] == REQUESTED;
+    }
+
+    areExitsComputed(edge) {
+        return this._memory.exits[edge] != null;
+    }
+
+    requestExits(edge) {
+        return this._memory.exits[edge] = REQUESTED;
+    }
+
     _scheduleTasks() {
-        this._requestExitsCalculation();
-        _.forOwn(schedulingFrequencies, (frequency, taskType) => {
-            const lastUpdate = this._roomMemory.lastUpdates[taskType];
-            const gameTime = this._game.time;
-            if (lastUpdate && gameTime - lastUpdate < frequency) {
-                return;
-            }
-            this._logger.info(`scheduling tasks: ${taskType}`);
-            if (taskType == taskTypes.PATH_COMPUTING) {
-                this._requestPathsCalculation();
-            }
-            this._roomMemory.lastUpdates[taskType] = gameTime;
-        });
-    }
-
-    _requestPathsCalculation() {
-        this.findObjects(objectTypes.SOURCE).forEach((source) => {
-            this.findObjects(objectTypes.SPAWN).forEach((spawn) => {
-                this._requestPathCalculation(source, spawn)
-            });
-            this.findObjects(objectTypes.CONTROLLER).forEach((roomCtrl) => {
-                this._requestPathCalculation(source, roomCtrl)
-            });
-        });
-    }
-
-    _requestPathCalculation(fromObj, toObj) {
-        const path = new Path(
-            Cord.fromPos(fromObj.pos),
-            Cord.fromPos(toObj.pos)
-        );
-        const task = new Task(
-            taskTypes.PATH_COMPUTING,
-            {path}
-        );
-        if (this._isPathRequested(path)) {
-            return;
-        }
-        this._requestPath(path);
-        this._queueTask(task);
-    }
-
-    _requestExitsCalculation() {
-        const exits = this._roomMemory.exits;
-
-        ["top", "right", "bottom", "left"].forEach((edge) => {
-            if (exits[edge]) {
-                return;
-            }
-            this._queueTask(new Task(
-                taskTypes.EXITS_COMPUTING,
-                {edge}
-            ));
-        });
-    }
-
-    _initializeMemory() {
-        if (!this._roomMemory.objectIds) {
-            this._roomMemory.objectIds = {};
-        }
-
-        if (!this._roomMemory.objects) {
-            this._roomMemory.objects = {};
-        }
-
-        if (!this._roomMemory.tasks) {
-            this._roomMemory.tasks = [];
-        }
-
-        if (!this._roomMemory.paths) {
-            this._roomMemory.paths = {};
-        }
-
-        if (!this._roomMemory.lastUpdates) {
-            this._roomMemory.lastUpdates = {};
-        }
-
-        if (!this._roomMemory.exits) {
-            this._roomMemory.exits = {
-                top: null,
-                right: null,
-                bottom: null,
-                left: null
-            };
-        }
+        this._taskScheduler.schedule();
     }
 
     _loadObjectsFromMemory() {
@@ -319,7 +286,7 @@ module.exports = class {
             this._objects = {};
         }
 
-        const objectIds = this._roomMemory.objectIds;
+        const objectIds = this._memory.objectIds;
 
         _.forOwn(objectIds, (ids, objectType) => {
             if (!ids) {
@@ -330,37 +297,6 @@ module.exports = class {
             this._objects[objectType] =
                 ids.map((id) => this._game.getObjectById(id));
         });
-    }
-    ;
-
-    _queueTask(task) {
-        if (!this._roomMemory.tasks) {
-            this._roomMemory.tasks = [task];
-            return;
-        }
-        this._roomMemory.tasks.push(task);
-    }
-
-    _nextTask() {
-        if (!this._roomMemory.tasks.length) {
-            return;
-        }
-        return Task.fromJSON(this._roomMemory.tasks[0]);
-    }
-
-    _completeLastTask() {
-        if (!this._roomMemory.tasks) {
-            throw new Error("no queued tasks");
-        }
-        this._roomMemory.tasks.shift();
-    }
-
-    _isPathRequested(path) {
-        return this._roomMemory.paths[path.hash];
-    }
-
-    _requestPath(path) {
-        return this._roomMemory.paths[path.hash] = [];
     }
 
     _cordToPos(cord) {
