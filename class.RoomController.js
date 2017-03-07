@@ -76,25 +76,41 @@ module.exports = class {
             return;
         }
 
-        if (task.type == taskTypes.PATH_COMPUTING) {
-            const path = Path.fromJSON(task.options.path);
-            const pathHash = path.hash;
-            this._logger.info(`started path calculation: ${pathHash}`);
-            const result = generateRoadPath(
-                this._cordToPos(path.from),
-                this._cordToPos(path.to)
-            );
-            if (result.incomplete) {
-                this._logger.warn(
-                    `could not finish path calculation: ${pathHash}`
+        const taskType = task.type;
+
+        switch (taskType) {
+
+            case taskTypes.PATH_COMPUTING:
+                const path = Path.fromJSON(task.options.path);
+                const pathHash = path.hash;
+                this._logger.info(`started path calculation: ${pathHash}`);
+                const result = generateRoadPath(
+                    this._cordToPos(path.from),
+                    this._cordToPos(path.to)
                 );
-                return;
-            }
-            this._logger.info(`finished path calculation: ${pathHash}`);
-            this._roomMemory.paths[pathHash] =
-                _.map(result.path, pos => Cord.fromPos(pos));
-            this._completeLastTask();
+                if (result.incomplete) {
+                    this._logger.warn(
+                        `could not finish path calculation: ${pathHash}`
+                    );
+                    return;
+                }
+                this._logger.info(`finished path calculation: ${pathHash}`);
+                this._roomMemory.paths[pathHash] =
+                    _.map(result.path, pos => Cord.fromPos(pos));
+                break;
+
+            case taskTypes.EXITS_COMPUTING:
+                const edge = task.options.edge;
+                const upperFirstEdge =
+                    edge.charAt(0).toUpperCase() + edge.slice(1);
+                const calculationMethod = `_calculate${upperFirstEdge}Exits`;
+                this[calculationMethod]();
+                break;
+
+            default:
+                throw new Error(`unknown task type in the queue: ${taskType}`);
         }
+        this._completeLastTask();
     }
 
     buildCreeps() {
@@ -241,17 +257,18 @@ module.exports = class {
     _requestExitsCalculation() {
         const exits = this._roomMemory.exits;
 
-        if (exits.top && exits.right && exits.bottom && exits.left) {
-            return;
-        }
-
-        this._calculateTopExit();
-        this._calculateRightExit();
-        this._calculateBottomExit();
-        this._calculateLeftExit();
+        ["top", "right", "bottom", "left"].forEach((edge) => {
+            if (exits[edge]) {
+                return;
+            }
+            this._queueTask(new Task(
+                taskTypes.EXITS_COMPUTING,
+                {edge}
+            ));
+        });
     }
 
-    _calculateTopExit() {
+    _calculateTopExits() {
 
         const terrain = this._room.lookForAtArea(
             LOOK_TERRAIN, 0, 0, 0, roomSize - 1
@@ -284,7 +301,7 @@ module.exports = class {
         this._roomMemory.exits.top = exits;
     }
 
-    _calculateRightExit() {
+    _calculateRightExits() {
 
         const terrain = this._room.lookForAtArea(
             LOOK_TERRAIN, 0, roomSize - 1, roomSize - 1, roomSize - 1
@@ -317,7 +334,7 @@ module.exports = class {
         this._roomMemory.exits.right = exits;
     }
 
-    _calculateBottomExit() {
+    _calculateBottomExits() {
 
         const terrain = this._room.lookForAtArea(
             LOOK_TERRAIN, roomSize - 1, 0, roomSize - 1, roomSize - 1
@@ -350,7 +367,7 @@ module.exports = class {
         this._roomMemory.exits.bottom = exits;
     }
 
-    _calculateLeftExit() {
+    _calculateLeftExits() {
 
         const terrain = this._room.lookForAtArea(
             LOOK_TERRAIN, 0, 0, roomSize - 1, 0
@@ -431,7 +448,8 @@ module.exports = class {
             this._objects[objectType] =
                 ids.map((id) => this._game.getObjectById(id));
         });
-    };
+    }
+    ;
 
     _queueTask(task) {
         if (!this._roomMemory.tasks) {

@@ -1,3 +1,4 @@
 module.exports = {
+    EXITS_COMPUTING: "EXITS_COMPUTING",
     PATH_COMPUTING: "PATH_COMPUTING"
 };
