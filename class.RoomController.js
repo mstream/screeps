@@ -10,6 +10,7 @@ const ExitsCalculator = require("class.ExitsCalculator");
 const RoomLogger = require("class.RoomLogger");
 const Path = require("class.Path");
 const TaskScheduler = require("class.TaskScheduler");
+const WallsCalculator = require("class.WallsCalculator");
 
 
 const objectTypesToFindMappings = {
@@ -20,6 +21,16 @@ const objectTypesToFindMappings = {
 const REQUESTED = "REQUESTED";
 
 const getIds = (objects) => objects.map((object) => object.id);
+
+const taskTypeToObjectKeywordMapping = {
+    [taskTypes.EXITS_COMPUTING]: "exits",
+    [taskTypes.WALLS_COMPUTING]: "walls"
+};
+
+const taskTypeToCalculatorConstructor = {
+    [taskTypes.EXITS_COMPUTING]: ExitsCalculator,
+    [taskTypes.WALLS_COMPUTING]: WallsCalculator
+};
 
 
 module.exports = class {
@@ -82,6 +93,15 @@ module.exports = class {
                 left: null
             };
         }
+
+        if (!this._memory.walls) {
+            this._memory.walls = {
+                top: null,
+                right: null,
+                bottom: null,
+                left: null
+            };
+        }
     }
 
     executeTasks() {
@@ -123,6 +143,10 @@ module.exports = class {
                 break;
 
             case taskTypes.EXITS_COMPUTING:
+            case taskTypes.WALLS_COMPUTING:
+
+                const objectKeyword = taskTypeToObjectKeywordMapping[taskType];
+
                 const edge = task.options.edge;
 
                 if (edge != "top" && edge != "right" && edge != "bottom" && edge != "left") {
@@ -132,14 +156,16 @@ module.exports = class {
                 const upperFirstEdge =
                     edge.charAt(0).toUpperCase() + edge.slice(1);
 
-                const calculationMethod = `calculate${upperFirstEdge}Exits`;
-                this._logger.info(`started exits calculation: ${edge}`);
-                const exitsCalculator = new ExitsCalculator(this);
-                const exits = exitsCalculator[calculationMethod]();
-                this._memory.exits[edge] = exits;
-                this._logger.info(`finished exits calculation: ${edge}`);
-                break;
+                const upperFirstObjectKeyword =
+                    objectKeyword.charAt(0).toUpperCase() + objectKeyword.slice(1);
 
+                const calculationMethod = `calculate${upperFirstEdge}${upperFirstObjectKeyword}`;
+                this._logger.info(`started ${objectKeyword} calculation: ${edge}`);
+                const calculator = new taskTypeToCalculatorConstructor[taskType](this);
+                const objects = calculator[calculationMethod]();
+                this._memory[objectKeyword][edge] = objects;
+                this._logger.info(`finished ${objectKeyword} calculation: ${edge}`);
+                break;
             default:
                 throw new Error(`unknown task type in the queue: ${taskType}`);
         }
@@ -274,6 +300,18 @@ module.exports = class {
 
     requestExits(edge) {
         return this._memory.exits[edge] = REQUESTED;
+    }
+
+    areWallsRequested(edge) {
+        return this._memory.walls[edge] == REQUESTED;
+    }
+
+    areWallsComputed(edge) {
+        return this._memory.walls[edge] != null;
+    }
+
+    requestWalls(edge) {
+        return this._memory.walls[edge] = REQUESTED;
     }
 
     _scheduleTasks() {

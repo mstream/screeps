@@ -60,6 +60,7 @@ module.exports = class {
         const gameTime = this._game.time;
 
         this._requestExitsCalculation();
+        this._requestWallsCalculation();
 
         _.forOwn(schedulingFrequencies, (frequency, taskType) => {
             const lastUpdate = this._memory.lastUpdates[taskType];
@@ -141,6 +142,31 @@ module.exports = class {
             ));
 
             this._memory.lastUpdates[taskTypes.EXITS_COMPUTING] = gameTime;
+        });
+    }
+
+    _requestWallsCalculation() {
+
+        const gameTime = this._game.time;
+
+        roomEdges.forEach((edge) => {
+
+            if (this._room.areWallsRequested(edge) || this._room.areWallsComputed(edge)) {
+                return;
+            }
+
+            this._logger.info(
+                `scheduling tasks ${taskTypes.WALLS_COMPUTING} for ${edge}`
+            );
+
+            this._room.requestWalls(edge);
+
+            this._queueTask(new Task(
+                taskTypes.WALLS_COMPUTING,
+                {edge}
+            ));
+
+            this._memory.lastUpdates[taskTypes.WALLS_COMPUTING] = gameTime;
         });
     }
 
