@@ -14,6 +14,7 @@ module.exports.loop = () => {
         const roomController = new RoomController(room, Game, Memory);
         roomController.buildCreeps();
         roomController.buildRoadBlueprints();
+        roomController.buildWallBlueprints();
         roomController.executeTasks();
 
         _.forOwn(Game.creeps, (creep) => {

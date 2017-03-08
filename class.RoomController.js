@@ -1,5 +1,6 @@
 const objectTypes = require("const.objectTypes");
 const roles = require("const.roles");
+const roomEdges = require("const.roomEdges");
 const taskTypes = require("const.taskTypes");
 
 const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
@@ -149,7 +150,7 @@ module.exports = class {
 
                 const edge = task.options.edge;
 
-                if (edge != "top" && edge != "right" && edge != "bottom" && edge != "left") {
+                if (!roomEdges.includes(edge)) {
                     throw new Error(`unknown room edge ${edge}`);
                 }
 
@@ -261,12 +262,51 @@ module.exports = class {
             if (!pathSegments || pathSegments == REQUESTED) {
                 return;
             }
-            pathSegments.forEach((pathSegment) =>
-                this._room.createConstructionSite(
-                    this._cordToPos(pathSegment),
-                    STRUCTURE_ROAD
-                )
+            pathSegments.forEach((pathSegment) => {
+                    pathSegment = Cord.fromJSON(pathSegment);
+                    this._logger.info(
+                        `creating road blueprint at : ${pathSegment.hash}`
+                    );
+                    this._room.createConstructionSite(
+                        this._cordToPos(pathSegment),
+                        STRUCTURE_ROAD
+                    );
+                }
             );
+        });
+    }
+
+    buildWallBlueprints() {
+
+        roomEdges.forEach((edge) => {
+
+            const walls = this._memory.walls[edge];
+
+            if (!walls || walls == REQUESTED) {
+                return;
+            }
+
+            walls.forEach((wall) => {
+
+                wall = Path.fromJSON(wall);
+
+                if (!wall.isPerpendicular()) {
+                    throw new Error("wall is not perpendicular");
+                }
+
+                const wallSegments = wall.toSegments();
+
+                wallSegments.forEach((wallSegment) => {
+                    wallSegment = Cord.fromJSON(wallSegment);
+                    this._logger.info(
+                        `creating wall blueprint at : ${wallSegment.hash}`
+                    );
+                    this._room.createConstructionSite(
+                        this._cordToPos(wallSegment),
+                        STRUCTURE_WALL
+                    );
+                });
+            });
         });
     }
 

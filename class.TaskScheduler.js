@@ -1,4 +1,5 @@
 const objectTypes = require("const.objectTypes");
+const roomEdges = require("const.roomEdges");
 const taskTypes = require("const.taskTypes");
 
 const Cord = require("class.Cord");
@@ -10,7 +11,6 @@ const schedulingFrequencies = {
     [taskTypes.PATH_COMPUTING]: 100
 };
 
-const roomEdges = ["top", "right", "bottom", "left"];
 
 
 module.exports = class {
@@ -166,7 +166,7 @@ module.exports = class {
                 {edge}
             ));
 
-            this._memory.lastUpdates[taskTypes.WALLS_COMPUTING] = gameTime;
+            this._memory.lastUpdates[taskTypes.WALL] = gameTime;
         });
     }
 
