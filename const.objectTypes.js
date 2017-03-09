@@ -1,6 +1,6 @@
 module.exports = {
-    CONSTRUCTION_SITE: "CONSTRUCTION_SITE",
-    CONTROLLER: "CONTROLLER",
-    SOURCE: "SOURCE",
-    SPAWN: "SPAWN"
+    CONSTRUCTION_SITE: "constructionSite",
+    CONTROLLER: "controller",
+    SOURCE: "source",
+    SPAWN: "spawn"
 };

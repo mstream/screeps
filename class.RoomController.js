@@ -4,12 +4,12 @@ const roomEdges = require("const.roomEdges");
 const taskTypes = require("const.taskTypes");
 
 const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
-const generateRoadPath = require("func.generateRoadPath");
 
 const Cord = require("class.Cord");
 const ExitsCalculator = require("class.ExitsCalculator");
 const RoomLogger = require("class.RoomLogger");
 const Path = require("class.Path");
+const TaskExecutor = require("class.TaskExecutor");
 const TaskScheduler = require("class.TaskScheduler");
 const WallsCalculator = require("class.WallsCalculator");
 
@@ -101,79 +101,10 @@ module.exports = class {
     }
 
     executeTasks() {
-        const task = this._taskScheduler.nextTask();
-
-        if (!task) {
-            return;
-        }
-
-        const time = this._game.time;
-
-        const shouldExecute = time % task.cost == 0;
-
-        if (!shouldExecute) {
-            return;
-        }
-
-        const taskType = task.type;
-
-        switch (taskType) {
-
-            case taskTypes.PATHS_COMPUTING:
-                const path = Path.fromJSON(task.options.path);
-                const pathHash = path.hash;
-                this._logger.info(`started path calculation: ${pathHash}`);
-                const result = generateRoadPath(
-                    this._cordToPos(path.from),
-                    this._cordToPos(path.to)
-                );
-                if (result.incomplete) {
-                    this._logger.warn(
-                        `could not finish path calculation: ${pathHash}`
-                    );
-                    return;
-                }
-                this._logger.info(`finished path calculation: ${pathHash}`);
-                this._memory.paths[pathHash] =
-                    _.map(result.path, pos => Cord.fromPos(pos));
-                break;
-
-            case taskTypes.EXITS_COMPUTING:
-            case taskTypes.WALLS_COMPUTING:
-
-                const objectKeyword = taskType.split("_")[0].toLowerCase();
-                const edge = task.options.edge;
-
-                if (!roomEdges.includes(edge)) {
-                    throw new Error(`unknown room edge ${edge}`);
-                }
-
-                const upperFirstEdge =
-                    edge.charAt(0).toUpperCase() + edge.slice(1);
-
-                const upperFirstObjectKeyword =
-                    objectKeyword.charAt(0).toUpperCase() + objectKeyword.slice(1);
-
-                const calculationMethod = `calculate${upperFirstEdge}${upperFirstObjectKeyword}`;
-                this._logger.info(`started ${objectKeyword} calculation: ${edge}`);
-                const calculator = new this._calculatorConstructorForTaskType[taskType](this);
-                const objects = calculator[calculationMethod]();
-                this._memory[objectKeyword][edge] = objects;
-                this._logger.info(`finished ${objectKeyword} calculation: ${edge}`);
-                break;
-
-            case taskTypes.ROADS_BUILDING:
-                this._buildRoads();
-                break;
-
-            case taskTypes.WALLS_BUILDING:
-                this._buildWalls();
-                break;
-
-            default:
-                throw new Error(`unknown task type in the queue: ${taskType}`);
-        }
-        this._taskScheduler.completeLastTask();
+        const taskExecutor = new TaskExecutor(
+            this._taskScheduler, this._game, this._room, this._logger
+        );
+        taskExecutor.execute();
     }
 
     buildCreeps() {
@@ -254,7 +185,7 @@ module.exports = class {
         sourceMemory.harvesters--;
     }
 
-    _buildRoads() {
+    buildRoads() {
         const paths = this._memory.paths;
 
         if (!paths) {
@@ -276,7 +207,7 @@ module.exports = class {
                         `creating road blueprint at : ${pathSegment.hash}`
                     );
                     this._room.createConstructionSite(
-                        this._cordToPos(pathSegment),
+                        this.cordToPos(pathSegment),
                         STRUCTURE_ROAD
                     );
                 }
@@ -284,7 +215,7 @@ module.exports = class {
         });
     }
 
-    _buildWalls() {
+    buildWalls() {
 
         const allowance = CONTROLLER_STRUCTURES[STRUCTURE_WALL][this.level];
         if (!allowance) {
@@ -315,7 +246,7 @@ module.exports = class {
                         `creating wall blueprint at : ${wallSegment.hash}`
                     );
                     this._room.createConstructionSite(
-                        this._cordToPos(wallSegment),
+                        this.cordToPos(wallSegment),
                         STRUCTURE_WALL
                     );
                 });
@@ -323,20 +254,20 @@ module.exports = class {
         });
     }
 
+    setPathSegments(pathHash, pathSegments) {
+        this._memory.paths[pathHash] = pathSegments;
+    }
+
+    setEdgeObjects(objectType, edge, objects) {
+        this._memory[objectType][edge] = objects;
+    }
+
     drawText(x, y, style, text) {
         this._room.visual.text(text, x, y, style);
     }
 
-    get name() {
-        return this._room.name;
-    }
-
-    get size() {
-        return 50;
-    }
-
-    get level() {
-        return this._room.controller.level;
+    cordToPos(cord) {
+        return new RoomPosition(cord.x, cord.y, this._room.name);
     }
 
     isPathRequested(path) {
@@ -375,6 +306,18 @@ module.exports = class {
         return this._memory.walls[edge] = REQUESTED;
     }
 
+    get name() {
+        return this._room.name;
+    }
+
+    get size() {
+        return 50;
+    }
+
+    get level() {
+        return this._room.controller.level;
+    }
+
     _scheduleTasks() {
         this._taskScheduler.schedule();
     }
@@ -396,10 +339,6 @@ module.exports = class {
             this._objects[objectType] =
                 ids.map((id) => this._game.getObjectById(id));
         });
-    }
-
-    _cordToPos(cord) {
-        return new RoomPosition(cord.x, cord.y, this._room.name);
     }
 };
 
