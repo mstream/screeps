@@ -7,12 +7,6 @@ const Path = require("class.Path");
 const Task = require("class.Task");
 
 
-const schedulingFrequencies = {
-    [taskTypes.PATH_COMPUTING]: 100
-};
-
-
-
 module.exports = class {
 
     constructor(game, room, memory, logger) {
@@ -43,6 +37,20 @@ module.exports = class {
 
         this._memory = memory.schedule;
 
+        this._schedulingFrequencies = {
+            [taskTypes.ROADS_BUILDING]: 50,
+            [taskTypes.WALLS_BUILDING]: 50,
+            [taskTypes.PATHS_COMPUTING]: 100
+        };
+
+        this._schedulingMethods = {
+            [taskTypes.ROADS_BUILDING]: () =>
+                this._queueTask(new Task(taskTypes.ROADS_BUILDING)),
+            [taskTypes.WALLS_BUILDING]: () =>
+                this._queueTask(new Task(taskTypes.WALLS_BUILDING)),
+            [taskTypes.PATHS_COMPUTING]: this._requestPathsCalculation
+        };
+
         this._initializeMemory();
     }
 
@@ -62,14 +70,12 @@ module.exports = class {
         this._requestExitsCalculation();
         this._requestWallsCalculation();
 
-        _.forOwn(schedulingFrequencies, (frequency, taskType) => {
+        _.forOwn(this._schedulingFrequencies, (frequency, taskType) => {
             const lastUpdate = this._memory.lastUpdates[taskType];
             if (lastUpdate && gameTime - lastUpdate < frequency) {
                 return;
             }
-            if (taskType == taskTypes.PATH_COMPUTING) {
-                this._requestPathsCalculation();
-            }
+            this._schedulingMethods[taskType].bind(this)();
             this._memory.lastUpdates[taskType] = gameTime;
         });
     }
@@ -110,12 +116,12 @@ module.exports = class {
         }
 
         this._logger.info(
-            `scheduling tasks: ${taskTypes.PATH_COMPUTING} for ${path.hash}`
+            `scheduling tasks: ${taskTypes.PATHS_COMPUTING} for ${path.hash}`
         );
 
         this._room.requestPath(path);
         this._queueTask(new Task(
-            taskTypes.PATH_COMPUTING,
+            taskTypes.PATHS_COMPUTING,
             {path}
         ));
     }

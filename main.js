@@ -13,7 +13,6 @@ module.exports.loop = () => {
     _.forOwn(Game.rooms, (room) => {
         room = new RoomController(room, Game, Memory);
         room.buildCreeps();
-        room.createBlueprints();
         room.executeTasks();
 
         _.forOwn(Game.creeps, (creep) => {

@@ -23,20 +23,6 @@ const REQUESTED = "REQUESTED";
 
 const getIds = (objects) => objects.map((object) => object.id);
 
-const taskTypeToObjectKeywordMapping = {
-    [taskTypes.EXITS_COMPUTING]: "exits",
-    [taskTypes.WALLS_COMPUTING]: "walls"
-};
-
-const taskTypeToCalculatorConstructor = {
-    [taskTypes.EXITS_COMPUTING]: ExitsCalculator,
-    [taskTypes.WALLS_COMPUTING]: WallsCalculator
-};
-
-const structureTypeToObjectKeywordMapping = {
-    [STRUCTURE_ROAD]: "road",
-    [STRUCTURE_WALL]: "wall"
-};
 
 module.exports = class {
 
@@ -67,6 +53,11 @@ module.exports = class {
         }
 
         this._memory = memory.rooms[room.name];
+
+        this._calculatorConstructorForTaskType = {
+            [taskTypes.EXITS_COMPUTING]: ExitsCalculator,
+            [taskTypes.WALLS_COMPUTING]: WallsCalculator
+        };
 
         this._taskScheduler = new TaskScheduler(
             this._game, this, this._memory, this._logger
@@ -128,7 +119,7 @@ module.exports = class {
 
         switch (taskType) {
 
-            case taskTypes.PATH_COMPUTING:
+            case taskTypes.PATHS_COMPUTING:
                 const path = Path.fromJSON(task.options.path);
                 const pathHash = path.hash;
                 this._logger.info(`started path calculation: ${pathHash}`);
@@ -150,8 +141,7 @@ module.exports = class {
             case taskTypes.EXITS_COMPUTING:
             case taskTypes.WALLS_COMPUTING:
 
-                const objectKeyword = taskTypeToObjectKeywordMapping[taskType];
-
+                const objectKeyword = taskType.split("_")[0].toLowerCase();
                 const edge = task.options.edge;
 
                 if (!roomEdges.includes(edge)) {
@@ -166,11 +156,20 @@ module.exports = class {
 
                 const calculationMethod = `calculate${upperFirstEdge}${upperFirstObjectKeyword}`;
                 this._logger.info(`started ${objectKeyword} calculation: ${edge}`);
-                const calculator = new taskTypeToCalculatorConstructor[taskType](this);
+                const calculator = new this._calculatorConstructorForTaskType[taskType](this);
                 const objects = calculator[calculationMethod]();
                 this._memory[objectKeyword][edge] = objects;
                 this._logger.info(`finished ${objectKeyword} calculation: ${edge}`);
                 break;
+
+            case taskTypes.ROADS_BUILDING:
+                this._buildRoads();
+                break;
+
+            case taskTypes.WALLS_BUILDING:
+                this._buildWalls();
+                break;
+
             default:
                 throw new Error(`unknown task type in the queue: ${taskType}`);
         }
@@ -255,26 +254,15 @@ module.exports = class {
         sourceMemory.harvesters--;
     }
 
-    createBlueprints() {
-        _.forOwn(
-            structureTypeToObjectKeywordMapping,
-            (objectKeyword, structureType) => {
-                const allowance = CONTROLLER_STRUCTURES[structureType][this.level];
-                if (!allowance) {
-                    return;
-                }
-                const upperFirstObjectKeyword =
-                    objectKeyword.charAt(0).toUpperCase() + objectKeyword.slice(1);
-                const createBlueprinstMethodName =
-                    `create${upperFirstObjectKeyword}Blueprints`;
-                this[createBlueprinstMethodName]();
-            });
-    }
-
-    createRoadBlueprints() {
+    _buildRoads() {
         const paths = this._memory.paths;
 
         if (!paths) {
+            return;
+        }
+
+        const allowance = CONTROLLER_STRUCTURES[STRUCTURE_ROAD][this.level];
+        if (!allowance) {
             return;
         }
 
@@ -296,7 +284,12 @@ module.exports = class {
         });
     }
 
-    createWallBlueprints() {
+    _buildWalls() {
+
+        const allowance = CONTROLLER_STRUCTURES[STRUCTURE_WALL][this.level];
+        if (!allowance) {
+            return;
+        }
 
         roomEdges.forEach((edge) => {
 
