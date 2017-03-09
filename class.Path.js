@@ -30,7 +30,7 @@ class Path {
     }
 
     isHorizontal() {
-        return this.from.y == this.from.y;
+        return this.from.y == this.to.y;
     }
 
     isVertical() {

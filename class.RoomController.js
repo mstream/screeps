@@ -33,6 +33,10 @@ const taskTypeToCalculatorConstructor = {
     [taskTypes.WALLS_COMPUTING]: WallsCalculator
 };
 
+const structureTypeToObjectKeywordMapping = {
+    [STRUCTURE_ROAD]: "road",
+    [STRUCTURE_WALL]: "wall"
+};
 
 module.exports = class {
 
@@ -251,7 +255,23 @@ module.exports = class {
         sourceMemory.harvesters--;
     }
 
-    buildRoadBlueprints() {
+    createBlueprints() {
+        _.forOwn(
+            structureTypeToObjectKeywordMapping,
+            (objectKeyword, structureType) => {
+                const allowance = CONTROLLER_STRUCTURES[structureType][this.level];
+                if (!allowance) {
+                    return;
+                }
+                const upperFirstObjectKeyword =
+                    objectKeyword.charAt(0).toUpperCase() + objectKeyword.slice(1);
+                const createBlueprinstMethodName =
+                    `create${upperFirstObjectKeyword}Blueprints`;
+                this[createBlueprinstMethodName]();
+            });
+    }
+
+    createRoadBlueprints() {
         const paths = this._memory.paths;
 
         if (!paths) {
@@ -276,7 +296,7 @@ module.exports = class {
         });
     }
 
-    buildWallBlueprints() {
+    createWallBlueprints() {
 
         roomEdges.forEach((edge) => {
 
@@ -314,8 +334,16 @@ module.exports = class {
         this._room.visual.text(text, x, y, style);
     }
 
+    get name() {
+        return this._room.name;
+    }
+
     get size() {
         return 50;
+    }
+
+    get level() {
+        return this._room.controller.level;
     }
 
     isPathRequested(path) {

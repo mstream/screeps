@@ -11,17 +11,16 @@ module.exports.loop = () => {
     clearCreepsMemory();
 
     _.forOwn(Game.rooms, (room) => {
-        const roomController = new RoomController(room, Game, Memory);
-        roomController.buildCreeps();
-        roomController.buildRoadBlueprints();
-        roomController.buildWallBlueprints();
-        roomController.executeTasks();
+        room = new RoomController(room, Game, Memory);
+        room.buildCreeps();
+        room.createBlueprints();
+        room.executeTasks();
 
         _.forOwn(Game.creeps, (creep) => {
             if (room.name != creep.room.name) {
                 return;
             }
-            const creepController = createController(creep, roomController);
+            const creepController = createController(creep, room);
             creepController.work();
         });
     });
