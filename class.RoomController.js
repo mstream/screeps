@@ -1,4 +1,3 @@
-const objectTypes = require("const.objectTypes");
 const roles = require("const.roles");
 const roomEdges = require("const.roomEdges");
 const taskTypes = require("const.taskTypes");
@@ -14,14 +13,7 @@ const TaskScheduler = require("class.TaskScheduler");
 const WallsCalculator = require("class.WallsCalculator");
 
 
-const objectTypesToFindMappings = {
-    SOURCE: FIND_SOURCES,
-    CONSTRUCTION_SITE: FIND_CONSTRUCTION_SITES
-};
-
 const REQUESTED = "REQUESTED";
-
-const getIds = (objects) => objects.map((object) => object.id);
 
 
 module.exports = class {
@@ -43,6 +35,7 @@ module.exports = class {
         this._room = room;
         this._game = game;
         this._logger = new RoomLogger(room, game);
+        this._objects = {};
 
         if (!memory.rooms) {
             memory.rooms = {};
@@ -64,15 +57,10 @@ module.exports = class {
         );
 
         this._initializeMemory();
-        this._loadObjectsFromMemory();
         this._scheduleTasks();
     }
 
     _initializeMemory() {
-        if (!this._memory.objectIds) {
-            this._memory.objectIds = {};
-        }
-
         if (!this._memory.objects) {
             this._memory.objects = {};
         }
@@ -109,11 +97,11 @@ module.exports = class {
 
     buildCreeps() {
 
-        const sourcesNumber = this.findObjects(objectTypes.SOURCE).length;
+        const sourcesNumber = this.sources.length;
 
         buildCreepsIfNeeded(
             this._game,
-            this.findObjects(objectTypes.SPAWN)[0],
+            this.spawns[0],
             {
                 [roles.HARVESTER]: sourcesNumber,
                 [roles.UPGRADER]: sourcesNumber,
@@ -124,36 +112,6 @@ module.exports = class {
 
     objectsInArea(type, top, left, bottom, right) {
         return this._room.lookForAtArea(type, top, left, bottom, right);
-    }
-
-    findObjects(objectsType) {
-        const objects = this._objects[objectsType];
-        if (objects) {
-            return objects;
-        }
-        switch (objectsType) {
-            case objectTypes.CONTROLLER:
-                const controllers = [this._room.controller];
-                this._objects[objectsType] = controllers;
-                this._memory.objectIds[objectTypes.CONTROLLER] = getIds(controllers);
-                return controllers;
-            case objectTypes.SPAWN:
-                const spawns = [];
-                _.forOwn(this._game.spawns, (spawn) => {
-                    if (spawn.room.name != this._room.name) {
-                        return;
-                    }
-                    spawns.push(spawn);
-                });
-                this._objects[objectsType] = spawns;
-                this._memory.objectIds[objectTypes.SPAWN] = getIds(spawns);
-                return spawns;
-            default:
-                const objects = this._room.find(objectTypesToFindMappings[objectsType]);
-                this._objects[objectsType] = objects;
-                this._memory.objectIds[objectsType] = getIds(objects);
-                return objects;
-        }
     }
 
     harvestersAssignedToSource(source) {
@@ -310,7 +268,8 @@ module.exports = class {
         return this._room.name;
     }
 
-    get size() {
+    get
+    size() {
         return 50;
     }
 
@@ -318,27 +277,38 @@ module.exports = class {
         return this._room.controller.level;
     }
 
+    get controller() {
+        return this._room.controller;
+    }
+
+    get sources() {
+        return this._findObjects(FIND_SOURCES);
+    }
+
+    get spawns() {
+        return this._findObjects(FIND_MY_SPAWNS);
+    }
+
+    get constructionSites() {
+        return this._findObjects(FIND_CONSTRUCTION_SITES);
+    }
+
     _scheduleTasks() {
         this._taskScheduler.schedule();
     }
 
-    _loadObjectsFromMemory() {
+    _findObjects(searchType) {
 
-        if (!this._objects) {
-            this._objects = {};
+        const cachedObjects = this._objects[searchType];
+
+        if (cachedObjects) {
+            return cachedObjects;
         }
 
-        const objectIds = this._memory.objectIds;
-
-        _.forOwn(objectIds, (ids, objectType) => {
-            if (!ids) {
-                objectIds[objectType] = [];
-                this._objects[objectType] = [];
-                return;
-            }
-            this._objects[objectType] =
-                ids.map((id) => this._game.getObjectById(id));
-        });
+        const objects = this._room.find(searchType);
+        this._objects[searchType] = objects;
+        return objects;
     }
 };
+
 

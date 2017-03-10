@@ -1,5 +1,4 @@
 const actionTypes = require("const.actionTypes");
-const objectTypes = require("const.objectTypes");
 
 const Action = require("class.Action");
 const CreepController = require("class.CreepController");

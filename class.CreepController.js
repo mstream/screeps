@@ -1,5 +1,4 @@
 const actionTypes = require("const.actionTypes");
-const objectTypes = require("const.objectTypes");
 
 const Action = require("class.Action");
 
@@ -54,7 +53,7 @@ module.exports = class {
     }
 
     _harvestBestSource() {
-        const sources = this._room.findObjects(objectTypes.SOURCE);
+        const sources = this._room.sources;
         const bestSource = _.sortBy(
             sources,
             (source) => this._room.harvestersAssignedToSource(source)
@@ -77,7 +76,7 @@ module.exports = class {
             this._room.unassignHarvesterFrom(source);
         }
 
-        const spawns = this._room.findObjects(objectTypes.SPAWN);
+        const spawns = this._room.spawns;
         const spawnsWithRemainingCapacity = _.filter(
             spawns,
             (spawn) => spawn.energy < spawn.energyCapacity
@@ -105,7 +104,7 @@ module.exports = class {
             this._room.unassignHarvesterFrom(source);
         }
 
-        const constructionSites = this._room.findObjects(objectTypes.CONSTRUCTION_SITE);
+        const constructionSites = this._room.constructionSites;
 
         if (!constructionSites.length) {
             this._setAction(Action.idle());
@@ -122,7 +121,7 @@ module.exports = class {
 
     _upgradeController() {
 
-        const controller = this._room.findObjects(objectTypes.CONTROLLER)[0];
+        const controller = this._room.controller;
 
         this._setAction(new Action(
             actionTypes.UPGRADING,

@@ -1,5 +1,4 @@
 const actionTypes = require("const.actionTypes");
-const objectTypes = require("const.objectTypes");
 
 const Action = require("class.Action");
 const CreepController = require("class.CreepController");
@@ -52,7 +51,7 @@ module.exports = class extends CreepController {
                 }
                 break;
             case actionTypes.UPGRADING:
-                const controller = this._room.findObjects(objectTypes.CONTROLLER)[0];
+                const controller = this._room.controller;
 
                 if (this._creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
                     this._creep.moveTo(

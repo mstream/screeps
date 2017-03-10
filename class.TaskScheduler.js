@@ -1,4 +1,3 @@
-const objectTypes = require("const.objectTypes");
 const roomEdges = require("const.roomEdges");
 const taskTypes = require("const.taskTypes");
 
@@ -95,13 +94,11 @@ module.exports = class {
     }
 
     _requestPathsCalculation() {
-        this._room.findObjects(objectTypes.SOURCE).forEach((source) => {
-            this._room.findObjects(objectTypes.SPAWN).forEach((spawn) => {
+        this._room.sources.forEach((source) => {
+            this._room.spawns.forEach((spawn) => {
                 this._requestPathCalculation(source, spawn)
             });
-            this._room.findObjects(objectTypes.CONTROLLER).forEach((controller) => {
-                this._requestPathCalculation(source, controller)
-            });
+            this._requestPathCalculation(source, this._room.controller)
         });
     }
 
