@@ -37,9 +37,9 @@ module.exports = class {
         this._memory = memory.schedule;
 
         this._schedulingFrequencies = {
-            [taskTypes.ROADS_BUILDING]: 50,
-            [taskTypes.WALLS_BUILDING]: 50,
-            [taskTypes.PATHS_COMPUTING]: 100
+            [taskTypes.ROADS_BUILDING]: 100,
+            [taskTypes.WALLS_BUILDING]: 100,
+            [taskTypes.PATHS_COMPUTING]: 200
         };
 
         this._schedulingMethods = {
