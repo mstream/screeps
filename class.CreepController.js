@@ -2,9 +2,8 @@ const actionTypes = require("const.actionTypes");
 
 const Action = require("class.Action");
 
-const statusTextStyle = {
-    font: 0.5
-};
+const statusBarWidth = 1;
+const statusBarHeight = 0.25;
 
 module.exports = class {
 
@@ -35,13 +34,33 @@ module.exports = class {
         const creepRole = this._creepMemory.role;
         const currentHp = this._creep.hits;
         const maxHp = this._creep.hitsMax;
+        const centerX = this._creep.pos.x;
+        const centerY = this._creep.pos.y;
 
-        const status = `${creepRole} (${currentHp}/${maxHp})`;
+        const hpRatio = 1 - ((maxHp - currentHp) / maxHp);
+
+        this._room.drawRectangle(
+            centerX - (statusBarWidth / 2),
+            centerY - 0.5 - statusBarHeight,
+            (1 - hpRatio) * statusBarWidth,
+            statusBarHeight,
+            {fill: "#ff0000"}
+        );
+
+        this._room.drawRectangle(
+            centerX - (statusBarWidth / 2) + ((1 - hpRatio) * statusBarWidth),
+            centerY - 0.5 - statusBarHeight,
+            statusBarWidth * hpRatio,
+            statusBarHeight,
+            {fill: "#00ff00"}
+        );
+
+        const status = `${creepRole.charAt(0)} ${hpRatio * 100}%`;
 
         this._room.drawText(
-            this._creep.pos.x,
-            this._creep.pos.y - 0.5,
-            statusTextStyle,
+            centerX,
+            centerY - 0.5,
+            {font: statusBarHeight},
             status
         );
     }

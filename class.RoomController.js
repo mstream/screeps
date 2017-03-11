@@ -224,6 +224,10 @@ module.exports = class {
         this._room.visual.text(text, x, y, style);
     }
 
+    drawRectangle(x, y, w, h, style) {
+        this._room.visual.rect(x, y, w, h, style);
+    }
+
     cordToPos(cord) {
         return new RoomPosition(cord.x, cord.y, this._room.name);
     }
