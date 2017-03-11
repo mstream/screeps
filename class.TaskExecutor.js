@@ -4,7 +4,9 @@ const taskTypes = require("const.taskTypes");
 const generateRoadPath = require("func.generateRoadPath");
 
 const Cord = require("class.Cord");
+const ExitsCalculator = require("class.ExitsCalculator");
 const Path = require("class.Path");
+const WallsCalculator = require("class.WallsCalculator");
 
 
 module.exports = class {
@@ -31,6 +33,11 @@ module.exports = class {
         this._game = game;
         this._room = room;
         this._logger = logger;
+
+        this._calculatorConstructorForTaskType = {
+            [taskTypes.EXITS_COMPUTING]: ExitsCalculator,
+            [taskTypes.WALLS_COMPUTING]: WallsCalculator
+        };
     }
 
     execute() {
@@ -58,8 +65,8 @@ module.exports = class {
                 const pathHash = path.hash;
                 this._logger.info(`started path calculation: ${pathHash}`);
                 const result = generateRoadPath(
-                    this.cordToPos(path.from),
-                    this.cordToPos(path.to)
+                    this._room.cordToPos(path.from),
+                    this._room.cordToPos(path.to)
                 );
                 if (result.incomplete) {
                     this._logger.warn(
@@ -92,7 +99,7 @@ module.exports = class {
                 this._logger.info(`started ${objectKeyword} calculation: ${edge}`);
                 const calculator = new this._calculatorConstructorForTaskType[taskType](this._room);
                 const objects = calculator[calculationMethod]();
-                this._room(objectKeyword, edge, objects);
+                this._room.setEdgeObjects(objectKeyword, edge, objects);
                 this._logger.info(`finished ${objectKeyword} calculation: ${edge}`);
                 break;
 

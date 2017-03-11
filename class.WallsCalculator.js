@@ -20,7 +20,7 @@ module.exports = class {
 
     calculateTopWalls() {
 
-        const terrain = this._room.objectsInArea(
+        const terrain = this._room.findObjectsInArea(
             LOOK_TERRAIN,
             margin,
             margin,
@@ -57,7 +57,7 @@ module.exports = class {
 
     calculateRightWalls() {
 
-        const terrain = this._room.objectsInArea(
+        const terrain = this._room.findObjectsInArea(
             LOOK_TERRAIN,
             margin,
             this._roomSize - 1 - margin,
@@ -93,7 +93,7 @@ module.exports = class {
 
     calculateBottomWalls() {
 
-        const terrain = this._room.objectsInArea(
+        const terrain = this._room.findObjectsInArea(
             LOOK_TERRAIN,
             this._roomSize - 1 - margin,
             margin,
@@ -130,7 +130,7 @@ module.exports = class {
 
     calculateLeftWalls() {
 
-        const terrain = this._room.objectsInArea(
+        const terrain = this._room.findObjectsInArea(
             LOOK_TERRAIN,
             margin,
             margin,

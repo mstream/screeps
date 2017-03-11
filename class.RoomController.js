@@ -5,15 +5,15 @@ const taskTypes = require("const.taskTypes");
 const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
 
 const Cord = require("class.Cord");
-const ExitsCalculator = require("class.ExitsCalculator");
 const RoomLogger = require("class.RoomLogger");
 const Path = require("class.Path");
+const RoadsBuilder = require("class.RoadsBuilder");
 const TaskExecutor = require("class.TaskExecutor");
 const TaskScheduler = require("class.TaskScheduler");
-const WallsCalculator = require("class.WallsCalculator");
+const WallsBuilder = require("class.WallsBuilder");
 
 
-const REQUESTED = "REQUESTED";
+const REQUESTED = "requested";
 
 
 module.exports = class {
@@ -35,7 +35,7 @@ module.exports = class {
         this._room = room;
         this._game = game;
         this._logger = new RoomLogger(room, game);
-        this._objects = {};
+        this._objectsByType = {};
 
         if (!memory.rooms) {
             memory.rooms = {};
@@ -46,11 +46,6 @@ module.exports = class {
         }
 
         this._memory = memory.rooms[room.name];
-
-        this._calculatorConstructorForTaskType = {
-            [taskTypes.EXITS_COMPUTING]: ExitsCalculator,
-            [taskTypes.WALLS_COMPUTING]: WallsCalculator
-        };
 
         this._taskScheduler = new TaskScheduler(
             this._game, this, this._memory, this._logger
@@ -90,7 +85,7 @@ module.exports = class {
 
     executeTasks() {
         const taskExecutor = new TaskExecutor(
-            this._taskScheduler, this._game, this._room, this._logger
+            this._taskScheduler, this._game, this, this._logger
         );
         taskExecutor.execute();
     }
@@ -110,7 +105,7 @@ module.exports = class {
         );
     }
 
-    objectsInArea(type, top, left, bottom, right) {
+    findObjectsInArea(type, top, left, bottom, right) {
         return this._room.lookForAtArea(type, top, left, bottom, right);
     }
 
@@ -145,71 +140,26 @@ module.exports = class {
 
     buildRoads() {
         const paths = this._memory.paths;
-
-        if (!paths) {
+        if (!paths || !paths.length) {
             return;
         }
-
-        const allowance = CONTROLLER_STRUCTURES[STRUCTURE_ROAD][this.level];
-        if (!allowance) {
-            return;
-        }
-
-        _.forOwn(paths, (pathSegments) => {
-            if (!pathSegments || pathSegments == REQUESTED) {
-                return;
-            }
-            pathSegments.forEach((pathSegment) => {
-                    pathSegment = Cord.fromJSON(pathSegment);
-                    this._logger.info(
-                        `creating road blueprint at : ${pathSegment.hash}`
-                    );
-                    this._room.createConstructionSite(
-                        this.cordToPos(pathSegment),
-                        STRUCTURE_ROAD
-                    );
-                }
-            );
-        });
+        new RoadsBuilder(this, this._logger).build(paths);
     }
 
     buildWalls() {
-
-        const allowance = CONTROLLER_STRUCTURES[STRUCTURE_WALL][this.level];
-        if (!allowance) {
+        const walls = _.flatten(_.values(this._memory.walls));
+        if (!walls || !walls.length) {
             return;
         }
+        new WallsBuilder(this, this._logger).build(walls);
+    }
 
-        roomEdges.forEach((edge) => {
+    buildRoad(cord) {
+        this._build(STRUCTURE_ROAD, cord);
+    }
 
-            const walls = this._memory.walls[edge];
-
-            if (!walls || walls == REQUESTED) {
-                return;
-            }
-
-            walls.forEach((wall) => {
-
-                wall = Path.fromJSON(wall);
-
-                if (!wall.isPerpendicular()) {
-                    throw new Error("wall is not perpendicular");
-                }
-
-                const wallSegments = wall.toSegments();
-
-                wallSegments.forEach((wallSegment) => {
-                    wallSegment = Cord.fromJSON(wallSegment);
-                    this._logger.info(
-                        `creating wall blueprint at : ${wallSegment.hash}`
-                    );
-                    this._room.createConstructionSite(
-                        this.cordToPos(wallSegment),
-                        STRUCTURE_WALL
-                    );
-                });
-            });
-        });
+    buildWall(cord) {
+        this._build(STRUCTURE_WALL, cord);
     }
 
     setPathSegments(pathHash, pathSegments) {
@@ -272,8 +222,7 @@ module.exports = class {
         return this._room.name;
     }
 
-    get
-    size() {
+    get size() {
         return 50;
     }
 
@@ -303,15 +252,22 @@ module.exports = class {
 
     _findObjects(searchType) {
 
-        const cachedObjects = this._objects[searchType];
+        const cachedObjects = this._objectsByType[searchType];
 
         if (cachedObjects) {
             return cachedObjects;
         }
 
         const objects = this._room.find(searchType);
-        this._objects[searchType] = objects;
+        this._objectsByType[searchType] = objects;
         return objects;
+    }
+
+    _build(structureType, cord) {
+        this._room.createConstructionSite(
+            this.cordToPos(cord),
+            structureType
+        );
     }
 };
 

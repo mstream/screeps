@@ -18,7 +18,7 @@ module.exports = class {
 
     calculateTopExits() {
 
-        const terrain = this._room.objectsInArea(
+        const terrain = this._room.findObjectsInArea(
             LOOK_TERRAIN, 0, 0, 0, this._roomSize - 1
         );
 
@@ -51,7 +51,7 @@ module.exports = class {
 
     calculateRightExits() {
 
-        const terrain = this._room.objectsInArea(
+        const terrain = this._room.findObjectsInArea(
             LOOK_TERRAIN, 0, this._roomSize - 1, this._roomSize - 1, this._roomSize - 1
         );
 
@@ -83,7 +83,7 @@ module.exports = class {
 
     calculateBottomExits() {
 
-        const terrain = this._room.objectsInArea(
+        const terrain = this._room.findObjectsInArea(
             LOOK_TERRAIN, this._roomSize - 1, 0, this._roomSize - 1, this._roomSize - 1
         );
 
@@ -116,7 +116,7 @@ module.exports = class {
 
     calculateLeftExits() {
 
-        const terrain = this._room.objectsInArea(
+        const terrain = this._room.findObjectsInArea(
             LOOK_TERRAIN, 0, 0, this._roomSize - 1, 0
         );
 
