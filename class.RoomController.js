@@ -170,12 +170,16 @@ module.exports = class {
         this._memory[objectType][edge] = objects;
     }
 
-    drawText(x, y, style, text) {
-        this._room.visual.text(text, x, y, style);
+    drawCircle(x, y, style) {
+        this._room.visual.circle(x, y, style);
     }
 
     drawRectangle(x, y, w, h, style) {
         this._room.visual.rect(x, y, w, h, style);
+    }
+
+    drawText(x, y, style, text) {
+        this._room.visual.text(text, x, y, style);
     }
 
     cordToPos(cord) {

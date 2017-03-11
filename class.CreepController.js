@@ -31,17 +31,34 @@ module.exports = class {
     }
 
     _drawStatus() {
+        const centerX = this._creep.pos.x;
+        const centerY = this._creep.pos.y;
         const creepRole = this._creepMemory.role;
         const currentHp = this._creep.hits;
         const maxHp = this._creep.hitsMax;
-        const centerX = this._creep.pos.x;
-        const centerY = this._creep.pos.y;
+        const currentTtl = this._creep.ticksToLive;
+        const maxTtl = 1500;
+        const ttlCirclesNumber = 5;
+        const ttlCircleSize = statusBarWidth / ttlCirclesNumber;
 
         const hpRatio = 1 - ((maxHp - currentHp) / maxHp);
+        const ttlRatio = 1 - ((maxTtl - currentTtl) / maxTtl);
+
+        for (let i = 0; i < ttlCirclesNumber; i++) {
+            const filled = 1 - ((ttlCirclesNumber - i) / ttlCirclesNumber) <= ttlRatio;
+            this._room.drawCircle(
+                centerX - (statusBarWidth / 2) + (ttlCircleSize / 2) + (i * ttlCircleSize),
+                centerY - (4 * statusBarHeight),
+                {
+                    stroke: filled ? "#ffffff" : "#aaaaaa",
+                    fill: filled ? "#ffffff" : "transparent",
+                    radius: ttlCircleSize / 2.5}
+            );
+        }
 
         this._room.drawRectangle(
             centerX - (statusBarWidth / 2),
-            centerY - 0.5 - statusBarHeight,
+            centerY - (3 * statusBarHeight),
             (1 - hpRatio) * statusBarWidth,
             statusBarHeight,
             {fill: "#ff0000"}
@@ -49,7 +66,7 @@ module.exports = class {
 
         this._room.drawRectangle(
             centerX - (statusBarWidth / 2) + ((1 - hpRatio) * statusBarWidth),
-            centerY - 0.5 - statusBarHeight,
+            centerY - (3 * statusBarHeight),
             statusBarWidth * hpRatio,
             statusBarHeight,
             {fill: "#00ff00"}
@@ -59,7 +76,7 @@ module.exports = class {
 
         this._room.drawText(
             centerX,
-            centerY - 0.5,
+            centerY - (2 * statusBarHeight),
             {font: statusBarHeight},
             status
         );

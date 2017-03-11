@@ -1,7 +1,9 @@
 const Cord = require("class.Cord");
+const Path = require("class.Path");
 
 
 const REQUESTED = "requested";
+
 
 module.exports = class {
 
@@ -35,6 +37,7 @@ module.exports = class {
             if (!wallPath || wallPath == REQUESTED) {
                 return;
             }
+            wallPath = Path.fromJSON(wallPath);
             wallPath.toSegments().forEach((wallSegment) => {
                     wallSegment = Cord.fromJSON(wallSegment);
                     this._logger.info(
