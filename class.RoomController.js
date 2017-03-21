@@ -105,6 +105,10 @@ module.exports = class {
         );
     }
 
+    findObjectsAt(x, y) {
+        return this._room.lookAt(x, y);
+    }
+
     findObjectsInArea(type, top, left, bottom, right) {
         return this._room.lookForAtArea(type, top, left, bottom, right);
     }

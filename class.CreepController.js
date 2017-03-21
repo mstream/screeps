@@ -52,7 +52,8 @@ module.exports = class {
                 {
                     stroke: filled ? "#ffffff" : "#aaaaaa",
                     fill: filled ? "#ffffff" : "transparent",
-                    radius: ttlCircleSize / 2.5}
+                    radius: ttlCircleSize / 2.5
+                }
             );
         }
 
