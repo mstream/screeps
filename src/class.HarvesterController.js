@@ -1,7 +1,7 @@
-const actionTypes = require("const.actionTypes");
+const actionTypes = require("./const.actionTypes");
 
-const Action = require("class.Action");
-const CreepController = require("class.CreepController");
+const Action = require("./class.Action");
+const CreepController = require("./class.CreepController");
 
 
 module.exports = class extends CreepController {
@@ -21,15 +21,15 @@ module.exports = class extends CreepController {
             if (remainingCapacity) {
                 this._harvestBestSource();
             } else {
-                this._upgradeController();
+                this._transferToBestSpawn();
             }
         }
 
         if (currentAction.type == actionTypes.HARVESTING && !remainingCapacity) {
-            this._upgradeController();
+            this._transferToBestSpawn();
         }
 
-        if (currentAction.type == actionTypes.UPGRADING && !this._creep.carry.energy) {
+        if (currentAction.type == actionTypes.TRANSFERRING && !this._creep.carry.energy) {
             this._harvestBestSource();
         }
     }
@@ -50,12 +50,12 @@ module.exports = class extends CreepController {
                     );
                 }
                 break;
-            case actionTypes.UPGRADING:
-                const controller = this._room.controller;
-
-                if (this._creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
+            case actionTypes.TRANSFERRING:
+                // TODO cache objects by their ID
+                const spawn = Game.getObjectById(currentAction.targetId);
+                if (this._creep.transfer(spawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     this._creep.moveTo(
-                        controller,
+                        spawn,
                         {visualizePathStyle: {stroke: '#ffffff'}}
                     );
                 }

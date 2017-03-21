@@ -1,5 +1,5 @@
-const chooseCreepBody = require("func.chooseCreepBody");
-const generateCreepName = require("func.generateCreepName");
+const chooseCreepBody = require("./func.chooseCreepBody");
+const generateCreepName = require("./func.generateCreepName");
 
 
 module.exports = (game, spawn, rolesSlots) => {

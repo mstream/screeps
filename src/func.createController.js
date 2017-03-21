@@ -1,9 +1,9 @@
-const roles = require("const.roles");
+const roles = require("./const.roles");
 
 const roomControllers = {
-    [roles.BUILDER]: require("class.BuilderController"),
-    [roles.HARVESTER]: require("class.HarvesterController"),
-    [roles.UPGRADER]: require("class.UpgraderController")
+    [roles.BUILDER]: require("./class.BuilderController"),
+    [roles.HARVESTER]: require("./class.HarvesterController"),
+    [roles.UPGRADER]: require("./class.UpgraderController")
 };
 
 module.exports = (creep, room) => {

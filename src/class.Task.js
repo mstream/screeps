@@ -1,4 +1,4 @@
-const taskTypes = require("const.taskTypes");
+const taskTypes = require("./const.taskTypes");
 
 const taskCost = {
     [taskTypes.EXITS_COMPUTING]: 10,

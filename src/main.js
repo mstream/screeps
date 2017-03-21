@@ -1,7 +1,7 @@
-const clearCreepsMemory = require("func.clearCreepsMemory");
-const createController = require("func.createController");
+const clearCreepsMemory = require("./func.clearCreepsMemory");
+const createController = require("./func.createController");
 
-const RoomController = require("class.RoomController");
+const RoomController = require("./class.RoomController");
 
 
 module.exports.loop = () => {

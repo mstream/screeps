@@ -1,9 +1,9 @@
-const roomEdges = require("const.roomEdges");
-const taskTypes = require("const.taskTypes");
+const roomEdges = require("./const.roomEdges");
+const taskTypes = require("./const.taskTypes");
 
-const Cord = require("class.Cord");
-const Path = require("class.Path");
-const Task = require("class.Task");
+const Cord = require("./class.Cord");
+const Path = require("./class.Path");
+const Task = require("./class.Task");
 
 
 module.exports = class {

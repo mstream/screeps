@@ -1,16 +1,16 @@
-const roles = require("const.roles");
-const roomEdges = require("const.roomEdges");
-const taskTypes = require("const.taskTypes");
+const roles = require("./const.roles");
+const roomEdges = require("./const.roomEdges");
+const taskTypes = require("./const.taskTypes");
 
-const buildCreepsIfNeeded = require("func.buildCreepsIfNeeded");
+const buildCreepsIfNeeded = require("./func.buildCreepsIfNeeded");
 
-const Cord = require("class.Cord");
-const RoomLogger = require("class.RoomLogger");
-const Path = require("class.Path");
-const RoadsBuilder = require("class.RoadsBuilder");
-const TaskExecutor = require("class.TaskExecutor");
-const TaskScheduler = require("class.TaskScheduler");
-const WallsBuilder = require("class.WallsBuilder");
+const Cord = require("./class.Cord");
+const RoomLogger = require("./class.RoomLogger");
+const Path = require("./class.Path");
+const RoadsBuilder = require("./class.RoadsBuilder");
+const TaskExecutor = require("./class.TaskExecutor");
+const TaskScheduler = require("./class.TaskScheduler");
+const WallsBuilder = require("./class.WallsBuilder");
 
 
 const REQUESTED = "requested";

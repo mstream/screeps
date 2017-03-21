@@ -1,4 +1,4 @@
-const roles = require("const.roles");
+const roles = require("./const.roles");
 
 module.exports = (role) => {
 

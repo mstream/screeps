@@ -1,4 +1,4 @@
-const actionTypes = require("const.actionTypes");
+const actionTypes = require("./const.actionTypes");
 
 
 class Action {

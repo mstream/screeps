@@ -1,4 +1,4 @@
-const Cord = require("class.Cord");
+const Cord = require("./class.Cord");
 
 
 module.exports = class {

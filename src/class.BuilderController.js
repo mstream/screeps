@@ -1,7 +1,7 @@
-const actionTypes = require("const.actionTypes");
+const actionTypes = require("./const.actionTypes");
 
-const Action = require("class.Action");
-const CreepController = require("class.CreepController");
+const Action = require("./class.Action");
+const CreepController = require("./class.CreepController");
 
 
 module.exports = class extends CreepController {

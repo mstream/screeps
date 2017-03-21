@@ -1,12 +1,12 @@
-const roomEdges = require("const.roomEdges");
-const taskTypes = require("const.taskTypes");
+const roomEdges = require("./const.roomEdges");
+const taskTypes = require("./const.taskTypes");
 
-const generateRoadPath = require("func.generateRoadPath");
+const generateRoadPath = require("./func.generateRoadPath");
 
-const Cord = require("class.Cord");
-const ExitsCalculator = require("class.ExitsCalculator");
-const Path = require("class.Path");
-const WallsCalculator = require("class.WallsCalculator");
+const Cord = require("./class.Cord");
+const ExitsCalculator = require("./class.ExitsCalculator");
+const Path = require("./class.Path");
+const WallsCalculator = require("./class.WallsCalculator");
 
 
 module.exports = class {

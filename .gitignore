@@ -28,3 +28,5 @@ Temporary Items
 
 .idea/
 screeps.iml
+node_modules
+*.log

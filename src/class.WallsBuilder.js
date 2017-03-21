@@ -1,5 +1,5 @@
-const Cord = require("class.Cord");
-const Path = require("class.Path");
+const Cord = require("./class.Cord");
+const Path = require("./class.Path");
 
 
 const REQUESTED = "requested";

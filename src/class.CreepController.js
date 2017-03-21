@@ -1,6 +1,6 @@
-const actionTypes = require("const.actionTypes");
+const actionTypes = require("./const.actionTypes");
 
-const Action = require("class.Action");
+const Action = require("./class.Action");
 
 const statusBarWidth = 1;
 const statusBarHeight = 0.25;

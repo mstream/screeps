@@ -1,0 +1,18 @@
+{
+    "name": "screeps",
+    "description": "screeps bot",
+    "scripts": {
+        "test": "mocha"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mstream/screeps.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "chai": "^3.5.0",
+        "mocha": "^3.2.0"
+    }
+}
