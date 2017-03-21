@@ -2,6 +2,7 @@ const expect = require("chai").expect;
 const Action = require("../src/class.Action");
 const actionTypes = require("../src/const.actionTypes");
 
+
 describe("Action", () => {
 
     describe("#fromJSON()", () => {

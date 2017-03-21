@@ -46,7 +46,7 @@ describe("Path", () => {
         });
     });
 
-    describe("#hash()", () => {
+    describe("#hash", () => {
 
         it("creates human readable hash", () => {
             const hash = new Path(

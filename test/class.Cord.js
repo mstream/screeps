@@ -37,7 +37,7 @@ describe("Cord", () => {
         });
     });
 
-    describe("#hash()", () => {
+    describe("#hash", () => {
 
         it("creates human readable hash", () => {
             const hash = new Cord(0, 1).hash;
