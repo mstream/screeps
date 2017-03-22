@@ -1,5 +1,3 @@
-const actionTypes = require("./const.actionTypes");
-
 const Cord = require("./class.Cord");
 const Path = require("./class.Path");
 

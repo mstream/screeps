@@ -34,7 +34,7 @@ class Task {
     }
 
     toJSON() {
-        return {type: this.type, options: this.options}
+        return {type: this.type, options: this.options};
     }
 
     get cost() {

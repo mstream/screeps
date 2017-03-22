@@ -1,3 +1,5 @@
+const _ = require("lodash");
+
 const roomEdges = require("./const.roomEdges");
 const taskTypes = require("./const.taskTypes");
 
@@ -59,60 +61,62 @@ module.exports = class {
 
         switch (taskType) {
 
-            case taskTypes.PATHS_COMPUTING:
+        case taskTypes.PATHS_COMPUTING: {
 
-                const path = Path.fromJSON(task.options.path);
-                const pathHash = path.hash;
-                this._logger.info(`started path calculation: ${pathHash}`);
-                const result = generateRoadPath(
-                    this._room.cordToPos(path.from),
-                    this._room.cordToPos(path.to)
+            const path = Path.fromJSON(task.options.path);
+            const pathHash = path.hash;
+            this._logger.info(`started path calculation: ${pathHash}`);
+            const result = generateRoadPath(
+                this._room.cordToPos(path.from),
+                this._room.cordToPos(path.to)
+            );
+            if (result.incomplete) {
+                this._logger.warn(
+                    `could not finish path calculation: ${pathHash}`
                 );
-                if (result.incomplete) {
-                    this._logger.warn(
-                        `could not finish path calculation: ${pathHash}`
-                    );
-                    return;
-                }
-                this._logger.info(`finished path calculation: ${pathHash}`);
-                const pathSegments = _.map(result.path, pos => Cord.fromPos(pos));
-                this._room.setPathSegments(pathHash, pathSegments);
-                break;
+                return;
+            }
+            this._logger.info(`finished path calculation: ${pathHash}`);
+            const pathSegments = _.map(result.path, pos => Cord.fromPos(pos));
+            this._room.setPathSegments(pathHash, pathSegments);
+            break;
+        }
 
-            case taskTypes.EXITS_COMPUTING:
-            case taskTypes.WALLS_COMPUTING:
+        case taskTypes.EXITS_COMPUTING:
+        case taskTypes.WALLS_COMPUTING: {
 
-                const objectKeyword = taskType.split("_")[0].toLowerCase();
-                const edge = task.options.edge;
+            const objectKeyword = taskType.split("_")[0].toLowerCase();
+            const edge = task.options.edge;
 
-                if (!roomEdges.includes(edge)) {
-                    throw new Error(`unknown room edge ${edge}`);
-                }
+            if (!roomEdges.includes(edge)) {
+                throw new Error(`unknown room edge ${edge}`);
+            }
 
-                const upperFirstEdge =
-                    edge.charAt(0).toUpperCase() + edge.slice(1);
+            const upperFirstEdge =
+                edge.charAt(0).toUpperCase() + edge.slice(1);
 
-                const upperFirstObjectKeyword =
-                    objectKeyword.charAt(0).toUpperCase() + objectKeyword.slice(1);
+            const upperFirstObjectKeyword =
+                objectKeyword.charAt(0).toUpperCase() + objectKeyword.slice(1);
 
-                const calculationMethod = `calculate${upperFirstEdge}${upperFirstObjectKeyword}`;
-                this._logger.info(`started ${objectKeyword} calculation: ${edge}`);
-                const calculator = new this._calculatorConstructorForTaskType[taskType](this._room);
-                const objects = calculator[calculationMethod]();
-                this._room.setEdgeObjects(objectKeyword, edge, objects);
-                this._logger.info(`finished ${objectKeyword} calculation: ${edge}`);
-                break;
+            const calculationMethod = `calculate${upperFirstEdge}${upperFirstObjectKeyword}`;
+            this._logger.info(`started ${objectKeyword} calculation: ${edge}`);
+            const calculator = new this._calculatorConstructorForTaskType[taskType](this._room);
+            const objects = calculator[calculationMethod]();
+            this._room.setEdgeObjects(objectKeyword, edge, objects);
+            this._logger.info(`finished ${objectKeyword} calculation: ${edge}`);
+            break;
+        }
 
-            case taskTypes.ROADS_BUILDING:
-                this._room.buildRoads();
-                break;
+        case taskTypes.ROADS_BUILDING:
+            this._room.buildRoads();
+            break;
 
-            case taskTypes.WALLS_BUILDING:
-                this._room.buildWalls();
-                break;
+        case taskTypes.WALLS_BUILDING:
+            this._room.buildWalls();
+            break;
 
-            default:
-                throw new Error(`unknown task type in the queue: ${taskType}`);
+        default:
+            throw new Error(`unknown task type in the queue: ${taskType}`);
         }
         this._taskScheduler.completeLastTask();
     }

@@ -13,7 +13,7 @@ describe("Cord", () => {
             });
             expect(cord.x).to.equal(0);
             expect(cord.y).to.equal(1);
-        })
+        });
     });
 
     describe("#fromPos()", () => {
@@ -25,7 +25,7 @@ describe("Cord", () => {
             });
             expect(cord.x).to.equal(0);
             expect(cord.y).to.equal(1);
-        })
+        });
     });
 
     describe("#toJSON()", () => {

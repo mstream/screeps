@@ -1,3 +1,5 @@
+const _ = require("lodash");
+
 const Cord = require("./class.Cord");
 const Path = require("./class.Path");
 
@@ -39,13 +41,12 @@ module.exports = class {
             }
             wallPath = Path.fromJSON(wallPath);
             wallPath.toSegments().forEach((wallSegment) => {
-                    wallSegment = Cord.fromJSON(wallSegment);
-                    this._logger.info(
-                        `creating wall blueprint at : ${wallSegment.hash}`
-                    );
-                    this._room.buildWall(wallSegment);
-                }
-            );
+                wallSegment = Cord.fromJSON(wallSegment);
+                this._logger.info(
+                    `creating wall blueprint at : ${wallSegment.hash}`
+                );
+                this._room.buildWall(wallSegment);
+            });
         });
     }
 };

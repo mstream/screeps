@@ -37,7 +37,7 @@ class Action {
     }
 
     toJSON() {
-        return {type: this.type, targetId: this.targetId}
+        return {type: this.type, targetId: this.targetId};
     }
 }
 

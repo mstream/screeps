@@ -1,3 +1,5 @@
+const _ = require("lodash");
+
 const chooseCreepBody = require("./func.chooseCreepBody");
 const generateCreepName = require("./func.generateCreepName");
 
@@ -44,6 +46,6 @@ module.exports = (game, spawn, rolesSlots) => {
             return;
         }
         const creepName = generateCreepName(role, creepBody);
-        spawn.createCreep(creepBody, creepName, { role });
+        spawn.createCreep(creepBody, creepName, {role});
     });
 };

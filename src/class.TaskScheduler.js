@@ -1,3 +1,5 @@
+const _ = require("lodash");
+
 const roomEdges = require("./const.roomEdges");
 const taskTypes = require("./const.taskTypes");
 
@@ -96,9 +98,9 @@ module.exports = class {
     _requestPathsCalculation() {
         this._room.sources.forEach((source) => {
             this._room.spawns.forEach((spawn) => {
-                this._requestPathCalculation(source, spawn)
+                this._requestPathCalculation(source, spawn);
             });
-            this._requestPathCalculation(source, this._room.controller)
+            this._requestPathCalculation(source, this._room.controller);
         });
     }
 

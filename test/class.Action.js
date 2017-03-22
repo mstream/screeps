@@ -14,7 +14,7 @@ describe("Action", () => {
             });
             expect(action.type).to.equal(actionTypes.BUILDING);
             expect(action.targetId).to.equal("targetId");
-        })
+        });
     });
 
     describe("#toJSON()", () => {
@@ -23,7 +23,7 @@ describe("Action", () => {
             const serializedAction = new Action(actionTypes.BUILDING, "targetId").toJSON();
             expect(serializedAction.type).to.equal(actionTypes.BUILDING);
             expect(serializedAction.targetId).to.equal("targetId");
-        })
+        });
     });
 
     describe("#idle()", () => {

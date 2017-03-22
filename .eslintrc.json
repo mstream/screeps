@@ -1,0 +1,50 @@
+{
+    "env": {
+        "es6": true,
+        "mocha": true,
+        "node": true
+    },
+    "globals": {
+        "CARRY": false,
+        "CONTROLLER_STRUCTURES": false,
+        "ERR_NOT_IN_RANGE": false,
+        "FIND_CONSTRUCTION_SITES": false,
+        "FIND_MY_SPAWNS": false,
+        "FIND_SOURCES": false,
+        "Game": false,
+        "LOOK_STRUCTURES": false,
+        "LOOK_TERRAIN": false,
+        "Memory": false,
+        "MOVE": false,
+        "OK": false,
+        "PathFinder": false,
+        "RESOURCE_ENERGY": false,
+        "RoomPosition": false,
+        "STRUCTURE_ROAD": false,
+        "STRUCTURE_WALL": false,
+        "WORK": false
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "rules": {
+        "indent": [
+            "error",
+            4
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "double"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "no-console": "off"
+    }
+}

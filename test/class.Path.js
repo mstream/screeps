@@ -21,7 +21,7 @@ describe("Path", () => {
             expect(path.from.y).to.equal(1);
             expect(path.to.x).to.equal(2);
             expect(path.to.y).to.equal(3);
-        })
+        });
     });
 
     describe("#toJSON()", () => {

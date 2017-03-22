@@ -1,3 +1,5 @@
+const _ = require("lodash");
+
 const clearCreepsMemory = require("./func.clearCreepsMemory");
 const createController = require("./func.createController");
 

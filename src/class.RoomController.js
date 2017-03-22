@@ -1,12 +1,10 @@
+const _ = require("lodash");
+
 const roles = require("./const.roles");
-const roomEdges = require("./const.roomEdges");
-const taskTypes = require("./const.taskTypes");
 
 const buildCreepsIfNeeded = require("./func.buildCreepsIfNeeded");
 
-const Cord = require("./class.Cord");
 const RoomLogger = require("./class.RoomLogger");
-const Path = require("./class.Path");
 const RoadsBuilder = require("./class.RoadsBuilder");
 const TaskExecutor = require("./class.TaskExecutor");
 const TaskScheduler = require("./class.TaskScheduler");
@@ -127,7 +125,7 @@ module.exports = class {
         if (!this._memory.objects[sourceId]) {
             this._memory.objects[sourceId] = {
                 harvesters: 0
-            }
+            };
         }
         this._memory.objects[sourceId].harvesters++;
     }

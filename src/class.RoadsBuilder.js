@@ -1,3 +1,5 @@
+const _ = require("lodash");
+
 const Cord = require("./class.Cord");
 
 
@@ -36,13 +38,12 @@ module.exports = class {
                 return;
             }
             pathSegments.forEach((pathSegment) => {
-                    pathSegment = Cord.fromJSON(pathSegment);
-                    this._logger.info(
-                        `creating road blueprint at : ${pathSegment.hash}`
-                    );
-                    this._room.buildRoad(pathSegment);
-                }
-            );
+                pathSegment = Cord.fromJSON(pathSegment);
+                this._logger.info(
+                    `creating road blueprint at : ${pathSegment.hash}`
+                );
+                this._room.buildRoad(pathSegment);
+            });
         });
     }
 };

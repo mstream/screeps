@@ -1,3 +1,5 @@
+const _ = require("lodash");
+
 const actionTypes = require("./const.actionTypes");
 
 const Action = require("./class.Action");

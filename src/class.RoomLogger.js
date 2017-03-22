@@ -5,10 +5,12 @@ const levels = {
     WARN: "WARN"
 };
 
+
 const padEnd = (text, paddingLength) => {
     const padding = " ".repeat(Math.max(0, paddingLength - text.length));
     return `${text}${padding}`;
 };
+
 
 module.exports = class {
 
@@ -27,19 +29,19 @@ module.exports = class {
     }
 
     debug(message) {
-        this._log(levels.DEBUG, message)
+        this._log(levels.DEBUG, message);
     }
 
     info(message) {
-        this._log(levels.INFO, message)
+        this._log(levels.INFO, message);
     }
 
     warn(message) {
-        this._log(levels.WARN, message)
+        this._log(levels.WARN, message);
     }
 
     alert(message) {
-        this._log(levels.ALERT, message)
+        this._log(levels.ALERT, message);
     }
 
     _log(level, message) {
