@@ -36,8 +36,16 @@ module.exports = class {
 
             const structures = terrain[margin][x];
             const wall = structures && structures[0] == obstacleTypes.WALL;
+            const lastTile = x == this._roomSize - 1 - margin;
 
-            if (wall || x == this._roomSize - 1 - margin) {
+            if (!wall) {
+                if (start == null) {
+                    start = x;
+                }
+                end = x;
+            }
+
+            if (wall || lastTile) {
                 if (start != null) {
                     walls.push(new Path(
                         new Cord(start, margin),
@@ -46,14 +54,8 @@ module.exports = class {
                     start = null;
                     end = null;
                 }
-                continue;
             }
-            if (!start) {
-                start = x;
-            }
-            end = x;
         }
-
         return walls;
     }
 
@@ -73,8 +75,16 @@ module.exports = class {
 
             const structures = terrain[y][this._roomSize - 1 - margin];
             const wall = structures && structures[0] == obstacleTypes.WALL;
+            const lastTile = y == this._roomSize - 1 - margin;
 
-            if (wall || y == this._roomSize - 1 - margin) {
+            if (!wall) {
+                if (start == null) {
+                    start = y;
+                }
+                end = y;
+            }
+
+            if (wall || lastTile) {
                 if (start != null) {
                     walls.push(new Path(
                         new Cord(this._roomSize - 1 - margin, start),
@@ -83,12 +93,7 @@ module.exports = class {
                     start = null;
                     end = null;
                 }
-                continue;
             }
-            if (!start) {
-                start = y;
-            }
-            end = y;
         }
         return walls;
     }
@@ -109,8 +114,16 @@ module.exports = class {
 
             const structures = terrain[this._roomSize - 1 - margin][x];
             const wall = structures && structures[0] == obstacleTypes.WALL;
+            const lastTile = x == this._roomSize - 1 - margin;
 
-            if (wall || x == this._roomSize - 1 - margin) {
+            if (!wall) {
+                if (start == null) {
+                    start = x;
+                }
+                end = x;
+            }
+
+            if (wall || lastTile) {
                 if (start != null) {
                     walls.push(new Path(
                         new Cord(start, this._roomSize - 1 - margin),
@@ -119,14 +132,8 @@ module.exports = class {
                     start = null;
                     end = null;
                 }
-                continue;
             }
-            if (!start) {
-                start = x;
-            }
-            end = x;
         }
-
         return walls;
     }
 
@@ -146,8 +153,16 @@ module.exports = class {
 
             const structures = terrain[y][margin];
             const wall = structures && structures[0] == obstacleTypes.WALL;
+            const lastTile = y == this._roomSize - 1 - margin;
 
-            if (wall || y == this._roomSize - 1 - margin) {
+            if (!wall) {
+                if (start == null) {
+                    start = y;
+                }
+                end = y;
+            }
+
+            if (wall || lastTile) {
                 if (start != null) {
                     walls.push(new Path(
                         new Cord(margin, start),
@@ -156,12 +171,7 @@ module.exports = class {
                     start = null;
                     end = null;
                 }
-                continue;
             }
-            if (!start) {
-                start = y;
-            }
-            end = y;
         }
 
         return walls;
