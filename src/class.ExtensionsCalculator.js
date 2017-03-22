@@ -1,5 +1,7 @@
 const _ = require("lodash");
 
+const lookTypes = require("./const.lookTypes");
+
 const Cord = require("./class.Cord");
 
 
@@ -49,7 +51,7 @@ module.exports = class {
             const objects = this._room.findObjectsAt(x, y);
             let structureExists = false;
             _.forOwn(objects, (object, objectType) => {
-                if (objectType == LOOK_STRUCTURES) {
+                if (objectType == lookTypes.STRUCTURES) {
                     structureExists = true;
                 }
             });

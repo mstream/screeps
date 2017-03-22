@@ -1,3 +1,6 @@
+const lookTypes = require("./const.lookTypes");
+const obstacleTypes = require("./const.obstacleTypes");
+
 const Cord = require("./class.Cord");
 const Path = require("./class.Path");
 
@@ -17,7 +20,7 @@ module.exports = class {
     calculateTopExits() {
 
         const terrain = this._room.findObjectsInArea(
-            LOOK_TERRAIN, 0, 0, 0, this._roomSize - 1
+            lookTypes.TERRAIN, 0, 0, 0, this._roomSize - 1
         );
 
         const exits = [];
@@ -25,9 +28,17 @@ module.exports = class {
         for (let x = 0, start = null, end = null; x < this._roomSize; x++) {
 
             const structures = terrain[0][x];
-            const wall = structures && structures[0] == "wall";
+            const wall = structures && structures[0] == obstacleTypes.WALL;
+            const lastTile = x == this._roomSize - 1;
 
-            if (wall || x == this._roomSize - 1) {
+            if (!wall) {
+                if (start == null) {
+                    start = x;
+                }
+                end = x;
+            }
+
+            if (wall || lastTile) {
                 if (start != null) {
                     exits.push(new Path(
                         new Cord(start, 0),
@@ -36,12 +47,7 @@ module.exports = class {
                     start = null;
                     end = null;
                 }
-                continue;
             }
-            if (!start) {
-                start = x;
-            }
-            end = x;
         }
 
         return exits;
@@ -50,7 +56,7 @@ module.exports = class {
     calculateRightExits() {
 
         const terrain = this._room.findObjectsInArea(
-            LOOK_TERRAIN, 0, this._roomSize - 1, this._roomSize - 1, this._roomSize - 1
+            lookTypes.TERRAIN, 0, this._roomSize - 1, this._roomSize - 1, this._roomSize - 1
         );
 
         const exits = [];
@@ -58,9 +64,17 @@ module.exports = class {
         for (let y = 0, start = null, end = null; y < this._roomSize; y++) {
 
             const structures = terrain[y][this._roomSize - 1];
-            const wall = structures && structures[0] == "wall";
+            const wall = structures && structures[0] == obstacleTypes.WALL;
+            const lastTile = y == this._roomSize - 1;
 
-            if (wall || y == this._roomSize - 1) {
+            if (!wall) {
+                if (start == null) {
+                    start = y;
+                }
+                end = y;
+            }
+
+            if (wall || lastTile) {
                 if (start != null) {
                     exits.push(new Path(
                         new Cord(this._roomSize - 1, start),
@@ -69,12 +83,7 @@ module.exports = class {
                     start = null;
                     end = null;
                 }
-                continue;
             }
-            if (!start) {
-                start = y;
-            }
-            end = y;
         }
         return exits;
     }
@@ -82,7 +91,7 @@ module.exports = class {
     calculateBottomExits() {
 
         const terrain = this._room.findObjectsInArea(
-            LOOK_TERRAIN, this._roomSize - 1, 0, this._roomSize - 1, this._roomSize - 1
+            lookTypes.TERRAIN, this._roomSize - 1, 0, this._roomSize - 1, this._roomSize - 1
         );
 
         const exits = [];
@@ -90,9 +99,17 @@ module.exports = class {
         for (let x = 0, start = null, end = null; x < this._roomSize; x++) {
 
             const structures = terrain[this._roomSize - 1][x];
-            const wall = structures && structures[0] == "wall";
+            const wall = structures && structures[0] == obstacleTypes.WALL;
+            const lastTile = x == this._roomSize - 1;
 
-            if (wall || x == this._roomSize - 1) {
+            if (!wall) {
+                if (start == null) {
+                    start = x;
+                }
+                end = x;
+            }
+
+            if (wall || lastTile) {
                 if (start != null) {
                     exits.push(new Path(
                         new Cord(start, this._roomSize - 1),
@@ -101,12 +118,7 @@ module.exports = class {
                     start = null;
                     end = null;
                 }
-                continue;
             }
-            if (!start) {
-                start = x;
-            }
-            end = x;
         }
 
         return exits;
@@ -115,7 +127,7 @@ module.exports = class {
     calculateLeftExits() {
 
         const terrain = this._room.findObjectsInArea(
-            LOOK_TERRAIN, 0, 0, this._roomSize - 1, 0
+            lookTypes.TERRAIN, 0, 0, this._roomSize - 1, 0
         );
 
         const exits = [];
@@ -123,9 +135,17 @@ module.exports = class {
         for (let y = 0, start = null, end = null; y < this._roomSize; y++) {
 
             const structures = terrain[y][0];
-            const wall = structures && structures[0] == "wall";
+            const wall = structures && structures[0] == obstacleTypes.WALL;
+            const lastTile = y == this._roomSize - 1;
 
-            if (wall || y == this._roomSize - 1) {
+            if (!wall) {
+                if (start == null) {
+                    start = y;
+                }
+                end = y;
+            }
+
+            if (wall || lastTile) {
                 if (start != null) {
                     exits.push(new Path(
                         new Cord(0, start),
@@ -134,12 +154,7 @@ module.exports = class {
                     start = null;
                     end = null;
                 }
-                continue;
             }
-            if (!start) {
-                start = y;
-            }
-            end = y;
         }
 
         return exits;

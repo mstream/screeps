@@ -1,3 +1,6 @@
+const lookTypes = require("./const.lookTypes");
+const obstacleTypes = require("./const.obstacleTypes");
+
 const Cord = require("./class.Cord");
 const Path = require("./class.Path");
 
@@ -20,7 +23,7 @@ module.exports = class {
     calculateTopWalls() {
 
         const terrain = this._room.findObjectsInArea(
-            LOOK_TERRAIN,
+            lookTypes.TERRAIN,
             margin,
             margin,
             margin,
@@ -32,7 +35,7 @@ module.exports = class {
         for (let x = margin, start = null, end = null; x < this._roomSize - margin; x++) {
 
             const structures = terrain[margin][x];
-            const wall = structures && structures[0] == "wall";
+            const wall = structures && structures[0] == obstacleTypes.WALL;
 
             if (wall || x == this._roomSize - 1 - margin) {
                 if (start != null) {
@@ -57,7 +60,7 @@ module.exports = class {
     calculateRightWalls() {
 
         const terrain = this._room.findObjectsInArea(
-            LOOK_TERRAIN,
+            lookTypes.TERRAIN,
             margin,
             this._roomSize - 1 - margin,
             this._roomSize - 1 - margin,
@@ -69,7 +72,7 @@ module.exports = class {
         for (let y = margin, start = null, end = null; y < this._roomSize - margin; y++) {
 
             const structures = terrain[y][this._roomSize - 1 - margin];
-            const wall = structures && structures[0] == "wall";
+            const wall = structures && structures[0] == obstacleTypes.WALL;
 
             if (wall || y == this._roomSize - 1 - margin) {
                 if (start != null) {
@@ -93,7 +96,7 @@ module.exports = class {
     calculateBottomWalls() {
 
         const terrain = this._room.findObjectsInArea(
-            LOOK_TERRAIN,
+            lookTypes.TERRAIN,
             this._roomSize - 1 - margin,
             margin,
             this._roomSize - 1 - margin,
@@ -105,7 +108,7 @@ module.exports = class {
         for (let x = margin, start = null, end = null; x < this._roomSize - margin; x++) {
 
             const structures = terrain[this._roomSize - 1 - margin][x];
-            const wall = structures && structures[0] == "wall";
+            const wall = structures && structures[0] == obstacleTypes.WALL;
 
             if (wall || x == this._roomSize - 1 - margin) {
                 if (start != null) {
@@ -130,7 +133,7 @@ module.exports = class {
     calculateLeftWalls() {
 
         const terrain = this._room.findObjectsInArea(
-            LOOK_TERRAIN,
+            lookTypes.TERRAIN,
             margin,
             margin,
             this._roomSize - 1 - margin,
@@ -142,7 +145,7 @@ module.exports = class {
         for (let y = margin, start = null, end = null; y < this._roomSize - margin; y++) {
 
             const structures = terrain[y][margin];
-            const wall = structures && structures[0] == "wall";
+            const wall = structures && structures[0] == obstacleTypes.WALL;
 
             if (wall || y == this._roomSize - 1 - margin) {
                 if (start != null) {

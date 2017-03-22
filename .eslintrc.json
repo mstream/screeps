@@ -12,8 +12,6 @@
         "FIND_MY_SPAWNS": false,
         "FIND_SOURCES": false,
         "Game": false,
-        "LOOK_STRUCTURES": false,
-        "LOOK_TERRAIN": false,
         "Memory": false,
         "MOVE": false,
         "OK": false,
