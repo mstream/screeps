@@ -2,7 +2,7 @@
     "name": "screeps",
     "description": "screeps bot",
     "scripts": {
-        "lint": "eslint .",
+        "lint": "eslint src test",
         "pretest": "npm run lint",
         "test": "mocha"
     },

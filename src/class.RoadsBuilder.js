@@ -40,11 +40,11 @@ module.exports = class {
             return;
         }
 
-        _.forOwn(paths, (pathSegments) => {
+        _.forEach(paths, (pathSegments) => {
             if (!pathSegments || pathSegments == REQUESTED) {
                 return;
             }
-            pathSegments.forEach((pathSegment) => {
+            _.forEach(pathSegments, (pathSegment) => {
                 if (!pathSegment) {
                     throw new Error("pathSegment can't be null");
                 }

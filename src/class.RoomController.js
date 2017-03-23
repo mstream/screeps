@@ -142,7 +142,7 @@ module.exports = class {
     }
 
     buildRoads() {
-        const paths = this._memory.paths;
+        const paths = _.flatten(_.values(this._memory.paths));
         if (!paths || !paths.length) {
             return;
         }
@@ -154,7 +154,7 @@ module.exports = class {
         if (!walls || !walls.length) {
             return;
         }
-        new WallsBuilder(this, this._logger).build(walls);
+        new WallsBuilder(this, this._logger, structureAllowance).build(walls);
     }
 
     buildRoad(cord) {
