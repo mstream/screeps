@@ -183,7 +183,6 @@ describe("ExitsCalculator", () => {
             };
             const exitsCalculator = new ExitsCalculator(room);
             const exits = exitsCalculator.calculateTopExits();
-            console.log(JSON.stringify(exits));
             expect(exits.length).to.equal(2);
             expect(exits[0].from.x).to.equal(0);
             expect(exits[0].from.y).to.equal(0);

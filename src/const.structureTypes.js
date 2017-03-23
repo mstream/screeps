@@ -1,0 +1,3 @@
+module.exports = {
+    ROAD: "road",
+};

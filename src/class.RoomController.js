@@ -1,6 +1,7 @@
 const _ = require("lodash");
 
 const roles = require("./const.roles");
+const structureAllowance = require("./const.structureAllowance");
 
 const buildCreepsIfNeeded = require("./func.buildCreepsIfNeeded");
 
@@ -145,7 +146,7 @@ module.exports = class {
         if (!paths || !paths.length) {
             return;
         }
-        new RoadsBuilder(this, this._logger).build(paths);
+        new RoadsBuilder(this, this._logger, structureAllowance).build(paths);
     }
 
     buildWalls() {
