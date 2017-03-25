@@ -59,8 +59,8 @@ describe("Task", () => {
         });
 
         it("creates paths computing task", () => {
-            const task = new Task(taskTypes.PATHS_COMPUTING, {foo: "bar"});
-            expect(task.type).to.equal(taskTypes.PATHS_COMPUTING);
+            const task = new Task(taskTypes.ROAD_COMPUTING, {foo: "bar"});
+            expect(task.type).to.equal(taskTypes.ROAD_COMPUTING);
             expect(task.options.foo).to.equal("bar");
         });
 

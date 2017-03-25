@@ -41,7 +41,7 @@ module.exports = class {
         this._schedulingFrequencies = {
             [taskTypes.EXTENSIONS_BUILDING]: 100,
             [taskTypes.EXTENSIONS_COMPUTING]: 200,
-            [taskTypes.PATHS_COMPUTING]: 200,
+            [taskTypes.ROAD_COMPUTING]: 200,
             [taskTypes.ROADS_BUILDING]: 100,
             [taskTypes.WALLS_BUILDING]: 100
         };
@@ -55,7 +55,7 @@ module.exports = class {
                 this._queueTask(new Task(taskTypes.ROADS_BUILDING)),
             [taskTypes.WALLS_BUILDING]: () =>
                 this._queueTask(new Task(taskTypes.WALLS_BUILDING)),
-            [taskTypes.PATHS_COMPUTING]: this._requestPathsCalculation
+            [taskTypes.ROAD_COMPUTING]: this._requestPathsCalculation
         };
 
         this._initializeMemory();
@@ -121,12 +121,12 @@ module.exports = class {
         }
 
         this._logger.info(
-            `scheduling tasks: ${taskTypes.PATHS_COMPUTING} for ${path.hash}`
+            `scheduling tasks: ${taskTypes.ROAD_COMPUTING} for ${path.hash}`
         );
 
         this._room.requestPath(path);
         this._queueTask(new Task(
-            taskTypes.PATHS_COMPUTING,
+            taskTypes.ROAD_COMPUTING,
             {path}
         ));
     }

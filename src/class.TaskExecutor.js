@@ -3,12 +3,11 @@ const _ = require("lodash");
 const roomEdges = require("./const.roomEdges");
 const taskTypes = require("./const.taskTypes");
 
-const generateRoadPath = require("./func.generateRoadPath");
-
 const Cord = require("./class.Cord");
 const ExitsCalculator = require("./class.ExitsCalculator");
 const ExtensionsCalculator = require("./class.ExtensionsCalculator");
 const Path = require("./class.Path");
+const RoadCalculator = require("./class.RoadCalculator");
 const WallsCalculator = require("./class.WallsCalculator");
 
 
@@ -63,12 +62,13 @@ module.exports = class {
 
         switch (taskType) {
 
-        case taskTypes.PATHS_COMPUTING: {
+        case taskTypes.ROAD_COMPUTING: {
 
             const path = Path.fromJSON(task.options.path);
             const pathHash = path.hash;
             this._logger.info(`started path calculation: ${pathHash}`);
-            const result = generateRoadPath(
+            const calculator = new RoadCalculator();
+            const result = calculator.calculate(
                 this._room.cordToPos(path.from),
                 this._room.cordToPos(path.to)
             );
