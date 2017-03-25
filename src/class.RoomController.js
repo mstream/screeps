@@ -142,7 +142,7 @@ module.exports = class {
     }
 
     buildRoads() {
-        const paths = _.flatten(_.values(this._memory.paths));
+        const paths = _.values(this._memory.paths);
         if (!paths || !paths.length) {
             return;
         }
