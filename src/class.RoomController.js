@@ -2,6 +2,7 @@ const _ = require("lodash");
 
 const roles = require("./const.roles");
 const structureAllowance = require("./const.structureAllowance");
+const structureTypes = require("./const.structureTypes");
 
 const buildCreepsIfNeeded = require("./func.buildCreepsIfNeeded");
 
@@ -170,12 +171,16 @@ module.exports = class {
         new WallsBuilder(this, this._logger, structureAllowance).build(walls);
     }
 
+    buildExtension(cord) {
+        this._build(structureTypes.EXTENSION, cord);
+    }
+
     buildRoad(cord) {
-        this._build(STRUCTURE_ROAD, cord);
+        this._build(structureTypes.ROAD, cord);
     }
 
     buildWall(cord) {
-        this._build(STRUCTURE_WALL, cord);
+        this._build(structureTypes.WALL, cord);
     }
 
     setExtensions(extensions) {

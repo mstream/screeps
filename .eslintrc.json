@@ -18,8 +18,6 @@
         "PathFinder": false,
         "RESOURCE_ENERGY": false,
         "RoomPosition": false,
-        "STRUCTURE_ROAD": false,
-        "STRUCTURE_WALL": false,
         "WORK": false
     },
     "extends": "eslint:recommended",
