@@ -82,32 +82,12 @@ describe("WallsBuilder", () => {
             const buildWallSpy = sinon.spy(room, "buildWall");
             const logger = stubRoomLogger();
             const allowance = stubStructureAllowance(1, 0);
-            const walls = [[{x: 0, y: 0}]];
+            const walls = [{from: {x: 0, y: 0}}];
             new WallsBuilder(room, logger, allowance).build(walls);
             expect(buildWallSpy.callCount).to.equal(0);
         });
 
-        it("does not do anything when allowance is more than zero but wallPaths are null", () => {
-            const room = stubRoom(1);
-            const buildWallSpy = sinon.spy(room, "buildWall");
-            const logger = stubRoomLogger();
-            const allowance = stubStructureAllowance(1, 1);
-            const walls = [null, null];
-            new WallsBuilder(room, logger, allowance).build(walls);
-            expect(buildWallSpy.callCount).to.equal(0);
-        });
-
-        it("does not do anything when allowance is more than zero but wallPaths are undefined", () => {
-            const room = stubRoom(1);
-            const buildWallSpy = sinon.spy(room, "buildWall");
-            const logger = stubRoomLogger();
-            const allowance = stubStructureAllowance(1, 1);
-            const walls = [undefined, undefined];
-            new WallsBuilder(room, logger, allowance).build(walls);
-            expect(buildWallSpy.callCount).to.equal(0);
-        });
-
-        it("does not do anything when allowance is more than zero but wallPaths are requested", () => {
+        it("does not do anything when allowance is more than zero but walls are requested", () => {
             const room = stubRoom(1);
             const buildWallSpy = sinon.spy(room, "buildWall");
             const logger = stubRoomLogger();
@@ -117,50 +97,40 @@ describe("WallsBuilder", () => {
             expect(buildWallSpy.callCount).to.equal(0);
         });
 
-        it("does not do anything when allowance is more than zero but wallPaths are empty", () => {
+        it("throws exception when allowance is more than zero but one of the walls is null", () => {
             const room = stubRoom(1);
             const buildWallSpy = sinon.spy(room, "buildWall");
             const logger = stubRoomLogger();
             const allowance = stubStructureAllowance(1, 1);
-            const walls = [[], [], [], []];
-            new WallsBuilder(room, logger, allowance).build(walls);
-            expect(buildWallSpy.callCount).to.equal(0);
-        });
-
-        it("throws exception when allowance is more than zero but one of wallPaths is null", () => {
-            const room = stubRoom(1);
-            const buildWallSpy = sinon.spy(room, "buildWall");
-            const logger = stubRoomLogger();
-            const allowance = stubStructureAllowance(1, 1);
-            const walls = [[null], [], [], []];
+            const walls = [null];
 
             expect(
                 () => new WallsBuilder(room, logger, allowance).build(walls)
-            ).to.throw("wallPath can't be null");
+            ).to.throw("wall can't be null");
 
             expect(buildWallSpy.callCount).to.equal(0);
         });
 
-        it("throws exception when allowance is more than zero but one of wallPaths is undefined", () => {
+        it("throws exception when allowance is more than zero but one of the walls is undefined", () => {
             const room = stubRoom(1);
             const buildWallSpy = sinon.spy(room, "buildWall");
             const logger = stubRoomLogger();
             const allowance = stubStructureAllowance(1, 1);
-            const walls = [[undefined], [], [], []];
+            const walls = [undefined];
 
             expect(
                 () => new WallsBuilder(room, logger, allowance).build(walls)
-            ).to.throw("wallPath can't be null");
+            ).to.throw("wall can't be null");
 
             expect(buildWallSpy.callCount).to.equal(0);
         });
 
-        it("throws exception when allowance is more than zero but one of wallPaths is in a wrong format", () => {
+        it("throws exception when allowance is more than zero but one of wall is in a wrong format", () => {
             const room = stubRoom(1);
             const buildWallSpy = sinon.spy(room, "buildWall");
             const logger = stubRoomLogger();
             const allowance = stubStructureAllowance(1, 1);
-            const walls = [[{from: 0, to: 0}], [], [], []];
+            const walls = [{from: 0, to: 0}];
 
             expect(
                 () => new WallsBuilder(room, logger, allowance).build(walls)
@@ -175,8 +145,9 @@ describe("WallsBuilder", () => {
             const logger = stubRoomLogger();
             const allowance = stubStructureAllowance(1, 1);
             const walls = [
-                [{from: {x: 0, y: 0}, to: {x:1,y:0}}, {from: {x: 3, y: 0}, to: {x:4,y:0}}],
-                [{from: {x: 0, y: 1}, to: {x:0,y:3}}]
+                {from: {x: 0, y: 0}, to: {x: 1, y: 0}},
+                {from: {x: 3, y: 0}, to: {x: 4, y: 0}},
+                {from: {x: 0, y: 1}, to: {x: 0, y: 3}}
             ];
             new WallsBuilder(room, logger, allowance).build(walls);
             expect(buildWallSpy.callCount).to.equal(7);

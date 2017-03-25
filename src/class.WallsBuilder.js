@@ -2,7 +2,6 @@ const _ = require("lodash");
 
 const structureTypes = require("./const.structureTypes");
 
-const Cord = require("./class.Cord");
 const Path = require("./class.Path");
 
 
@@ -43,22 +42,19 @@ module.exports = class {
             return;
         }
 
-        _.forEach(walls, (wallPaths) => {
-            if (!wallPaths || wallPaths == REQUESTED) {
+        _.forEach(walls, (wall) => {
+            if (!wall) {
+                throw new Error("wall can't be null");
+            }
+            if (wall == REQUESTED) {
                 return;
             }
-            _.forEach(wallPaths, (wallPath) => {
-                if (!wallPath) {
-                    throw new Error("wallPath can't be null");
-                }
-                wallPath = Path.fromJSON(wallPath);
-                _.forEach(wallPath.toSegments(), (wallSegment) => {
-                    wallSegment = Cord.fromJSON(wallSegment);
-                    this._logger.info(
-                        `creating wall blueprint at : ${wallSegment.hash}`
-                    );
-                    this._room.buildWall(wallSegment);
-                });
+            wall = Path.fromJSON(wall);
+            _.forEach(wall.toSegments(), (wallSegment) => {
+                this._logger.info(
+                    `creating wall blueprint at : ${wallSegment.hash}`
+                );
+                this._room.buildWall(wallSegment);
             });
         });
     }
