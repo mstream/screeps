@@ -109,13 +109,14 @@ module.exports = class {
             break;
         }
 
-        case taskTypes.EXTENSIONS_COMPUTING:
-            this._logger.info(`started extensions calculation`);
+        case taskTypes.EXTENSIONS_COMPUTING: {
+            this._logger.info("started extensions calculation");
             const calculator = new this._calculatorConstructorForTaskType[taskType](this._room);
             const extensions = calculator.calculate(10);
             this._room.setExtensions(extensions);
-            this._logger.info(`finished extensions calculation`);
+            this._logger.info("finished extensions calculation");
             break;
+        }
 
         case taskTypes.ROADS_BUILDING:
             this._room.buildRoads();
@@ -123,6 +124,10 @@ module.exports = class {
 
         case taskTypes.WALLS_BUILDING:
             this._room.buildWalls();
+            break;
+
+        case taskTypes.EXTENSIONS_BUILDING:
+            this._room.buildExtensions();
             break;
 
         default:

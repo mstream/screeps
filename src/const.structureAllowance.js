@@ -1,6 +1,16 @@
 const structureTypes = require("./const.structureTypes");
 
 module.exports = {
+    [structureTypes.EXTENSION]: {
+        1: 0,
+        2: 5,
+        3: 10,
+        4: 20,
+        5: 30,
+        6: 40,
+        7: 50,
+        8: 60
+    },
     [structureTypes.ROAD]: {
         1: 2500,
         2: 2500,

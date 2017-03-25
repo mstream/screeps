@@ -5,6 +5,7 @@ const structureAllowance = require("./const.structureAllowance");
 
 const buildCreepsIfNeeded = require("./func.buildCreepsIfNeeded");
 
+const ExtensionsBuilder = require("./class.ExtensionsBuilder");
 const RoomLogger = require("./class.RoomLogger");
 const RoadsBuilder = require("./class.RoadsBuilder");
 const TaskExecutor = require("./class.TaskExecutor");
@@ -80,6 +81,10 @@ module.exports = class {
                 left: null
             };
         }
+
+        if (!this._memory.extensions) {
+            this._memory.extensions = {};
+        }
     }
 
     executeTasks() {
@@ -141,6 +146,14 @@ module.exports = class {
         sourceMemory.harvesters--;
     }
 
+    buildExtensions() {
+        const extensions = this._memory.extensions;
+        if (!extensions || !extensions.length) {
+            return;
+        }
+        new ExtensionsBuilder(this, this._logger, structureAllowance).build(extensions);
+    }
+
     buildRoads() {
         const paths = _.values(this._memory.paths);
         if (!paths || !paths.length) {
@@ -163,6 +176,10 @@ module.exports = class {
 
     buildWall(cord) {
         this._build(STRUCTURE_WALL, cord);
+    }
+
+    setPathExtensions(extensions) {
+        this._memory.extensions = extensions;
     }
 
     setPathSegments(pathHash, pathSegments) {
