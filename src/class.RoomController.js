@@ -178,7 +178,7 @@ module.exports = class {
         this._build(STRUCTURE_WALL, cord);
     }
 
-    setPathExtensions(extensions) {
+    setExtensions(extensions) {
         this._memory.extensions = extensions;
     }
 
