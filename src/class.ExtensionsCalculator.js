@@ -1,6 +1,15 @@
 const _ = require("lodash");
 
+const lookTypes = require("./const.lookTypes");
+
 const Cord = require("./class.Cord");
+
+
+const obstacleTypes = [
+    lookTypes.CONSTRUCTION_SITE,
+    lookTypes.STRUCTURE,
+    lookTypes.SOURCE
+];
 
 
 module.exports = class {
@@ -63,7 +72,11 @@ module.exports = class {
         const x = sourceX + dx;
         const y = sourceY + dy;
         const objects = this._room.findObjectsAt(x, y);
-        return !objects.length;
+        const obstacles = _.filter(objects, (object) =>
+            _.includes(obstacleTypes, object.type) ||
+            (object.type == lookTypes.TERRAIN && object.terrain == "wall")
+        );
+        return !obstacles.length;
     }
 };
 

@@ -1,7 +1,8 @@
 const expect = require("chai").expect;
 
+const lookTypes = require("../src/const.lookTypes");
+
 const ExtensionsCalculator = require("../src/class.ExtensionsCalculator");
-const obstacleTypes = require("../src/const.obstacleTypes");
 
 
 describe("ExtensionsCalculator", () => {
@@ -23,7 +24,7 @@ describe("ExtensionsCalculator", () => {
             const objects = {};
             const room = {
                 size: 20,
-                sources: [
+                sources: [{type: lookTypes.TERRAIN, terrain: "plain"},
                     {pos: {x: 10, y: 10}}
                 ],
                 findObjectsAt: (x, y) => {
@@ -37,41 +38,482 @@ describe("ExtensionsCalculator", () => {
             expect(extensions.length).to.equal(0);
         });
 
-        it("returns extension positions for a single source", () => {
+        it("returns extension positions for a single source where the obstacles are walls", () => {
             const objects = {
                 6: {
-                    6: [],
-                    8: [obstacleTypes.WALL],
-                    10: [obstacleTypes.WALL],
-                    12: [obstacleTypes.WALL],
-                    14: [obstacleTypes.WALL]
+                    6: [{type: lookTypes.TERRAIN, terrain: "plain"}],
+                    8: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    10: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    12: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    14: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}]
                 },
                 8: {
-                    6: [obstacleTypes.WALL],
-                    8: [obstacleTypes.WALL],
-                    10: [obstacleTypes.WALL],
-                    12: [obstacleTypes.WALL],
-                    14: [obstacleTypes.WALL]
+                    6: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    8: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    10: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    12: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    14: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}]
                 },
                 10: {
-                    6: [obstacleTypes.WALL],
-                    8: [],
-                    12: [],
-                    14: [obstacleTypes.WALL]
+                    6: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    8: [{type: lookTypes.TERRAIN, terrain: "plain"}],
+                    12: [{type: lookTypes.TERRAIN, terrain: "plain"}],
+                    14: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}]
                 },
                 12: {
-                    6: [obstacleTypes.WALL],
-                    8: [obstacleTypes.WALL],
-                    10: [obstacleTypes.WALL],
-                    12: [obstacleTypes.WALL],
-                    14: [obstacleTypes.WALL]
+                    6: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    8: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    10: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    12: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    14: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}]
                 },
                 14: {
-                    6: [obstacleTypes.WALL],
-                    8: [obstacleTypes.WALL],
-                    10: [obstacleTypes.WALL],
-                    12: [obstacleTypes.WALL],
-                    14: []
+                    6: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    8: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    10: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    12: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    14: [{type: lookTypes.TERRAIN, terrain: "plain"}]
+                }
+            };
+            const room = {
+                size: 10,
+                sources: [
+                    {pos: {x: 10, y: 10}}
+                ],
+                findObjectsAt: (x, y) => {
+                    const object = objects[y][x];
+                    expect(object, `findObjectsAt(${x}, ${y})`).to.be.ok;
+                    return object;
+                }
+            };
+            const extensionsCalculator = new ExtensionsCalculator(room);
+            const extensions = extensionsCalculator.calculate(3);
+            expect(extensions.length).to.equal(3);
+            expect(extensions[0].x).to.equal(12);
+            expect(extensions[0].y).to.equal(10);
+            expect(extensions[1].x).to.equal(8);
+            expect(extensions[1].y).to.equal(10);
+            expect(extensions[2].x).to.equal(6);
+            expect(extensions[2].y).to.equal(6);
+        });
+
+        it("returns extension positions for a single source where the obstacles are structures", () => {
+            const objects = {
+                6: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    10: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ]
+                },
+                8: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    10: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ]
+                },
+                10: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ]
+                },
+                12: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    10: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ]
+                },
+                14: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    10: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.STRUCTURE}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"}
+                    ]
+                }
+            };
+            const room = {
+                size: 10,
+                sources: [
+                    {pos: {x: 10, y: 10}}
+                ],
+                findObjectsAt: (x, y) => {
+                    const object = objects[y][x];
+                    expect(object, `findObjectsAt(${x}, ${y})`).to.be.ok;
+                    return object;
+                }
+            };
+            const extensionsCalculator = new ExtensionsCalculator(room);
+            const extensions = extensionsCalculator.calculate(3);
+            expect(extensions.length).to.equal(3);
+            expect(extensions[0].x).to.equal(12);
+            expect(extensions[0].y).to.equal(10);
+            expect(extensions[1].x).to.equal(8);
+            expect(extensions[1].y).to.equal(10);
+            expect(extensions[2].x).to.equal(6);
+            expect(extensions[2].y).to.equal(6);
+        });
+
+        it("returns extension positions for a single source where the obstacles are construction sites", () => {
+            const objects = {
+                6: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    10: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ]
+                },
+                8: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    10: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ]
+                },
+                10: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ]
+                },
+                12: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    10: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ]
+                },
+                14: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    10: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.CONSTRUCTION_SITE}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"}
+                    ]
+                }
+            };
+            const room = {
+                size: 10,
+                sources: [
+                    {pos: {x: 10, y: 10}}
+                ],
+                findObjectsAt: (x, y) => {
+                    const object = objects[y][x];
+                    expect(object, `findObjectsAt(${x}, ${y})`).to.be.ok;
+                    return object;
+                }
+            };
+            const extensionsCalculator = new ExtensionsCalculator(room);
+            const extensions = extensionsCalculator.calculate(3);
+            expect(extensions.length).to.equal(3);
+            expect(extensions[0].x).to.equal(12);
+            expect(extensions[0].y).to.equal(10);
+            expect(extensions[1].x).to.equal(8);
+            expect(extensions[1].y).to.equal(10);
+            expect(extensions[2].x).to.equal(6);
+            expect(extensions[2].y).to.equal(6);
+        });
+
+        it("returns extension positions for a single source where the obstacles are sourcess", () => {
+            const objects = {
+                6: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    10: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ]
+                },
+                8: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    10: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ]
+                },
+                10: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ]
+                },
+                12: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    10: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ]
+                },
+                14: {
+                    6: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    8: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    10: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    12: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"},
+                        {type: lookTypes.SOURCE}
+                    ],
+                    14: [
+                        {type: lookTypes.TERRAIN, terrain: "plain"}
+                    ]
                 }
             };
             const room = {
@@ -99,72 +541,192 @@ describe("ExtensionsCalculator", () => {
         it("returns extension positions for a multiple sources", () => {
             const objects = {
                 6: {
-                    6: [],
-                    8: [obstacleTypes.WALL],
-                    10: [obstacleTypes.WALL],
-                    12: [obstacleTypes.WALL],
-                    14: [obstacleTypes.WALL]
+                    6: [{type: lookTypes.TERRAIN, terrain: "plain"}],
+                    8: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    10: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    12: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    14: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}]
                 },
                 8: {
-                    6: [obstacleTypes.WALL],
-                    8: [obstacleTypes.WALL],
-                    10: [obstacleTypes.WALL],
-                    12: [obstacleTypes.WALL],
-                    14: [obstacleTypes.WALL]
+                    6: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    8: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    10: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    12: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    14: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}]
                 },
                 10: {
-                    6: [obstacleTypes.WALL],
-                    8: [],
-                    12: [],
-                    14: [obstacleTypes.WALL]
+                    6: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    8: [{type: lookTypes.TERRAIN, terrain: "plain"}],
+                    12: [{type: lookTypes.TERRAIN, terrain: "plain"}],
+                    14: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}]
                 },
                 12: {
-                    6: [obstacleTypes.WALL],
-                    8: [obstacleTypes.WALL],
-                    10: [obstacleTypes.WALL],
-                    12: [obstacleTypes.WALL],
-                    14: [obstacleTypes.WALL]
+                    6: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    8: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    10: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    12: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    14: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}]
                 },
                 14: {
-                    6: [obstacleTypes.WALL],
-                    8: [obstacleTypes.WALL],
-                    10: [obstacleTypes.WALL],
-                    12: [obstacleTypes.WALL],
-                    14: []
+                    6: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    8: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    10: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    12: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    14: [{type: lookTypes.TERRAIN, terrain: "plain"},]
                 },
                 16: {
-                    16: [],
-                    18: [obstacleTypes.WALL],
-                    20: [obstacleTypes.WALL],
-                    22: [obstacleTypes.WALL],
-                    24: [obstacleTypes.WALL]
+                    16: [{type: lookTypes.TERRAIN, terrain: "plain"}],
+                    18: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    20: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    22: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    24: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}]
                 },
                 18: {
-                    16: [obstacleTypes.WALL],
-                    18: [obstacleTypes.WALL],
-                    20: [obstacleTypes.WALL],
-                    22: [obstacleTypes.WALL],
-                    24: [obstacleTypes.WALL]
+                    16: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    18: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    20: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    22: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    24: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}]
                 },
                 20: {
-                    16: [obstacleTypes.WALL],
-                    18: [],
-                    22: [],
-                    24: [obstacleTypes.WALL]
+                    16: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    18: [{type: lookTypes.TERRAIN, terrain: "plain"}],
+                    22: [{type: lookTypes.TERRAIN, terrain: "plain"}],
+                    24: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}]
                 },
                 22: {
-                    16: [obstacleTypes.WALL],
-                    18: [obstacleTypes.WALL],
-                    20: [obstacleTypes.WALL],
-                    22: [obstacleTypes.WALL],
-                    24: [obstacleTypes.WALL]
+                    16: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    18: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    20: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    22: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    24: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}]
                 },
                 24: {
-                    16: [obstacleTypes.WALL],
-                    18: [obstacleTypes.WALL],
-                    20: [obstacleTypes.WALL],
-                    22: [obstacleTypes.WALL],
-                    24: []
+                    16: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    18: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    20: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    22: [{
+                        type: lookTypes.TERRAIN,
+                        terrain: "plain"
+                    }, {type: lookTypes.STRUCTURE}],
+                    24: [{type: lookTypes.TERRAIN, terrain: "plain"}]
                 }
             };
             const room = {

@@ -1,12 +1,12 @@
 module.exports = {
-    CREEPS: "creep",
+    CONSTRUCTION_SITE: "constructionSite",
+    CREEP: "creep",
     ENERGY: "energy",
-    RESOURCES: "resource",
-    SOURCES: "source",
-    MINERALS: "mineral",
-    STRUCTURES: "structure",
-    FLAGS: "flag",
-    CONSTRUCTION_SITES: "constructionSite",
-    NUKES: "nuke",
+    FLAG: "flag",
+    MINERAL: "mineral",
+    NUKE: "nuke",
+    RESOURCE: "resource",
+    SOURCE: "source",
+    STRUCTURE: "structure",
     TERRAIN: "terrain"
 };
