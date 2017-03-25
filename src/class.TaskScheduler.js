@@ -39,12 +39,18 @@ module.exports = class {
         this._memory = memory.schedule;
 
         this._schedulingFrequencies = {
+            [taskTypes.EXTENSIONS_BUILDING]: 100,
+            [taskTypes.EXTENSIONS_COMPUTING]: 200,
+            [taskTypes.PATHS_COMPUTING]: 200,
             [taskTypes.ROADS_BUILDING]: 100,
-            [taskTypes.WALLS_BUILDING]: 100,
-            [taskTypes.PATHS_COMPUTING]: 200
+            [taskTypes.WALLS_BUILDING]: 100
         };
 
         this._schedulingMethods = {
+            [taskTypes.EXTENSIONS_COMPUTING]: () =>
+                this._queueTask(new Task(taskTypes.EXTENSIONS_COMPUTING)),
+            [taskTypes.EXTENSIONS_BUILDING]: () =>
+                this._queueTask(new Task(taskTypes.EXTENSIONS_BUILDING)),
             [taskTypes.ROADS_BUILDING]: () =>
                 this._queueTask(new Task(taskTypes.ROADS_BUILDING)),
             [taskTypes.WALLS_BUILDING]: () =>

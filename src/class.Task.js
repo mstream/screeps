@@ -2,6 +2,8 @@ const taskTypes = require("./const.taskTypes");
 
 const taskCost = {
     [taskTypes.EXITS_COMPUTING]: 10,
+    [taskTypes.EXTENSIONS_BUILDING]: 5,
+    [taskTypes.EXTENSIONS_COMPUTING]: 20,
     [taskTypes.ROADS_BUILDING]: 5,
     [taskTypes.PATHS_COMPUTING]: 20,
     [taskTypes.WALLS_BUILDING]: 5,

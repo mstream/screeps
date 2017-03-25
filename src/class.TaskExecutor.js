@@ -7,6 +7,7 @@ const generateRoadPath = require("./func.generateRoadPath");
 
 const Cord = require("./class.Cord");
 const ExitsCalculator = require("./class.ExitsCalculator");
+const ExtensionsCalculator = require("./class.ExtensionsCalculator");
 const Path = require("./class.Path");
 const WallsCalculator = require("./class.WallsCalculator");
 
@@ -38,6 +39,7 @@ module.exports = class {
 
         this._calculatorConstructorForTaskType = {
             [taskTypes.EXITS_COMPUTING]: ExitsCalculator,
+            [taskTypes.EXTENSIONS_COMPUTING]: ExtensionsCalculator,
             [taskTypes.WALLS_COMPUTING]: WallsCalculator
         };
     }
@@ -106,6 +108,14 @@ module.exports = class {
             this._logger.info(`finished ${objectKeyword} calculation: ${edge}`);
             break;
         }
+
+        case taskTypes.EXTENSIONS_COMPUTING:
+            this._logger.info(`started extensions calculation`);
+            const calculator = new this._calculatorConstructorForTaskType[taskType](this._room);
+            const extensions = calculator.calculate(10);
+            this._room.setExtensions(extensions);
+            this._logger.info(`finished extensions calculation`);
+            break;
 
         case taskTypes.ROADS_BUILDING:
             this._room.buildRoads();
