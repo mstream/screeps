@@ -34,7 +34,7 @@ module.exports = class {
 
         this._room = room;
         this._game = game;
-        this._logger = new RoomLogger(room, game);
+        this._logger = new RoomLogger(console, room, game);
         this._objectsByType = {};
 
         if (!memory.rooms) {
