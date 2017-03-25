@@ -1,6 +1,6 @@
 const levels = {
-    ALERT: "ALERT",
     DEBUG: "DEBUG",
+    ERROR: "ERROR",
     INFO: "INFO",
     WARN: "WARN"
 };
@@ -14,7 +14,11 @@ const padEnd = (text, paddingLength) => {
 
 module.exports = class {
 
-    constructor(room, game) {
+    constructor(console, room, game) {
+
+        if (!console) {
+            throw new Error("console can't be null");
+        }
 
         if (!room) {
             throw new Error("room can't be null");
@@ -24,6 +28,7 @@ module.exports = class {
             throw new Error("game can't be null");
         }
 
+        this._console = console;
         this._room = room;
         this._game = game;
     }
@@ -40,8 +45,8 @@ module.exports = class {
         this._log(levels.WARN, message);
     }
 
-    alert(message) {
-        this._log(levels.ALERT, message);
+    error(message) {
+        this._log(levels.ERROR, message);
     }
 
     _log(level, message) {
@@ -49,7 +54,7 @@ module.exports = class {
         const paddedLevel = padEnd(level, 5);
         const paddedRoomName = padEnd(this._room.name, 10);
 
-        console.log(`${paddedTime} ${paddedLevel} ${paddedRoomName} ${message}`);
+        this._console.log(`${paddedTime} ${paddedLevel} ${paddedRoomName} ${message}`);
     }
 };
 
