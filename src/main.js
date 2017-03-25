@@ -1,8 +1,8 @@
 const _ = require("lodash");
 
-const clearCreepsMemory = require("./func.clearCreepsMemory");
 const createController = require("./func.createController");
 
+const MemoryCleaner = require("./class.MemoryCleaner");
 const RoomController = require("./class.RoomController");
 
 
@@ -10,7 +10,9 @@ module.exports.loop = () => {
 
     PathFinder.use(true);
 
-    clearCreepsMemory();
+    const memoryCleaner = new MemoryCleaner(Memory, Game);
+    memoryCleaner.clearCreepsMemory();
+    memoryCleaner.clearRoomsMemory();
 
     _.forOwn(Game.rooms, (room) => {
         room = new RoomController(room, Game, Memory);
