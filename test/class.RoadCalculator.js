@@ -36,6 +36,18 @@ describe("RoadPathGenerator", () => {
             )).to.throw("from can't be null");
         });
 
+        it("throws exception during roadPathGenerator creation when to is null", () => {
+            expect(() => new RoadCalculator(stubPathFinder()).calculate(
+                {x: 0, y: 0}, null
+            )).to.throw("to can't be null");
+        });
+
+        it("throws exception during roadPathGenerator creation when to is undefined", () => {
+            expect(() => new RoadCalculator(stubPathFinder()).calculate(
+                {x: 0, y: 0}, undefined
+            )).to.throw("to can't be null");
+        });
+
         it("calculates a path between two given cords", () => {
             const pathFinder = stubPathFinder();
             const searchSpy = sinon.spy(pathFinder, "search");

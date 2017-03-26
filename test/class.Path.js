@@ -24,47 +24,6 @@ describe("Path", () => {
         });
     });
 
-    describe("#toJSON()", () => {
-
-        it("serializes to JSON", () => {
-            const serializedPath = new Path(
-                {
-                    x: 0,
-                    y: 1,
-                    hash: "fromHash"
-                },
-                {
-                    x: 2,
-                    y: 3,
-                    hash: "toHash"
-                }
-            ).toJSON();
-            expect(serializedPath.from.x).to.equal(0);
-            expect(serializedPath.from.y).to.equal(1);
-            expect(serializedPath.to.x).to.equal(2);
-            expect(serializedPath.to.y).to.equal(3);
-        });
-    });
-
-    describe("#hash", () => {
-
-        it("creates human readable hash", () => {
-            const hash = new Path(
-                {
-                    x: 0,
-                    y: 1,
-                    hash: "fromHash"
-                },
-                {
-                    x: 2,
-                    y: 3,
-                    hash: "toHash"
-                }
-            ).hash;
-            expect(hash).to.equal("FROM_fromHash_TO_toHash");
-        });
-    });
-
     describe("constructor", () => {
 
         it("creates path", () => {
@@ -218,6 +177,88 @@ describe("Path", () => {
                     hash: {}
                 }
             )).to.throw("to has to have a hash");
+        });
+    });
+
+    describe("#toJSON()", () => {
+
+        it("serializes to JSON", () => {
+            const serializedPath = new Path(
+                {
+                    x: 0,
+                    y: 1,
+                    hash: "fromHash"
+                },
+                {
+                    x: 2,
+                    y: 3,
+                    hash: "toHash"
+                }
+            ).toJSON();
+            expect(serializedPath.from.x).to.equal(0);
+            expect(serializedPath.from.y).to.equal(1);
+            expect(serializedPath.to.x).to.equal(2);
+            expect(serializedPath.to.y).to.equal(3);
+        });
+    });
+
+    describe("#hash", () => {
+
+        it("creates human readable hash", () => {
+            const hash = new Path(
+                {
+                    x: 0,
+                    y: 1,
+                    hash: "fromHash"
+                },
+                {
+                    x: 2,
+                    y: 3,
+                    hash: "toHash"
+                }
+            ).hash;
+            expect(hash).to.equal("FROM_fromHash_TO_toHash");
+        });
+    });
+
+    describe("#toSegments", () => {
+
+        it("creates path segments when the path is horizontal", () => {
+            const path = new Path(
+                {x: 0, y: 0, hash: "fromHash"},
+                {x: 2, y: 0, hash: "toHash"}
+            );
+            const segments = path.toSegments();
+            expect(segments[0].x).to.equal(0);
+            expect(segments[0].y).to.equal(0);
+            expect(segments[1].x).to.equal(1);
+            expect(segments[1].y).to.equal(0);
+            expect(segments[2].x).to.equal(2);
+            expect(segments[2].y).to.equal(0);
+        });
+
+        it("creates path segments when the path is vertical", () => {
+            const path = new Path(
+                {x: 0, y: 0, hash: "fromHash"},
+                {x: 0, y: 2, hash: "toHash"}
+            );
+            const segments = path.toSegments();
+            expect(segments[0].x).to.equal(0);
+            expect(segments[0].y).to.equal(0);
+            expect(segments[1].x).to.equal(0);
+            expect(segments[1].y).to.equal(1);
+            expect(segments[2].x).to.equal(0);
+            expect(segments[2].y).to.equal(2);
+        });
+
+        it("throws exception when the path is not perpendicular", () => {
+            const path = new Path(
+                {x: 0, y: 0, hash: "fromHash"},
+                {x: 2, y: 2, hash: "toHash"}
+            );
+            expect(
+                () => path.toSegments()
+            ).to.throw("path must be perpendicular to transform into segments");
         });
     });
 });

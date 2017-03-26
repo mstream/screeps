@@ -42,6 +42,7 @@ class Path {
     }
 
     toSegments() {
+
         if (!this.isPerpendicular()) {
             throw new Error(
                 "path must be perpendicular to transform into segments"

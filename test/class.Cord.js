@@ -61,12 +61,20 @@ describe("Cord", () => {
             expect(() => new Cord(undefined, 1)).to.throw("x can't be null");
         });
 
+        it("throws exception during cord creation when x is not a number", () => {
+            expect(() => new Cord("0", 1)).to.throw("x has to be a number");
+        });
+
         it("throws exception during cord creation when y is null", () => {
             expect(() => new Cord(0, null)).to.throw("y can't be null");
         });
 
         it("throws exception during cord creation when y is undefined", () => {
             expect(() => new Cord(0, undefined)).to.throw("y can't be null");
+        });
+
+        it("throws exception during cord creation when y is not a number", () => {
+            expect(() => new Cord(0, "1")).to.throw("y has to be a number");
         });
     });
 });

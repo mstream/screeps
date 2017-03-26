@@ -31,10 +31,6 @@ module.exports = class {
 
         const objects = this._memory[objectType];
 
-        if (!objects) {
-            return;
-        }
-
         _.keys(objects).forEach((objectName) => {
             const memoryShouldBeKept = this._game[objectType][objectName];
             if (!memoryShouldBeKept) {
