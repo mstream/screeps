@@ -1,5 +1,5 @@
 module.exports = {
-    BUILDER: "BUILDER",
-    HARVESTER: "HARVESTER",
-    UPGRADER: "UPGRADER"
+    BUILDER: "builder",
+    HARVESTER: "harvester",
+    UPGRADER: "upgrader"
 };
