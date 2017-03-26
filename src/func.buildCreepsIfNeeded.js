@@ -1,7 +1,6 @@
 const _ = require("lodash");
 
-const chooseCreepBody = require("./func.chooseCreepBody");
-
+const CreepBodyAssembler = require("./class.CreepBodyAssembler");
 const CreepNameGenerator = require("./class.CreepNameGenerator");
 
 
@@ -41,10 +40,11 @@ module.exports = (game, spawn, rolesSlots) => {
         }
     });
 
+    const creepBodyAssembler = new CreepBodyAssembler();
     const creepNameGenerator = new CreepNameGenerator(game.time);
 
     _.forOwn(desiredRoles, (desiredCount, role) => {
-        const creepBody = chooseCreepBody();
+        const creepBody = creepBodyAssembler.createBody(role);
         if (!spawn.canCreateCreep(creepBody) == OK) {
             return;
         }
