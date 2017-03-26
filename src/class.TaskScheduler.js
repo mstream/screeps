@@ -5,7 +5,7 @@ const taskTypes = require("./const.taskTypes");
 
 const Cord = require("./class.Cord");
 const Path = require("./class.Path");
-const Task = require("./class.Task");
+const TaskFactory = require("./class.TaskFactory");
 
 
 module.exports = class {
@@ -46,15 +46,17 @@ module.exports = class {
             [taskTypes.WALLS_BUILDING]: 100
         };
 
+        this._taskFactory = new TaskFactory();
+
         this._schedulingMethods = {
             [taskTypes.EXTENSIONS_COMPUTING]: () =>
-                this._queueTask(new Task(taskTypes.EXTENSIONS_COMPUTING)),
+                this._queueTask(this._taskFactory.create(taskTypes.EXTENSIONS_COMPUTING)),
             [taskTypes.EXTENSIONS_BUILDING]: () =>
-                this._queueTask(new Task(taskTypes.EXTENSIONS_BUILDING)),
+                this._queueTask(this._taskFactory.create(taskTypes.EXTENSIONS_BUILDING)),
             [taskTypes.ROADS_BUILDING]: () =>
-                this._queueTask(new Task(taskTypes.ROADS_BUILDING)),
+                this._queueTask(this._taskFactory.create(taskTypes.ROADS_BUILDING)),
             [taskTypes.WALLS_BUILDING]: () =>
-                this._queueTask(new Task(taskTypes.WALLS_BUILDING)),
+                this._queueTask(this._taskFactory.create(taskTypes.WALLS_BUILDING)),
             [taskTypes.ROAD_COMPUTING]: this._requestPathsCalculation
         };
 
@@ -91,7 +93,7 @@ module.exports = class {
         if (!this._memory.tasks.length) {
             return;
         }
-        return Task.fromJSON(this._memory.tasks[0]);
+        return this._taskFactory.fromJSON(this._memory.tasks[0]);
     }
 
     completeLastTask() {
@@ -125,7 +127,7 @@ module.exports = class {
         );
 
         this._room.requestPath(path);
-        this._queueTask(new Task(
+        this._queueTask(this._taskFactory.create(
             taskTypes.ROAD_COMPUTING,
             {path}
         ));
@@ -147,7 +149,7 @@ module.exports = class {
 
             this._room.requestExits(edge);
 
-            this._queueTask(new Task(
+            this._queueTask(this._taskFactory.create(
                 taskTypes.EXITS_COMPUTING,
                 {edge}
             ));
@@ -172,7 +174,7 @@ module.exports = class {
 
             this._room.requestWalls(edge);
 
-            this._queueTask(new Task(
+            this._queueTask(this._taskFactory.create(
                 taskTypes.WALLS_COMPUTING,
                 {edge}
             ));
