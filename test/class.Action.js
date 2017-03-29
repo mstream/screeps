@@ -67,7 +67,9 @@ describe("Action", () => {
         });
 
         it("throws exception during action creation when action type is null", () => {
-            expect(() => new Action(null, "targetId")).to.throw("type can't be null");
+            expect(
+                () => new Action(null, "targetId")
+            ).to.throw("type can't be null");
         });
 
         it("throws exception during action creation when action type is undefined", () => {
@@ -75,19 +77,27 @@ describe("Action", () => {
         });
 
         it("throws exception during action creation when action type is unknown", () => {
-            expect(() => new Action("unknown", "targetId")).to.throw("unknown action type: unknown");
+            expect(
+                () => new Action("unknown", "targetId")
+            ).to.throw("unknown action type: unknown");
         });
 
         it("throws exception during action creation when target ID is null", () => {
-            expect(() => new Action(actionTypes.BUILDING, null)).to.throw("targetId can't be null");
+            expect(
+                () => new Action(actionTypes.BUILDING, null)
+            ).to.throw("targetId can't be null");
         });
 
         it("throws exception during action creation when target ID is undefined", () => {
-            expect(() => new Action(actionTypes.BUILDING, undefined)).to.throw("targetId can't be null");
+            expect(
+                () => new Action(actionTypes.BUILDING, undefined)
+            ).to.throw("targetId can't be null");
         });
 
         it("throws exception during action creation when target ID is not a string", () => {
-            expect(() => new Action(actionTypes.BUILDING, {})).to.throw("targetId should be a string");
+            expect(
+                () => new Action(actionTypes.BUILDING, {})
+            ).to.throw("targetId should be a string");
         });
     });
 });

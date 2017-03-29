@@ -39,27 +39,39 @@ describe("CreepNameGenerator", () => {
         ];
 
         it("throws exception when role is null", () => {
-            expect(() => new CreepNameGenerator(123).generate(null, body)).to.throw("role can't be null");
+            expect(
+                () => new CreepNameGenerator(123).generate(null, body)
+            ).to.throw("role can't be null");
         });
 
         it("throws exception when role is undefined", () => {
-            expect(() => new CreepNameGenerator(123).generate(undefined, body)).to.throw("role can't be null");
+            expect(
+                () => new CreepNameGenerator(123).generate(undefined, body)
+            ).to.throw("role can't be null");
         });
 
         it("throws exception when role is unknown", () => {
-            expect(() => new CreepNameGenerator(123).generate("unknown", body)).to.throw("unknown role: unknown");
+            expect(
+                () => new CreepNameGenerator(123).generate("unknown", body)
+            ).to.throw("unknown role: unknown");
         });
 
         it("throws exception when body is null", () => {
-            expect(() => new CreepNameGenerator(123).generate(roles.BUILDER, null)).to.throw("body can't be null");
+            expect(
+                () => new CreepNameGenerator(123).generate(roles.BUILDER, null)
+            ).to.throw("body can't be null");
         });
 
         it("throws exception when body is undefined", () => {
-            expect(() => new CreepNameGenerator(123).generate(roles.BUILDER, undefined)).to.throw("body can't be null");
+            expect(
+                () => new CreepNameGenerator(123).generate(roles.BUILDER, undefined)
+            ).to.throw("body can't be null");
         });
 
         it("throws exception when one of the body parts unknown", () => {
-            expect(() => new CreepNameGenerator(123).generate(roles.BUILDER, ["unknown"])).to.throw("unknown bodyPart: unknown");
+            expect(
+                () => new CreepNameGenerator(123).generate(roles.BUILDER, ["unknown"])
+            ).to.throw("unknown bodyPart: unknown");
         });
 
 

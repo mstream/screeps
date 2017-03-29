@@ -11,7 +11,9 @@ describe("CreepBodyAssembler", () => {
     describe("#createBody", () => {
 
         it("throws an exception when the role is unknown", () => {
-            expect(() => new CreepBodyAssembler().createBody("unknown")).to.throw("unknown role: unknown");
+            expect(
+                () => new CreepBodyAssembler().createBody("unknown")
+            ).to.throw("unknown role: unknown");
         });
 
         it("creates proper body for the builder role", () => {

@@ -72,7 +72,11 @@ describe("ExtensionsBuilder", () => {
 
         it("throws exception when extensions is undefined", () => {
             expect(
-                () => new ExtensionsBuilder(stubRoom(1), stubRoomLogger(), stubStructureAllowance(1, 0)).build(undefined)
+                () => new ExtensionsBuilder(
+                    stubRoom(1),
+                    stubRoomLogger(),
+                    stubStructureAllowance(1, 0)
+                ).build(undefined)
             ).to.throw("extensions can't be null");
         });
 
@@ -88,13 +92,21 @@ describe("ExtensionsBuilder", () => {
 
         it("throws exception when one of extensions is null", () => {
             expect(
-                () => new ExtensionsBuilder(stubRoom(1), stubRoomLogger(), stubStructureAllowance(1, 1)).build([null])
+                () => new ExtensionsBuilder(
+                    stubRoom(1),
+                    stubRoomLogger(),
+                    stubStructureAllowance(1, 1)
+                ).build([null])
             ).to.throw("extension can't be null");
         });
 
         it("throws exception when one of extensions is undefined", () => {
             expect(
-                () => new ExtensionsBuilder(stubRoom(1), stubRoomLogger(), stubStructureAllowance(1, 1)).build([undefined])
+                () => new ExtensionsBuilder(
+                    stubRoom(1),
+                    stubRoomLogger(),
+                    stubStructureAllowance(1, 1)
+                ).build([undefined])
             ).to.throw("extension can't be null");
         });
 

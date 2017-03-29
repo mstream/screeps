@@ -33,6 +33,11 @@
             "error",
             "unix"
         ],
+        "max-len": [
+            "error",
+            120
+        ],
+        "no-console": "off",
         "quotes": [
             "error",
             "double"
@@ -40,7 +45,6 @@
         "semi": [
             "error",
             "always"
-        ],
-        "no-console": "off"
+        ]
     }
 }

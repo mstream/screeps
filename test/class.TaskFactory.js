@@ -38,7 +38,10 @@ describe("TaskFactory", () => {
 
         it("throws exception during task creation when task type is unknown", () => {
             expect(
-                () => new TaskFactory({[taskTypes.ROADS_BUILDING]: 1}).fromJSON({type: taskTypes.WALLS_BUILDING, options: {foo: "bar"}})
+                () => new TaskFactory({[taskTypes.ROADS_BUILDING]: 1}).fromJSON({
+                    type: taskTypes.WALLS_BUILDING,
+                    options: {foo: "bar"}
+                })
             ).to.throw(`undefined cost for task type: ${taskTypes.WALLS_BUILDING}`);
         });
 
