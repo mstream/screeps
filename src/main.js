@@ -1,9 +1,7 @@
-const _ = require("lodash");
-
-const createController = require("./func.createController");
-
+const RoomControllerFactory = require("./class.RoomControllerFactory");
+const CreepControllerFactory = require("./class.CreepControllerFactory");
+const GameController = require("./class.GameController");
 const MemoryCleaner = require("./class.MemoryCleaner");
-const RoomController = require("./class.RoomController");
 
 
 module.exports.loop = () => {
@@ -14,17 +12,9 @@ module.exports.loop = () => {
     memoryCleaner.clearCreepsMemory();
     memoryCleaner.clearRoomsMemory();
 
-    _.forOwn(Game.rooms, (room) => {
-        room = new RoomController(room, Game, Memory);
-        room.buildCreeps();
-        room.executeTasks();
+    const gameController = new GameController(
+        Game, Memory, new RoomControllerFactory(), new CreepControllerFactory()
+    );
 
-        _.forOwn(Game.creeps, (creep) => {
-            if (room.name != creep.room.name) {
-                return;
-            }
-            const creepController = createController(creep, room);
-            creepController.work();
-        });
-    });
+    gameController.execute();
 };

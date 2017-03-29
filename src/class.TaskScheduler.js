@@ -10,10 +10,10 @@ const TaskFactory = require("./class.TaskFactory");
 
 module.exports = class {
 
-    constructor(game, room, memory, logger) {
+    constructor(time, room, memory, logger) {
 
-        if (!game) {
-            throw new Error("game can't be null");
+        if (!time) {
+            throw new Error("time can't be null");
         }
 
         if (!room) {
@@ -28,7 +28,7 @@ module.exports = class {
             throw new Error("logger can't be null");
         }
 
-        this._game = game;
+        this._time = time;
         this._room = room;
         this._logger = logger;
 
@@ -74,18 +74,16 @@ module.exports = class {
 
     schedule() {
 
-        const gameTime = this._game.time;
-
         this._requestExitsCalculation();
         this._requestWallsCalculation();
 
         _.forOwn(this._schedulingFrequencies, (frequency, taskType) => {
             const lastUpdate = this._memory.lastUpdates[taskType];
-            if (lastUpdate && gameTime - lastUpdate < frequency) {
+            if (lastUpdate && this._time - lastUpdate < frequency) {
                 return;
             }
             this._schedulingMethods[taskType].bind(this)();
-            this._memory.lastUpdates[taskType] = gameTime;
+            this._memory.lastUpdates[taskType] = this._time;
         });
     }
 
@@ -135,8 +133,6 @@ module.exports = class {
 
     _requestExitsCalculation() {
 
-        const gameTime = this._game.time;
-
         roomEdges.forEach((edge) => {
 
             if (this._room.areExitsRequested(edge) || this._room.areExitsComputed(edge)) {
@@ -154,13 +150,11 @@ module.exports = class {
                 {edge}
             ));
 
-            this._memory.lastUpdates[taskTypes.EXITS_COMPUTING] = gameTime;
+            this._memory.lastUpdates[taskTypes.EXITS_COMPUTING] = this._time;
         });
     }
 
     _requestWallsCalculation() {
-
-        const gameTime = this._game.time;
 
         roomEdges.forEach((edge) => {
 
@@ -179,7 +173,7 @@ module.exports = class {
                 {edge}
             ));
 
-            this._memory.lastUpdates[taskTypes.WALL] = gameTime;
+            this._memory.lastUpdates[taskTypes.WALL] = this._time;
         });
     }
 

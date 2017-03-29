@@ -1,14 +1,14 @@
 const _ = require("lodash");
 
-const roles = require("./const.roles");
 const structureAllowance = require("./const.structureAllowance");
 const structureTypes = require("./const.structureTypes");
 
-const buildCreepsIfNeeded = require("./func.buildCreepsIfNeeded");
-
+const CreepBodyAssembler = require("./class.CreepBodyAssembler");
+const CreepNameGenerator = require("./class.CreepNameGenerator");
 const ExtensionsBuilder = require("./class.ExtensionsBuilder");
 const RoomLogger = require("./class.RoomLogger");
 const RoadsBuilder = require("./class.RoadsBuilder");
+const SpawnController = require("./class.SpawnController");
 const TaskExecutor = require("./class.TaskExecutor");
 const TaskScheduler = require("./class.TaskScheduler");
 const WallsBuilder = require("./class.WallsBuilder");
@@ -47,13 +47,14 @@ module.exports = class {
         }
 
         this._memory = memory.rooms[room.name];
+    }
 
-        this._taskScheduler = new TaskScheduler(
-            this._game, this, this._memory, this._logger
-        );
-
+    execute() {
         this._initializeMemory();
+        this._createScheduler();
         this._scheduleTasks();
+        this._delegateWorkToSpawns();
+        this._executeTasks();
     }
 
     _initializeMemory() {
@@ -88,26 +89,17 @@ module.exports = class {
         }
     }
 
-    executeTasks() {
-        const taskExecutor = new TaskExecutor(
-            this._taskScheduler, this._game, this, this._logger
+    _createScheduler() {
+        this._taskScheduler = new TaskScheduler(
+            this._game.time, this, this._memory, this._logger
         );
-        taskExecutor.execute();
     }
 
-    buildCreeps() {
-
-        const sourcesNumber = this.sources.length;
-
-        buildCreepsIfNeeded(
-            this._game,
-            this.spawns[0],
-            {
-                [roles.HARVESTER]: sourcesNumber,
-                [roles.UPGRADER]: sourcesNumber,
-                [roles.BUILDER]: sourcesNumber
-            }
+    _executeTasks() {
+        const taskExecutor = new TaskExecutor(
+            this._taskScheduler, this._game.time, this, this._logger
         );
+        taskExecutor.execute();
     }
 
     findObjectsAt(x, y) {
@@ -277,6 +269,23 @@ module.exports = class {
 
     _scheduleTasks() {
         this._taskScheduler.schedule();
+    }
+
+    _delegateWorkToSpawns() {
+
+        const creepBodyAssembler = new CreepBodyAssembler();
+        const creepNameGenerator = new CreepNameGenerator(this._game.time);
+
+        _.forEach(this.spawns, (spawn) => {
+            const spawnController = new SpawnController(
+                spawn,
+                this._game,
+                creepBodyAssembler,
+                creepNameGenerator,
+                this._logger
+            );
+            spawnController.execute();
+        });
     }
 
     _findObjects(searchType) {

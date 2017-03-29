@@ -13,14 +13,14 @@ const WallsCalculator = require("./class.WallsCalculator");
 
 module.exports = class {
 
-    constructor(taskScheduler, game, room, logger) {
+    constructor(taskScheduler, time, room, logger) {
 
         if (!taskScheduler) {
             throw new Error("taskScheduler can't be null");
         }
 
-        if (!game) {
-            throw new Error("game can't be null");
+        if (!time) {
+            throw new Error("time can't be null");
         }
 
         if (!room) {
@@ -32,7 +32,7 @@ module.exports = class {
         }
 
         this._taskScheduler = taskScheduler;
-        this._game = game;
+        this._time = time;
         this._room = room;
         this._logger = logger;
 
@@ -51,7 +51,7 @@ module.exports = class {
             return;
         }
 
-        const time = this._game.time;
+        const time = this._time;
         const shouldExecute = time % task.cost == 0;
 
         if (!shouldExecute) {

@@ -22,14 +22,13 @@ module.exports = class {
         this._creep = creep;
         this._room = room;
         this._creepMemory = creep.memory;
-
-        this._initializeMemory();
-        this._drawStatus();
     }
 
-    work() {
+    execute() {
+        this._initializeMemory();
         this._chooseAction();
         this._executeAction();
+        this._drawStatus();
     }
 
     _drawStatus() {
