@@ -6,13 +6,15 @@ const roles = require("./const.roles");
 
 module.exports = class {
 
-    constructor(time) {
+    constructor({
+        game = require("./game")
+    } = {}) {
 
-        if (!time) {
-            throw new Error("time can't be null");
+        if (!game) {
+            throw new Error("game can't be null");
         }
 
-        this._time = time;
+        this._game = game;
     }
 
     generate(role, body) {
@@ -53,7 +55,7 @@ module.exports = class {
             .value()
             .join("");
 
-        return [roleSegment, bodySegment, this._time].join("_");
+        return [roleSegment, bodySegment, this._game.time].join("_");
     }
 };
 

@@ -4,6 +4,7 @@ const sinon = require("sinon");
 const SpawnController = require("../src/class.SpawnController");
 
 const bodyPartTypes = require("../src/const.bodyPartTypes");
+const operationResults = require("../src/const.operationResults");
 const roles = require("../src/const.roles");
 
 
@@ -141,7 +142,7 @@ describe("SpawnController", () => {
 
         it("creates a demanded creep type", () => {
 
-            const spawn = stubSpawn();
+            const spawn = stubSpawn(operationResults.OK);
             const createCreepSpy = sinon.spy(spawn, "createCreep");
 
             const creepBodyAssembler = stubCreepBodyAssembler(
@@ -198,6 +199,56 @@ describe("SpawnController", () => {
                 "creepName",
                 sinon.match({role: roles.UPGRADER})
             )).to.be.true;
+        });
+
+        it("does not generate name or try create creep when not enough energy", () => {
+
+            const spawn = stubSpawn(operationResults.ERR_NOT_ENOUGH_ENERGY);
+            const createCreepSpy = sinon.spy(spawn, "createCreep");
+
+            const creepBodyAssembler = stubCreepBodyAssembler(
+                [bodyPartTypes.CARRY, bodyPartTypes.MOVE, bodyPartTypes.WORK]
+            );
+            const createBodySpy = sinon.spy(creepBodyAssembler, "createBody");
+
+            const creepNameGenerator = stubCreepBodyNameGenerator("creepName");
+            const generateSpy = sinon.spy(creepNameGenerator, "generate");
+
+            const game = stubGame(
+                123,
+                {
+                    "room1": {
+                        sources: [{}, {}]
+                    },
+                    "room2": {
+                        sources: [{}]
+                    }
+                },
+                {
+                    "creep1": stubCreep(roles.BUILDER),
+                    "creep2": stubCreep(roles.BUILDER),
+                    "creep3": stubCreep(roles.BUILDER),
+                    "creep4": stubCreep(roles.HARVESTER),
+                    "creep5": stubCreep(roles.HARVESTER),
+                    "creep6": stubCreep(roles.HARVESTER),
+                    "creep7": stubCreep(roles.UPGRADER),
+                    "creep8": stubCreep(roles.UPGRADER)
+                }
+            );
+
+            const logger = stubLogger();
+
+            const spawnController = new SpawnController(
+                spawn, game, creepBodyAssembler, creepNameGenerator, logger
+            );
+
+            spawnController.execute();
+
+            expect(createBodySpy.callCount).to.equal(1);
+            expect(generateSpy.callCount).to.equal(0);
+            expect(createCreepSpy.callCount).to.equal(0);
+
+            expect(createBodySpy.calledWith(roles.UPGRADER)).to.be.true;
         });
     });
 });

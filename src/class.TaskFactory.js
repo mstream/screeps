@@ -1,19 +1,13 @@
-const taskTypes = require("./const.taskTypes");
+const _ = require("lodash");
 
-const defaultTaskCosts = {
-    [taskTypes.EXITS_COMPUTING]: 10,
-    [taskTypes.EXTENSIONS_BUILDING]: 5,
-    [taskTypes.EXTENSIONS_COMPUTING]: 20,
-    [taskTypes.ROAD_COMPUTING]: 20,
-    [taskTypes.ROADS_BUILDING]: 5,
-    [taskTypes.WALLS_BUILDING]: 5,
-    [taskTypes.WALLS_COMPUTING]: 10
-};
+const taskTypes = require("./const.taskTypes");
 
 
 class TaskFactory {
 
-    constructor(taskCosts = defaultTaskCosts) {
+    constructor({
+        taskCosts = require("./taskCosts")
+    } = {}) {
 
         if (!taskCosts) {
             throw new Error("taskCosts can't be null");
@@ -36,7 +30,7 @@ class TaskFactory {
             throw new Error("type can't be null");
         }
 
-        if (!taskTypes[type]) {
+        if (!_.include(_.values(taskTypes), type)) {
             throw new Error(`unknown task type: ${type}`);
         }
 

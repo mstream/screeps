@@ -10,33 +10,27 @@ const margin = 2;
 
 module.exports = class {
 
-    constructor(room) {
+    calculateTopWalls(room) {
 
         if (!room) {
             throw new Error("room can't be null");
         }
 
-        this._room = room;
-        this._roomSize = room.size;
-    }
-
-    calculateTopWalls() {
-
-        const terrain = this._room.findObjectsInArea(
+        const terrain = room.findObjectsInArea(
             lookTypes.TERRAIN,
             margin,
             margin,
             margin,
-            this._roomSize - 1 - margin
+            room.size - 1 - margin
         );
 
         const walls = [];
 
-        for (let x = margin, start = null, end = null; x < this._roomSize - margin; x++) {
+        for (let x = margin, start = null, end = null; x < room.size - margin; x++) {
 
             const structures = terrain[margin][x];
             const wall = structures && structures[0] == obstacleTypes.WALL;
-            const lastTile = x == this._roomSize - 1 - margin;
+            const lastTile = x == room.size - 1 - margin;
 
             if (!wall) {
                 if (start == null) {
@@ -59,23 +53,27 @@ module.exports = class {
         return walls;
     }
 
-    calculateRightWalls() {
+    calculateRightWalls(room) {
 
-        const terrain = this._room.findObjectsInArea(
+        if (!room) {
+            throw new Error("room can't be null");
+        }
+
+        const terrain = room.findObjectsInArea(
             lookTypes.TERRAIN,
             margin,
-            this._roomSize - 1 - margin,
-            this._roomSize - 1 - margin,
-            this._roomSize - 1 - margin
+            room.size - 1 - margin,
+            room.size - 1 - margin,
+            room.size - 1 - margin
         );
 
         const walls = [];
 
-        for (let y = margin, start = null, end = null; y < this._roomSize - margin; y++) {
+        for (let y = margin, start = null, end = null; y < room.size - margin; y++) {
 
-            const structures = terrain[y][this._roomSize - 1 - margin];
+            const structures = terrain[y][room.size - 1 - margin];
             const wall = structures && structures[0] == obstacleTypes.WALL;
-            const lastTile = y == this._roomSize - 1 - margin;
+            const lastTile = y == room.size - 1 - margin;
 
             if (!wall) {
                 if (start == null) {
@@ -87,8 +85,8 @@ module.exports = class {
             if (wall || lastTile) {
                 if (start != null) {
                     walls.push(new Path(
-                        new Cord(this._roomSize - 1 - margin, start),
-                        new Cord(this._roomSize - 1 - margin, end))
+                        new Cord(room.size - 1 - margin, start),
+                        new Cord(room.size - 1 - margin, end))
                     );
                     start = null;
                     end = null;
@@ -98,23 +96,27 @@ module.exports = class {
         return walls;
     }
 
-    calculateBottomWalls() {
+    calculateBottomWalls(room) {
 
-        const terrain = this._room.findObjectsInArea(
+        if (!room) {
+            throw new Error("room can't be null");
+        }
+
+        const terrain = room.findObjectsInArea(
             lookTypes.TERRAIN,
-            this._roomSize - 1 - margin,
+            room.size - 1 - margin,
             margin,
-            this._roomSize - 1 - margin,
-            this._roomSize - 1 - margin
+            room.size - 1 - margin,
+            room.size - 1 - margin
         );
 
         const walls = [];
 
-        for (let x = margin, start = null, end = null; x < this._roomSize - margin; x++) {
+        for (let x = margin, start = null, end = null; x < room.size - margin; x++) {
 
-            const structures = terrain[this._roomSize - 1 - margin][x];
+            const structures = terrain[room.size - 1 - margin][x];
             const wall = structures && structures[0] == obstacleTypes.WALL;
-            const lastTile = x == this._roomSize - 1 - margin;
+            const lastTile = x == room.size - 1 - margin;
 
             if (!wall) {
                 if (start == null) {
@@ -126,8 +128,8 @@ module.exports = class {
             if (wall || lastTile) {
                 if (start != null) {
                     walls.push(new Path(
-                        new Cord(start, this._roomSize - 1 - margin),
-                        new Cord(end, this._roomSize - 1 - margin))
+                        new Cord(start, room.size - 1 - margin),
+                        new Cord(end, room.size - 1 - margin))
                     );
                     start = null;
                     end = null;
@@ -137,23 +139,27 @@ module.exports = class {
         return walls;
     }
 
-    calculateLeftWalls() {
+    calculateLeftWalls(room) {
 
-        const terrain = this._room.findObjectsInArea(
+        if (!room) {
+            throw new Error("room can't be null");
+        }
+
+        const terrain = room.findObjectsInArea(
             lookTypes.TERRAIN,
             margin,
             margin,
-            this._roomSize - 1 - margin,
+            room.size - 1 - margin,
             margin
         );
 
         const walls = [];
 
-        for (let y = margin, start = null, end = null; y < this._roomSize - margin; y++) {
+        for (let y = margin, start = null, end = null; y < room.size - margin; y++) {
 
             const structures = terrain[y][margin];
             const wall = structures && structures[0] == obstacleTypes.WALL;
-            const lastTile = y == this._roomSize - 1 - margin;
+            const lastTile = y == room.size - 1 - margin;
 
             if (!wall) {
                 if (start == null) {

@@ -3,7 +3,10 @@ const _ = require("lodash");
 
 module.exports = class {
 
-    constructor(memory, game) {
+    constructor({
+        memory = require("./memory"),
+        game = require("./game")
+    } = {}) {
 
         if (!memory) {
             throw new Error("memory can't be null");

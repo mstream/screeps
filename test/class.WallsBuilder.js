@@ -10,15 +10,15 @@ const stubRoom = (level) => ({
     buildWall: () => undefined
 });
 
-const stubRoomLogger = () => ({
+const stubLogger = () => ({
     debug: () => undefined,
     info: () => undefined,
     warn: () => undefined,
     alert: () => undefined
 });
 
-const stubStructureAllowance = (level, allowance) => ({
-    [structureTypes.WALL]: {[level]: allowance}
+const stubStructureAllowances = (level, structureAllowances) => ({
+    [structureTypes.WALL]: {[level]: structureAllowances}
 });
 
 
@@ -26,130 +26,110 @@ describe("WallsBuilder", () => {
 
     describe("constructor", () => {
 
-        it("throws exception during wallsBuilder creation when room is null", () => {
+        it("throws exception structureAllowance is null", () => {
             expect(
-                () => new WallsBuilder(null, stubRoomLogger(), stubStructureAllowance(1, 0))
-            ).to.throw("room can't be null");
+                () => new WallsBuilder({
+                    structureAllowances: null,
+                    logger: stubLogger()
+                })
+            ).to.throw("structureAllowances can't be null");
         });
 
-        it("throws exception during wallsBuilder creation when room is undefined", () => {
+        it("throws exception logger is null", () => {
             expect(
-                () => new WallsBuilder(undefined, stubRoomLogger(), stubStructureAllowance(1, 0))
-            ).to.throw("room can't be null");
-        });
-
-        it("throws exception during wallsBuilder creation when room is null", () => {
-            expect(
-                () => new WallsBuilder(stubRoom(1), null, stubStructureAllowance(1, 0))
+                () => new WallsBuilder({
+                    structureAllowances: stubStructureAllowances(1, 1),
+                    logger: null
+                })
             ).to.throw("logger can't be null");
-        });
-
-        it("throws exception during wallsBuilder creation when room is undefined", () => {
-            expect(
-                () => new WallsBuilder(stubRoom(1), null, stubStructureAllowance(1, 0))
-            ).to.throw("logger can't be null");
-        });
-
-        it("throws exception during wallsBuilder creation when structureAllowance is null", () => {
-            expect(
-                () => new WallsBuilder(stubRoom(1), stubRoomLogger(), null)
-            ).to.throw("structureAllowance can't be null");
-        });
-
-        it("throws exception during wallsBuilder creation when structureAllowance is undefined", () => {
-            expect(
-                () => new WallsBuilder(stubRoom(1), stubRoomLogger(), null)
-            ).to.throw("structureAllowance can't be null");
         });
     });
 
     describe("#build()", () => {
 
+        it("throws exception when room is null", () => {
+            const structureAllowances = stubStructureAllowances(1, 0);
+            const logger = stubLogger();
+            const wallsBuilder = new WallsBuilder({structureAllowances, logger});
+            expect(
+                () => wallsBuilder.build(
+                    null, [{from: {x: 0, y: 0}, to: {x: 1, y: 0}}]
+                )
+            ).to.throw("room can't be null");
+        });
+
         it("throws exception when walls is null", () => {
+            const structureAllowances = stubStructureAllowances(1, 0);
+            const logger = stubLogger();
+            const wallsBuilder = new WallsBuilder({structureAllowances, logger});
             expect(
-                () => new WallsBuilder(stubRoom(1), stubRoomLogger(), stubStructureAllowance(1, 0)).build(null)
+                () => wallsBuilder.build(
+                    stubRoom(1), null
+                )
             ).to.throw("walls can't be null");
         });
 
-        it("throws exception when walls is undefined", () => {
-            expect(
-                () => new WallsBuilder(stubRoom(1), stubRoomLogger(), stubStructureAllowance(1, 0)).build(undefined)
-            ).to.throw("walls can't be null");
-        });
-
-        it("does not do anything when walls is not empty but allowance is zero", () => {
+        it("does not do anything when walls is not empty but structureAllowance is zero", () => {
             const room = stubRoom(1);
             const buildWallSpy = sinon.spy(room, "buildWall");
-            const logger = stubRoomLogger();
-            const allowance = stubStructureAllowance(1, 0);
-            const walls = [{from: {x: 0, y: 0}}];
-            new WallsBuilder(room, logger, allowance).build(walls);
+            const logger = stubLogger();
+            const structureAllowances = stubStructureAllowances(1, 0);
+            const walls = [{from: {x: 0, y: 0}, to: {x: 1, y: 0}}];
+            const wallsBuilder = new WallsBuilder({structureAllowances, logger});
+            wallsBuilder.build(room, walls);
             expect(buildWallSpy.callCount).to.equal(0);
         });
 
-        it("does not do anything when allowance is more than zero but walls are requested", () => {
+        it("does not do anything when walls are requested", () => {
             const room = stubRoom(1);
             const buildWallSpy = sinon.spy(room, "buildWall");
-            const logger = stubRoomLogger();
-            const allowance = stubStructureAllowance(1, 1);
+            const logger = stubLogger();
+            const structureAllowances = stubStructureAllowances(1, 1);
             const walls = ["requested", "requested"];
-            new WallsBuilder(room, logger, allowance).build(walls);
+            const wallsBuilder = new WallsBuilder({structureAllowances, logger});
+            wallsBuilder.build(room, walls);
             expect(buildWallSpy.callCount).to.equal(0);
         });
 
-        it("throws exception when allowance is more than zero but one of the walls is null", () => {
+        it("throws exception when one of the walls is null", () => {
             const room = stubRoom(1);
             const buildWallSpy = sinon.spy(room, "buildWall");
-            const logger = stubRoomLogger();
-            const allowance = stubStructureAllowance(1, 1);
+            const logger = stubLogger();
+            const structureAllowances = stubStructureAllowances(1, 1);
             const walls = [null];
-
+            const wallsBuilder = new WallsBuilder({structureAllowances, logger});
             expect(
-                () => new WallsBuilder(room, logger, allowance).build(walls)
+                () => wallsBuilder.build(room, walls)
             ).to.throw("wall can't be null");
 
             expect(buildWallSpy.callCount).to.equal(0);
         });
 
-        it("throws exception when allowance is more than zero but one of the walls is undefined", () => {
+        it("throws exception when one of wall is in a wrong format", () => {
             const room = stubRoom(1);
             const buildWallSpy = sinon.spy(room, "buildWall");
-            const logger = stubRoomLogger();
-            const allowance = stubStructureAllowance(1, 1);
-            const walls = [undefined];
-
-            expect(
-                () => new WallsBuilder(room, logger, allowance).build(walls)
-            ).to.throw("wall can't be null");
-
-            expect(buildWallSpy.callCount).to.equal(0);
-        });
-
-        it("throws exception when allowance is more than zero but one of wall is in a wrong format", () => {
-            const room = stubRoom(1);
-            const buildWallSpy = sinon.spy(room, "buildWall");
-            const logger = stubRoomLogger();
-            const allowance = stubStructureAllowance(1, 1);
+            const logger = stubLogger();
+            const structureAllowances = stubStructureAllowances(1, 1);
             const walls = [{from: 0, to: 0}];
-
+            const wallsBuilder = new WallsBuilder({structureAllowances, logger});
             expect(
-                () => new WallsBuilder(room, logger, allowance).build(walls)
+                () => wallsBuilder.build(room, walls)
             ).to.throw(Error);
 
             expect(buildWallSpy.callCount).to.equal(0);
         });
 
-        it("calls room's 'build' method for every wall segment when allowance is more than zero", () => {
+        it("calls room's 'build' method for every wall segment when structureAllowance is more than zero", () => {
             const room = stubRoom(1);
             const buildWallSpy = sinon.spy(room, "buildWall");
-            const logger = stubRoomLogger();
-            const allowance = stubStructureAllowance(1, 1);
+            const logger = stubLogger();
+            const structureAllowances = stubStructureAllowances(1, 1);
             const walls = [
                 {from: {x: 0, y: 0}, to: {x: 1, y: 0}},
                 {from: {x: 3, y: 0}, to: {x: 4, y: 0}},
                 {from: {x: 0, y: 1}, to: {x: 0, y: 3}}
             ];
-            new WallsBuilder(room, logger, allowance).build(walls);
+            new WallsBuilder({structureAllowances, logger}).build(room, walls);
             expect(buildWallSpy.callCount).to.equal(7);
             expect(buildWallSpy.calledWith(
                 sinon.match({x: 0, y: 0})

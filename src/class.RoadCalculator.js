@@ -1,6 +1,8 @@
 module.exports = class {
 
-    constructor(pathFinder) {
+    constructor({
+        pathFinder = require("./pathFinder")
+    } = {}) {
 
         if (!pathFinder) {
             throw new Error("pathFinder can't be null");

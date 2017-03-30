@@ -1,7 +1,7 @@
 module.exports = {
-    BUILDING: "BUILDING",
-    TRANSFERRING: "TRANSFERRING",
-    HARVESTING: "HARVESTING",
-    IDLE: "IDLE",
-    UPGRADING: "UPGRADING"
+    BUILDING: "building",
+    TRANSFERRING: "transferring",
+    HARVESTING: "harvesting",
+    IDLE: "idle",
+    UPGRADING: "upgrading"
 };

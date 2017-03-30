@@ -1,17 +1,6 @@
 const _ = require("lodash");
 
-const structureAllowance = require("./const.structureAllowance");
 const structureTypes = require("./const.structureTypes");
-
-const CreepBodyAssembler = require("./class.CreepBodyAssembler");
-const CreepNameGenerator = require("./class.CreepNameGenerator");
-const ExtensionsBuilder = require("./class.ExtensionsBuilder");
-const RoomLogger = require("./class.RoomLogger");
-const RoadsBuilder = require("./class.RoadsBuilder");
-const SpawnController = require("./class.SpawnController");
-const TaskExecutor = require("./class.TaskExecutor");
-const TaskScheduler = require("./class.TaskScheduler");
-const WallsBuilder = require("./class.WallsBuilder");
 
 
 const REQUESTED = "requested";
@@ -19,7 +8,17 @@ const REQUESTED = "requested";
 
 module.exports = class {
 
-    constructor(room, game, memory) {
+    constructor({
+        room,
+        game,
+        memory,
+        taskScheduler,
+        taskExecutor,
+        spawnControllerFactory,
+        extensionsBuilder,
+        roadsBuilder,
+        wallsBuilder
+    }) {
 
         if (!room) {
             throw new Error("room can't be null");
@@ -33,9 +32,39 @@ module.exports = class {
             throw new Error("memory can't be null");
         }
 
+        if (!taskScheduler) {
+            throw new Error("taskScheduler can't be null");
+        }
+
+        if (!taskExecutor) {
+            throw new Error("taskExecutor can't be null");
+        }
+
+        if (!spawnControllerFactory) {
+            throw new Error("spawnControllerFactory can't be null");
+        }
+
+        if (!extensionsBuilder) {
+            throw new Error("extensionsBuilder can't be null");
+        }
+
+        if (!roadsBuilder) {
+            throw new Error("roadsBuilder can't be null");
+        }
+
+        if (!wallsBuilder) {
+            throw new Error("wallsBuilder can't be null");
+        }
+
         this._room = room;
         this._game = game;
-        this._logger = new RoomLogger(console, room, game);
+        this._taskScheduler = taskScheduler;
+        this._taskExecutor = taskExecutor;
+        this._spawnControllerFactory = spawnControllerFactory;
+        this._extensionsBuilder = extensionsBuilder;
+        this._roadsBuilder = roadsBuilder;
+        this._wallsBuilder = wallsBuilder;
+
         this._objectsByType = {};
 
         if (!memory.rooms) {
@@ -51,7 +80,6 @@ module.exports = class {
 
     execute() {
         this._initializeMemory();
-        this._createScheduler();
         this._scheduleTasks();
         this._delegateWorkToSpawns();
         this._executeTasks();
@@ -89,17 +117,8 @@ module.exports = class {
         }
     }
 
-    _createScheduler() {
-        this._taskScheduler = new TaskScheduler(
-            this._game.time, this, this._memory, this._logger
-        );
-    }
-
     _executeTasks() {
-        const taskExecutor = new TaskExecutor(
-            this._taskScheduler, this._game.time, this, this._logger
-        );
-        taskExecutor.execute();
+        this._taskExecutor.execute(this);
     }
 
     findObjectsAt(x, y) {
@@ -144,7 +163,7 @@ module.exports = class {
         if (!extensions || !extensions.length) {
             return;
         }
-        new ExtensionsBuilder(this, this._logger, structureAllowance).build(extensions);
+        this._extensionsBuilder.build(this, extensions);
     }
 
     buildRoads() {
@@ -152,7 +171,7 @@ module.exports = class {
         if (!paths || !paths.length) {
             return;
         }
-        new RoadsBuilder(this, this._logger, structureAllowance).build(paths);
+        this._roadsBuilder.build(this, paths);
     }
 
     buildWalls() {
@@ -160,7 +179,7 @@ module.exports = class {
         if (!walls || !walls.length) {
             return;
         }
-        new WallsBuilder(this, this._logger, structureAllowance).build(walls);
+        this._wallsBuilder.build(this, walls);
     }
 
     buildExtension(cord) {
@@ -268,22 +287,12 @@ module.exports = class {
     }
 
     _scheduleTasks() {
-        this._taskScheduler.schedule();
+        this._taskScheduler.schedule(this);
     }
 
     _delegateWorkToSpawns() {
-
-        const creepBodyAssembler = new CreepBodyAssembler();
-        const creepNameGenerator = new CreepNameGenerator(this._game.time);
-
         _.forEach(this.spawns, (spawn) => {
-            const spawnController = new SpawnController(
-                spawn,
-                this._game,
-                creepBodyAssembler,
-                creepNameGenerator,
-                this._logger
-            );
+            const spawnController = this._spawnControllerFactory.createFor(spawn);
             spawnController.execute();
         });
     }

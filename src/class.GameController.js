@@ -3,7 +3,12 @@ const _ = require("lodash");
 
 module.exports = class {
 
-    constructor(game, memory, roomControllerFactory, creepControllerFactory) {
+    constructor({
+        game = require("./game"),
+        memory = require("./memory"),
+        roomControllerFactory = require("./roomControllerFactory"),
+        creepControllerFactory = require("./creepControllerFactory")
+    } = {}) {
 
         if (!game) {
             throw new Error("game can't be null");
@@ -26,7 +31,7 @@ module.exports = class {
         this._creepControllerFactory = creepControllerFactory;
 
         this._rooms = _.mapValues(game.rooms, (room) =>
-            roomControllerFactory.createFor(room, game, memory)
+            roomControllerFactory.createFor(room)
         );
     }
 

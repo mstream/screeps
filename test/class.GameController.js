@@ -34,76 +34,40 @@ describe("GameController", () => {
 
     describe("constructor", () => {
 
-        it("throws exception during gameController creation when game is null", () => {
-            expect(() => new GameController(
-                null,
-                stubMemory(),
-                stubRoomControllerFactory(),
-                stubCreepControllerFactory()
-            )).to.throw("game can't be null");
+        it("throws exception during gameController.js creation when game is null", () => {
+            expect(() => new GameController({
+                game: null,
+                memory: stubMemory(),
+                roomControllerFactory: stubRoomControllerFactory(),
+                creepControllerFactory: stubCreepControllerFactory()
+            })).to.throw("game can't be null");
         });
 
-        it("throws exception during gameController creation when game is undefined", () => {
-            expect(() => new GameController(
-                undefined,
-                stubMemory(),
-                stubRoomControllerFactory(),
-                stubCreepControllerFactory()
-            )).to.throw("game can't be null");
+        it("throws exception during gameController.js creation when memory is null", () => {
+            expect(() => new GameController({
+                game: stubGame(),
+                memory: null,
+                roomControllerFactory: stubRoomControllerFactory(),
+                creepControllerFactory: stubCreepControllerFactory()
+            })).to.throw("memory can't be null");
         });
 
-        it("throws exception during gameController creation when memory is null", () => {
-            expect(() => new GameController(
-                stubGame(),
-                null,
-                stubRoomControllerFactory(),
-                stubCreepControllerFactory()
-            )).to.throw("memory can't be null");
+        it("throws exception during gameController.js creation when roomControllerFactory is null", () => {
+            expect(() => new GameController({
+                game: stubGame(),
+                memory: stubMemory(),
+                roomControllerFactory: null,
+                creepControllerFactory: stubCreepControllerFactory()
+            })).to.throw("roomControllerFactory can't be null");
         });
 
-        it("throws exception during gameController creation when memory is undefined", () => {
-            expect(() => new GameController(
-                stubGame(),
-                undefined,
-                stubRoomControllerFactory(),
-                stubCreepControllerFactory()
-            )).to.throw("memory can't be null");
-        });
-
-        it("throws exception during gameController creation when roomControllerFactory is null", () => {
-            expect(() => new GameController(
-                stubGame(),
-                stubMemory(),
-                null,
-                stubCreepControllerFactory()
-            )).to.throw("roomControllerFactory can't be null");
-        });
-
-        it("throws exception during gameController creation when roomControllerFactory is undefined", () => {
-            expect(() => new GameController(
-                stubGame(),
-                stubMemory(),
-                undefined,
-                stubCreepControllerFactory()
-            )).to.throw("roomControllerFactory can't be null");
-        });
-
-        it("throws exception during gameController creation when creepControllerFactory is null", () => {
-            expect(() => new GameController(
-                stubGame(),
-                stubMemory(),
-                stubRoomControllerFactory(),
-                null
-            )).to.throw("creepControllerFactory can't be null");
-        });
-
-        it("throws exception during gameController creation when creepControllerFactory is undefined", () => {
-            expect(() => new GameController(
-                stubGame(),
-                stubMemory(),
-                stubRoomControllerFactory(),
-                undefined
-            )).to.throw("creepControllerFactory can't be null");
+        it("throws exception during gameController.js creation when creepControllerFactory is null", () => {
+            expect(() => new GameController({
+                game: stubGame(),
+                memory: stubMemory(),
+                roomControllerFactory: stubRoomControllerFactory(),
+                creepControllerFactory: null
+            })).to.throw("creepControllerFactory can't be null");
         });
     });
 
@@ -130,12 +94,12 @@ describe("GameController", () => {
             const creepExecuteSpies = [sinon.spy(), sinon.spy(), sinon.spy()];
             const creepControllerFactory = stubCreepControllerFactory(creepExecuteSpies);
             const creepCreateForSpy = sinon.spy(creepControllerFactory, "createFor");
-            const gameController = new GameController(
+            const gameController = new GameController({
                 game,
                 memory,
                 roomControllerFactory,
                 creepControllerFactory
-            );
+            });
             gameController.execute();
             expect(roomCreateForSpy.callCount).to.equal(2);
             expect(creepCreateForSpy.callCount).to.equal(3);

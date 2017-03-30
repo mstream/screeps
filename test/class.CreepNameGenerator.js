@@ -6,16 +6,19 @@ const bodyPartTypes = require("../src/const.bodyPartTypes");
 const roles = require("../src/const.roles");
 
 
+const stubGame = (time) => ({time});
+
+
 describe("CreepNameGenerator", () => {
 
     describe("constructor", () => {
 
-        it("throws exception during creepNameGenerator creation when time is null", () => {
-            expect(() => new CreepNameGenerator(null)).to.throw("time can't be null");
-        });
-
-        it("throws exception during creepNameGenerator creation when time is undefined", () => {
-            expect(() => new CreepNameGenerator(undefined)).to.throw("time can't be null");
+        it("throws exception when game is null", () => {
+            expect(
+                () => new CreepNameGenerator({
+                    game: null
+                })
+            ).to.throw("game can't be null");
         });
     });
 
@@ -39,44 +42,36 @@ describe("CreepNameGenerator", () => {
         ];
 
         it("throws exception when role is null", () => {
+            const game = stubGame(0);
             expect(
-                () => new CreepNameGenerator(123).generate(null, body)
-            ).to.throw("role can't be null");
-        });
-
-        it("throws exception when role is undefined", () => {
-            expect(
-                () => new CreepNameGenerator(123).generate(undefined, body)
+                () => new CreepNameGenerator({game}).generate(null, body)
             ).to.throw("role can't be null");
         });
 
         it("throws exception when role is unknown", () => {
+            const game = stubGame(0);
             expect(
-                () => new CreepNameGenerator(123).generate("unknown", body)
+                () => new CreepNameGenerator({game}).generate("unknown", body)
             ).to.throw("unknown role: unknown");
         });
 
         it("throws exception when body is null", () => {
+            const game = stubGame(0);
             expect(
-                () => new CreepNameGenerator(123).generate(roles.BUILDER, null)
-            ).to.throw("body can't be null");
-        });
-
-        it("throws exception when body is undefined", () => {
-            expect(
-                () => new CreepNameGenerator(123).generate(roles.BUILDER, undefined)
+                () => new CreepNameGenerator({game}).generate(roles.BUILDER, null)
             ).to.throw("body can't be null");
         });
 
         it("throws exception when one of the body parts unknown", () => {
+            const game = stubGame(0);
             expect(
-                () => new CreepNameGenerator(123).generate(roles.BUILDER, ["unknown"])
+                () => new CreepNameGenerator({game}).generate(roles.BUILDER, ["unknown"])
             ).to.throw("unknown bodyPart: unknown");
         });
 
-
         it("generates properly formatted name", () => {
-            const creepNameGenerator = new CreepNameGenerator(123);
+            const game = stubGame(123);
+            const creepNameGenerator = new CreepNameGenerator({game});
             const creepName = creepNameGenerator.generate(roles.BUILDER, body);
             expect(creepName).to.equal("builder_3he3mo2at2wo1ca1cl1ra1to_123");
         });

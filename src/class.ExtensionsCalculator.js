@@ -14,27 +14,22 @@ const obstacleTypes = [
 
 module.exports = class {
 
-    constructor(room) {
+    calculate(room, quantity) {
 
         if (!room) {
             throw new Error("room can't be null");
         }
 
-        this._room = room;
-        this._roomSize = room.size;
-    }
-
-    calculate(quantity) {
         const extensions = [];
         let radius = 2;
         while (radius < 10) {
             const offsets = this._offsetsWithinRadius(radius);
             _.forEach(offsets, (offset) => {
-                _.forEach(this._room.sources, (source => {
+                _.forEach(room.sources, (source => {
                     if (extensions.length >= quantity) {
                         return;
                     }
-                    if (this._canBuildAtOffset(source, offset.x, offset.y)) {
+                    if (this._canBuildAtOffset(room, source, offset.x, offset.y)) {
                         extensions.push(new Cord(
                             source.pos.x + offset.x,
                             source.pos.y + offset.y
@@ -66,12 +61,12 @@ module.exports = class {
         return offsets;
     }
 
-    _canBuildAtOffset(source, dx, dy) {
+    _canBuildAtOffset(room, source, dx, dy) {
         const sourceX = source.pos.x;
         const sourceY = source.pos.y;
         const x = sourceX + dx;
         const y = sourceY + dy;
-        const objects = this._room.findObjectsAt(x, y);
+        const objects = room.findObjectsAt(x, y);
         const obstacles = _.filter(objects, (object) =>
             _.includes(obstacleTypes, object.type) ||
             (object.type == lookTypes.TERRAIN && object.terrain == "wall")

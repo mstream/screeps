@@ -4,8 +4,10 @@ const actionTypes = require("./const.actionTypes");
 
 const Action = require("./class.Action");
 
+
 const statusBarWidth = 1;
 const statusBarHeight = 0.25;
+
 
 module.exports = class {
 

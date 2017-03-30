@@ -7,18 +7,19 @@ const ExtensionsCalculator = require("../src/class.ExtensionsCalculator");
 
 describe("ExtensionsCalculator", () => {
 
-    describe("constructor", () => {
-
-        it("throws exception during extensionsCalculator creation when room is null", () => {
-            expect(() => new ExtensionsCalculator(null)).to.throw("room can't be null");
-        });
-
-        it("throws exception during extensionsCalculator creation when room is undefined", () => {
-            expect(() => new ExtensionsCalculator(undefined)).to.throw("room can't be null");
-        });
-    });
-
     describe("#calculate", () => {
+
+        it("throws exception when room is null", () => {
+            expect(
+                () => new ExtensionsCalculator().calculate(null, 1)
+            ).to.throw("room can't be null");
+        });
+
+        it("throws exception when room is undefined", () => {
+            expect(
+                () => new ExtensionsCalculator().calculate(undefined, 1)
+            ).to.throw("room can't be null");
+        });
 
         it("returns empty array when quantity is zero", () => {
             const objects = {};
@@ -33,8 +34,8 @@ describe("ExtensionsCalculator", () => {
                     return object;
                 }
             };
-            const extensionsCalculator = new ExtensionsCalculator(room);
-            const extensions = extensionsCalculator.calculate(0);
+            const extensionsCalculator = new ExtensionsCalculator();
+            const extensions = extensionsCalculator.calculate(room, 0);
             expect(extensions.length).to.equal(0);
         });
 
@@ -146,8 +147,8 @@ describe("ExtensionsCalculator", () => {
                     return object;
                 }
             };
-            const extensionsCalculator = new ExtensionsCalculator(room);
-            const extensions = extensionsCalculator.calculate(3);
+            const extensionsCalculator = new ExtensionsCalculator();
+            const extensions = extensionsCalculator.calculate(room, 3);
             expect(extensions.length).to.equal(3);
             expect(extensions[0].x).to.equal(12);
             expect(extensions[0].y).to.equal(10);
@@ -273,8 +274,8 @@ describe("ExtensionsCalculator", () => {
                     return object;
                 }
             };
-            const extensionsCalculator = new ExtensionsCalculator(room);
-            const extensions = extensionsCalculator.calculate(3);
+            const extensionsCalculator = new ExtensionsCalculator();
+            const extensions = extensionsCalculator.calculate(room, 3);
             expect(extensions.length).to.equal(3);
             expect(extensions[0].x).to.equal(12);
             expect(extensions[0].y).to.equal(10);
@@ -400,8 +401,8 @@ describe("ExtensionsCalculator", () => {
                     return object;
                 }
             };
-            const extensionsCalculator = new ExtensionsCalculator(room);
-            const extensions = extensionsCalculator.calculate(3);
+            const extensionsCalculator = new ExtensionsCalculator();
+            const extensions = extensionsCalculator.calculate(room, 3);
             expect(extensions.length).to.equal(3);
             expect(extensions[0].x).to.equal(12);
             expect(extensions[0].y).to.equal(10);
@@ -527,8 +528,8 @@ describe("ExtensionsCalculator", () => {
                     return object;
                 }
             };
-            const extensionsCalculator = new ExtensionsCalculator(room);
-            const extensions = extensionsCalculator.calculate(3);
+            const extensionsCalculator = new ExtensionsCalculator();
+            const extensions = extensionsCalculator.calculate(room, 3);
             expect(extensions.length).to.equal(3);
             expect(extensions[0].x).to.equal(12);
             expect(extensions[0].y).to.equal(10);
@@ -741,8 +742,8 @@ describe("ExtensionsCalculator", () => {
                     return object;
                 }
             };
-            const extensionsCalculator = new ExtensionsCalculator(room);
-            const extensions = extensionsCalculator.calculate(6);
+            const extensionsCalculator = new ExtensionsCalculator();
+            const extensions = extensionsCalculator.calculate(room, 6);
             expect(extensions.length).to.equal(6);
             expect(extensions[0].x).to.equal(12);
             expect(extensions[0].y).to.equal(10);

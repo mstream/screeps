@@ -1,3 +1,5 @@
+const _ = require("lodash");
+
 const actionTypes = require("./const.actionTypes");
 
 
@@ -17,7 +19,7 @@ class Action {
             throw new Error("type can't be null");
         }
 
-        if (!actionTypes[type]) {
+        if (!_.include(_.values(actionTypes), type)) {
             throw new Error("unknown action type: " + type);
         }
 

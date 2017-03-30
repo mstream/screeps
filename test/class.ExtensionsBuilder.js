@@ -10,125 +10,146 @@ const stubRoom = (level) => ({
     buildExtension: () => undefined
 });
 
-const stubRoomLogger = () => ({
+const stubLogger = () => ({
     debug: () => undefined,
     info: () => undefined,
     warn: () => undefined,
     alert: () => undefined
 });
 
-const stubStructureAllowance = (level, allowance) => ({
-    [structureTypes.EXTENSION]: {[level]: allowance}
+const stubStructureAllowances = (level, structureAllowances) => ({
+    [structureTypes.EXTENSION]: {[level]: structureAllowances}
 });
 
 describe("ExtensionsBuilder", () => {
 
     describe("constructor", () => {
 
-        it("throws exception during extensionsBuilder creation when room is null", () => {
+        it("throws exception structureAllowance is null", () => {
             expect(
-                () => new ExtensionsBuilder(null, stubRoomLogger(), stubStructureAllowance(1, 0))
-            ).to.throw("room can't be null");
+                () => new ExtensionsBuilder({
+                    structureAllowances: null,
+                    logger: stubLogger()
+                })
+            ).to.throw("structureAllowances can't be null");
         });
 
-        it("throws exception during extensionsBuilder creation when room is undefined", () => {
+        it("throws exception logger is null", () => {
             expect(
-                () => new ExtensionsBuilder(undefined, stubRoomLogger(), stubStructureAllowance(1, 0))
-            ).to.throw("room can't be null");
-        });
-
-        it("throws exception during extensionsBuilder creation when room is null", () => {
-            expect(
-                () => new ExtensionsBuilder(stubRoom(1), null, stubStructureAllowance(1, 0))
+                () => new ExtensionsBuilder({
+                    structureAllowances: stubStructureAllowances(1, 1),
+                    logger: null
+                })
             ).to.throw("logger can't be null");
-        });
-
-        it("throws exception during extensionsBuilder creation when room is undefined", () => {
-            expect(
-                () => new ExtensionsBuilder(stubRoom(1), null, stubStructureAllowance(1, 0))
-            ).to.throw("logger can't be null");
-        });
-
-        it("throws exception during extensionsBuilder creation when structureAllowance is null", () => {
-            expect(
-                () => new ExtensionsBuilder(stubRoom(1), stubRoomLogger(), null)
-            ).to.throw("structureAllowance can't be null");
-        });
-
-        it("throws exception during extensionsBuilder creation when structureAllowance is undefined", () => {
-            expect(
-                () => new ExtensionsBuilder(stubRoom(1), stubRoomLogger(), null)
-            ).to.throw("structureAllowance can't be null");
         });
     });
 
     describe("#build()", () => {
 
-        it("throws exception when extensions is null", () => {
+        it("throws exception when room is null", () => {
+            const structureAllowances = stubStructureAllowances(1, 0);
+            const logger = stubLogger();
+            const extensionsBuilder = new ExtensionsBuilder({
+                structureAllowances, logger
+            });
             expect(
-                () => new ExtensionsBuilder(stubRoom(1), stubRoomLogger(), stubStructureAllowance(1, 0)).build(null)
+                () => extensionsBuilder.build(
+                    null, [{x: 0, y: 0}]
+                )
+            ).to.throw("room can't be null");
+        });
+
+        it("throws exception when room is undefined", () => {
+            const structureAllowances = stubStructureAllowances(1, 0);
+            const logger = stubLogger();
+            const extensionsBuilder = new ExtensionsBuilder({
+                structureAllowances, logger
+            });
+            expect(
+                () => extensionsBuilder.build(
+                    undefined, [{x: 0, y: 0}]
+                )
+            ).to.throw("room can't be null");
+        });
+
+        it("throws exception when extensions is null", () => {
+            const logger = stubLogger();
+            const structureAllowances = stubStructureAllowances(1, 0);
+            const extensionsBuilder = new ExtensionsBuilder({
+                structureAllowances, logger
+            });
+            expect(
+                () => extensionsBuilder.build(stubRoom(1), null)
             ).to.throw("extensions can't be null");
         });
 
         it("throws exception when extensions is undefined", () => {
+            const logger = stubLogger();
+            const structureAllowances = stubStructureAllowances(1, 0);
+            const extensionsBuilder = new ExtensionsBuilder({
+                structureAllowances, logger
+            });
             expect(
-                () => new ExtensionsBuilder(
-                    stubRoom(1),
-                    stubRoomLogger(),
-                    stubStructureAllowance(1, 0)
-                ).build(undefined)
+                () => extensionsBuilder.build(stubRoom(1), undefined)
             ).to.throw("extensions can't be null");
         });
 
-        it("does not do anything when cords is not empty but allowance is zero", () => {
+        it("does not do anything when cords is not empty but structureAllowances is zero", () => {
             const room = stubRoom(1);
             const buildExtensionSpy = sinon.spy(room, "buildExtension");
-            const logger = stubRoomLogger();
-            const allowance = stubStructureAllowance(1, 0);
+            const logger = stubLogger();
+            const structureAllowances = stubStructureAllowances(1, 0);
             const extensions = [{x: 0, y: 0}];
-            new ExtensionsBuilder(room, logger, allowance).build(extensions);
+            const extensionsBuilder = new ExtensionsBuilder({
+                structureAllowances, logger
+            });
+            extensionsBuilder.build(room, extensions);
             expect(buildExtensionSpy.callCount).to.equal(0);
         });
 
         it("throws exception when one of extensions is null", () => {
+            const structureAllowances = stubStructureAllowances(1, 1);
+            const logger = stubLogger();
+            const extensionsBuilder = new ExtensionsBuilder({
+                structureAllowances, logger
+            });
             expect(
-                () => new ExtensionsBuilder(
-                    stubRoom(1),
-                    stubRoomLogger(),
-                    stubStructureAllowance(1, 1)
-                ).build([null])
+                () => extensionsBuilder.build(stubRoom(1), [null])
             ).to.throw("extension can't be null");
         });
 
         it("throws exception when one of extensions is undefined", () => {
+            const structureAllowances = stubStructureAllowances(1, 1);
+            const logger = stubLogger();
+            const extensionsBuilder = new ExtensionsBuilder({
+                structureAllowances, logger
+            });
             expect(
-                () => new ExtensionsBuilder(
-                    stubRoom(1),
-                    stubRoomLogger(),
-                    stubStructureAllowance(1, 1)
-                ).build([undefined])
+                () => extensionsBuilder.build(stubRoom(1), [undefined])
             ).to.throw("extension can't be null");
         });
 
-        it("throws exception when allowance is more than zero but one of extensions is in a wrong format", () => {
+        it("throws exception when one of extensions is in a wrong format", () => {
             const room = stubRoom(1);
             const buildExtensionSpy = sinon.spy(room, "buildExtension");
-            const logger = stubRoomLogger();
-            const allowance = stubStructureAllowance(1, 1);
+            const logger = stubLogger();
+            const structureAllowances = stubStructureAllowances(1, 1);
             const extensions = [{a: 0, b: 0}];
-
+            const extensionsBuilder = new ExtensionsBuilder({
+                structureAllowances, logger
+            });
             expect(
-                () => new ExtensionsBuilder(room, logger, allowance).build(extensions)
+                () => extensionsBuilder.build(room, extensions)
             ).to.throw(Error);
 
             expect(buildExtensionSpy.callCount).to.equal(0);
         });
 
-        it("calls room's 'build' method for every cord when allowance is more than zero", () => {
+        it("calls room's 'build' method for every cord when structureAllowances is more than zero", () => {
             const room = stubRoom(1);
             const buildExtensionSpy = sinon.spy(room, "buildExtension");
-            const logger = stubRoomLogger();
-            const allowance = stubStructureAllowance(1, 1);
+            const logger = stubLogger();
+            const structureAllowances = stubStructureAllowances(1, 1);
             const extensions = [
                 {x: 0, y: 0},
                 {x: 1, y: 1},
@@ -136,8 +157,10 @@ describe("ExtensionsBuilder", () => {
                 {x: 3, y: 3},
                 {x: 4, y: 4}
             ];
-
-            new ExtensionsBuilder(room, logger, allowance).build(extensions);
+            const extensionsBuilder = new ExtensionsBuilder({
+                structureAllowances, logger
+            });
+            extensionsBuilder.build(room, extensions);
             expect(buildExtensionSpy.callCount).to.equal(5);
             expect(buildExtensionSpy.calledWith(
                 sinon.match({x: 0, y: 0})

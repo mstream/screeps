@@ -4,27 +4,43 @@ const roomEdges = require("./const.roomEdges");
 const taskTypes = require("./const.taskTypes");
 
 const Cord = require("./class.Cord");
-const ExitsCalculator = require("./class.ExitsCalculator");
-const ExtensionsCalculator = require("./class.ExtensionsCalculator");
 const Path = require("./class.Path");
-const RoadCalculator = require("./class.RoadCalculator");
-const WallsCalculator = require("./class.WallsCalculator");
 
 
 module.exports = class {
 
-    constructor(taskScheduler, time, room, logger) {
+    constructor({
+        taskScheduler = require("./taskScheduler"),
+        game = require("./game"),
+        exitsCalculator = require("./exitsCalculator"),
+        extensionsCalculator = require("./extensionsCalculator"),
+        wallsCalculator = require("./wallsCalculator"),
+        roadCalculator = require("./roadCalculator"),
+        logger = require("./logger")
+    } = {}) {
 
         if (!taskScheduler) {
             throw new Error("taskScheduler can't be null");
         }
 
-        if (!time) {
-            throw new Error("time can't be null");
+        if (!game) {
+            throw new Error("game can't be null");
         }
 
-        if (!room) {
-            throw new Error("room can't be null");
+        if (!exitsCalculator) {
+            throw new Error("exitsCalculator can't be null");
+        }
+
+        if (!extensionsCalculator) {
+            throw new Error("extensionsCalculator can't be null");
+        }
+
+        if (!wallsCalculator) {
+            throw new Error("wallsCalculator can't be null");
+        }
+
+        if (!roadCalculator) {
+            throw new Error("roadCalculator can't be null");
         }
 
         if (!logger) {
@@ -32,18 +48,15 @@ module.exports = class {
         }
 
         this._taskScheduler = taskScheduler;
-        this._time = time;
-        this._room = room;
+        this._game = game;
+        this._exitsCalculator = exitsCalculator;
+        this._extensionsCalculator = extensionsCalculator;
+        this._wallsCalculator = wallsCalculator;
+        this._roadCalculator = roadCalculator;
         this._logger = logger;
-
-        this._calculatorConstructorForTaskType = {
-            [taskTypes.EXITS_COMPUTING]: ExitsCalculator,
-            [taskTypes.EXTENSIONS_COMPUTING]: ExtensionsCalculator,
-            [taskTypes.WALLS_COMPUTING]: WallsCalculator
-        };
     }
 
-    execute() {
+    execute(room) {
 
         const task = this._taskScheduler.nextTask();
 
@@ -51,8 +64,7 @@ module.exports = class {
             return;
         }
 
-        const time = this._time;
-        const shouldExecute = time % task.cost == 0;
+        const shouldExecute = this._game.time % task.cost == 0;
 
         if (!shouldExecute) {
             return;
@@ -67,10 +79,9 @@ module.exports = class {
             const path = Path.fromJSON(task.options.path);
             const pathHash = path.hash;
             this._logger.info(`started path calculation: ${pathHash}`);
-            const calculator = new RoadCalculator();
-            const result = calculator.calculate(
-                this._room.cordToPos(path.from),
-                this._room.cordToPos(path.to)
+            const result = this._roadCalculator.calculate(
+                room.cordToPos(path.from),
+                room.cordToPos(path.to)
             );
             if (result.incomplete) {
                 this._logger.warn(
@@ -80,7 +91,7 @@ module.exports = class {
             }
             this._logger.info(`finished path calculation: ${pathHash}`);
             const pathSegments = _.map(result.path, pos => Cord.fromPos(pos));
-            this._room.setPathSegments(pathHash, pathSegments);
+            room.setPathSegments(pathHash, pathSegments);
             break;
         }
 
@@ -102,32 +113,31 @@ module.exports = class {
 
             const calculationMethod = `calculate${upperFirstEdge}${upperFirstObjectKeyword}`;
             this._logger.info(`started ${objectKeyword} calculation: ${edge}`);
-            const calculator = new this._calculatorConstructorForTaskType[taskType](this._room);
+            const calculator = new this[`_${objectKeyword}Calculator`](room);
             const objects = calculator[calculationMethod]();
-            this._room.setEdgeObjects(objectKeyword, edge, objects);
+            room.setEdgeObjects(objectKeyword, edge, objects);
             this._logger.info(`finished ${objectKeyword} calculation: ${edge}`);
             break;
         }
 
         case taskTypes.EXTENSIONS_COMPUTING: {
             this._logger.info("started extensions calculation");
-            const calculator = new this._calculatorConstructorForTaskType[taskType](this._room);
-            const extensions = calculator.calculate(10);
-            this._room.setExtensions(extensions);
+            const extensions = this._extensionsCalculator.calculate(10);
+            room.setExtensions(extensions);
             this._logger.info("finished extensions calculation");
             break;
         }
 
         case taskTypes.ROADS_BUILDING:
-            this._room.buildRoads();
+            room.buildRoads();
             break;
 
         case taskTypes.WALLS_BUILDING:
-            this._room.buildWalls();
+            room.buildWalls();
             break;
 
         case taskTypes.EXTENSIONS_BUILDING:
-            this._room.buildExtensions();
+            room.buildExtensions();
             break;
 
         default:

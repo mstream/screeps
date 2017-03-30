@@ -2,7 +2,7 @@ const bodyPartTypes = require("./const.bodyPartTypes");
 const roles = require("./const.roles");
 
 
-class Path {
+class CreepBodyAssembler {
 
     createBody(role) {
         switch (role) {
@@ -21,4 +21,4 @@ class Path {
 }
 
 
-module.exports = Path;
+module.exports = CreepBodyAssembler;

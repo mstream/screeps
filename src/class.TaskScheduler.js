@@ -5,31 +5,35 @@ const taskTypes = require("./const.taskTypes");
 
 const Cord = require("./class.Cord");
 const Path = require("./class.Path");
-const TaskFactory = require("./class.TaskFactory");
 
 
 module.exports = class {
 
-    constructor(time, room, memory, logger) {
+    constructor({
+        game = require("./game"),
+        memory = require("./memory"),
+        taskFactory = require("./taskFactory"),
+        logger = require("./logger")
+    } = {}) {
 
-        if (!time) {
-            throw new Error("time can't be null");
-        }
-
-        if (!room) {
-            throw new Error("room can't be null");
+        if (!game) {
+            throw new Error("game can't be null");
         }
 
         if (!memory) {
             throw new Error("memory can't be null");
         }
 
+        if (!taskFactory) {
+            throw new Error("taskFactory can't be null");
+        }
+
         if (!logger) {
             throw new Error("logger can't be null");
         }
 
-        this._time = time;
-        this._room = room;
+        this._game = game;
+        this._taskFactory = taskFactory;
         this._logger = logger;
 
         if (!memory.schedule) {
@@ -46,8 +50,6 @@ module.exports = class {
             [taskTypes.WALLS_BUILDING]: 100
         };
 
-        this._taskFactory = new TaskFactory();
-
         this._schedulingMethods = {
             [taskTypes.EXTENSIONS_COMPUTING]: () =>
                 this._queueTask(this._taskFactory.create(taskTypes.EXTENSIONS_COMPUTING)),
@@ -63,27 +65,18 @@ module.exports = class {
         this._initializeMemory();
     }
 
-    _initializeMemory() {
-        if (!this._memory.lastUpdates) {
-            this._memory.lastUpdates = {};
-        }
-        if (!this._memory.tasks) {
-            this._memory.tasks = [];
-        }
-    }
+    schedule(room) {
 
-    schedule() {
-
-        this._requestExitsCalculation();
-        this._requestWallsCalculation();
+        this._requestExitsCalculation(room);
+        this._requestWallsCalculation(room);
 
         _.forOwn(this._schedulingFrequencies, (frequency, taskType) => {
             const lastUpdate = this._memory.lastUpdates[taskType];
-            if (lastUpdate && this._time - lastUpdate < frequency) {
+            if (lastUpdate && this._game.time - lastUpdate < frequency) {
                 return;
             }
-            this._schedulingMethods[taskType].bind(this)();
-            this._memory.lastUpdates[taskType] = this._time;
+            this._schedulingMethods[taskType].bind(this)(room);
+            this._memory.lastUpdates[taskType] = this._game.time;
         });
     }
 
@@ -101,22 +94,31 @@ module.exports = class {
         this._memory.tasks.shift();
     }
 
-    _requestPathsCalculation() {
-        this._room.sources.forEach((source) => {
-            this._room.spawns.forEach((spawn) => {
-                this._requestPathCalculation(source, spawn);
+    _initializeMemory() {
+        if (!this._memory.lastUpdates) {
+            this._memory.lastUpdates = {};
+        }
+        if (!this._memory.tasks) {
+            this._memory.tasks = [];
+        }
+    }
+
+    _requestPathsCalculation(room) {
+        room.sources.forEach((source) => {
+            room.spawns.forEach((spawn) => {
+                this._requestPathCalculation(room, source, spawn);
             });
-            this._requestPathCalculation(source, this._room.controller);
+            this._requestPathCalculation(room, source, room.controller);
         });
     }
 
-    _requestPathCalculation(fromObj, toObj) {
+    _requestPathCalculation(room, fromObj, toObj) {
         const path = new Path(
             Cord.fromPos(fromObj.pos),
             Cord.fromPos(toObj.pos)
         );
 
-        if (this._room.isPathRequested(path) || this._room.isPathComputed(path)) {
+        if (room.isPathRequested(path) || room.isPathComputed(path)) {
             return;
         }
 
@@ -124,18 +126,18 @@ module.exports = class {
             `scheduling tasks: ${taskTypes.ROAD_COMPUTING} for ${path.hash}`
         );
 
-        this._room.requestPath(path);
+        room.requestPath(path);
         this._queueTask(this._taskFactory.create(
             taskTypes.ROAD_COMPUTING,
             {path}
         ));
     }
 
-    _requestExitsCalculation() {
+    _requestExitsCalculation(room) {
 
         roomEdges.forEach((edge) => {
 
-            if (this._room.areExitsRequested(edge) || this._room.areExitsComputed(edge)) {
+            if (room.areExitsRequested(edge) || room.areExitsComputed(edge)) {
                 return;
             }
 
@@ -143,22 +145,22 @@ module.exports = class {
                 `scheduling tasks ${taskTypes.EXITS_COMPUTING} for ${edge}`
             );
 
-            this._room.requestExits(edge);
+            room.requestExits(edge);
 
             this._queueTask(this._taskFactory.create(
                 taskTypes.EXITS_COMPUTING,
                 {edge}
             ));
 
-            this._memory.lastUpdates[taskTypes.EXITS_COMPUTING] = this._time;
+            this._memory.lastUpdates[taskTypes.EXITS_COMPUTING] = this._game.time;
         });
     }
 
-    _requestWallsCalculation() {
+    _requestWallsCalculation(room) {
 
         roomEdges.forEach((edge) => {
 
-            if (this._room.areWallsRequested(edge) || this._room.areWallsComputed(edge)) {
+            if (room.areWallsRequested(edge) || room.areWallsComputed(edge)) {
                 return;
             }
 
@@ -166,14 +168,14 @@ module.exports = class {
                 `scheduling tasks ${taskTypes.WALLS_COMPUTING} for ${edge}`
             );
 
-            this._room.requestWalls(edge);
+            room.requestWalls(edge);
 
             this._queueTask(this._taskFactory.create(
                 taskTypes.WALLS_COMPUTING,
                 {edge}
             ));
 
-            this._memory.lastUpdates[taskTypes.WALL] = this._time;
+            this._memory.lastUpdates[taskTypes.WALL] = this._game.time;
         });
     }
 
