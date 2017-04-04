@@ -18,14 +18,14 @@ describe("Logger", () => {
 
         it("throws exception during logger creation when console type is null", () => {
             expect(
-                () => new Logger({console: null, game: stubGame(0)})
+                () => new Logger({console: null, gameProvider: stubGame(0)})
             ).to.throw("console can't be null");
         });
 
-        it("throws exception during logger creation when game type is null", () => {
+        it("throws exception during logger creation when gameProvider type is null", () => {
             expect(
-                () => new Logger({console: stubConsole(), game: null})
-            ).to.throw("game can't be null");
+                () => new Logger({console: stubConsole(), gameProvider: null})
+            ).to.throw("gameProvider can't be null");
         });
     });
 
@@ -33,9 +33,9 @@ describe("Logger", () => {
 
         it("creates debug logs", () => {
             const console = stubConsole();
-            const game = stubGame(123);
+            const gameProvider = stubGame(123);
             const logSpy = sinon.spy(console, "log");
-            const logger = new Logger({console, game});
+            const logger = new Logger({console, gameProvider});
             logger.debug("message");
             expect(logSpy.callCount).to.equal(1);
             expect(logSpy.calledWith(
@@ -46,9 +46,9 @@ describe("Logger", () => {
         it("creates debug logs with room name", () => {
             const console = stubConsole();
             const room = stubRoom("room1");
-            const game = stubGame(123);
+            const gameProvider = stubGame(123);
             const logSpy = sinon.spy(console, "log");
-            const logger = new Logger({console, game});
+            const logger = new Logger({console, gameProvider});
             logger.debug("message", room);
             expect(logSpy.callCount).to.equal(1);
             expect(logSpy.calledWith(
@@ -61,9 +61,9 @@ describe("Logger", () => {
 
         it("creates info logs", () => {
             const console = stubConsole();
-            const game = stubGame(123);
+            const gameProvider = stubGame(123);
             const logSpy = sinon.spy(console, "log");
-            const logger = new Logger({console, game});
+            const logger = new Logger({console, gameProvider});
             logger.info("message");
             expect(logSpy.callCount).to.equal(1);
             expect(logSpy.calledWith(
@@ -74,9 +74,9 @@ describe("Logger", () => {
         it("creates info logs with room name", () => {
             const console = stubConsole();
             const room = stubRoom("room1");
-            const game = stubGame(123);
+            const gameProvider = stubGame(123);
             const logSpy = sinon.spy(console, "log");
-            const logger = new Logger({console, game});
+            const logger = new Logger({console, gameProvider});
             logger.info("message", room);
             expect(logSpy.callCount).to.equal(1);
             expect(logSpy.calledWith(
@@ -89,9 +89,9 @@ describe("Logger", () => {
 
         it("creates warn logs", () => {
             const console = stubConsole();
-            const game = stubGame(123);
+            const gameProvider = stubGame(123);
             const logSpy = sinon.spy(console, "log");
-            const logger = new Logger({console, game});
+            const logger = new Logger({console, gameProvider});
             logger.warn("message");
             expect(logSpy.callCount).to.equal(1);
             expect(logSpy.calledWith(
@@ -102,9 +102,9 @@ describe("Logger", () => {
         it("creates warn logs with room name", () => {
             const console = stubConsole();
             const room = stubRoom("room1");
-            const game = stubGame(123);
+            const gameProvider = stubGame(123);
             const logSpy = sinon.spy(console, "log");
-            const logger = new Logger({console, game});
+            const logger = new Logger({console, gameProvider});
             logger.warn("message", room);
             expect(logSpy.callCount).to.equal(1);
             expect(logSpy.calledWith(
@@ -117,9 +117,9 @@ describe("Logger", () => {
 
         it("creates error logs", () => {
             const console = stubConsole();
-            const game = stubGame(123);
+            const gameProvider = stubGame(123);
             const logSpy = sinon.spy(console, "log");
-            const logger = new Logger({console, game});
+            const logger = new Logger({console, gameProvider});
             logger.error("message");
             expect(logSpy.callCount).to.equal(1);
             expect(logSpy.calledWith(
@@ -130,9 +130,9 @@ describe("Logger", () => {
         it("creates error logs with room name", () => {
             const console = stubConsole();
             const room = stubRoom("room1");
-            const game = stubGame(123);
+            const gameProvider = stubGame(123);
             const logSpy = sinon.spy(console, "log");
-            const logger = new Logger({console, game});
+            const logger = new Logger({console, gameProvider});
             logger.error("message", room);
             expect(logSpy.callCount).to.equal(1);
             expect(logSpy.calledWith(

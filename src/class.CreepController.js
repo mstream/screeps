@@ -1,17 +1,9 @@
-const _ = require("lodash");
-
-const actionTypes = require("./const.actionTypes");
-
 const Action = require("./class.Action");
-
-
-const statusBarWidth = 1;
-const statusBarHeight = 0.25;
 
 
 module.exports = class {
 
-    constructor(creep, room) {
+    constructor({creep, room, statusRenderer} = {}) {
 
         if (!creep) {
             throw new Error("creep can't be null");
@@ -21,163 +13,57 @@ module.exports = class {
             throw new Error("room can't be null");
         }
 
+        if (!statusRenderer) {
+            throw new Error("statusRenderer can't be null");
+        }
+
         this._creep = creep;
         this._room = room;
+        this._statusRenderer = statusRenderer;
         this._creepMemory = creep.memory;
     }
 
     execute() {
         this._initializeMemory();
-        this._chooseAction();
-        this._executeAction();
-        this._drawStatus();
+        this._executeAssignedTask();
+        this._statusRenderer.renderFor(this, this._room);
     }
 
-    _drawStatus() {
-        const centerX = this._creep.pos.x;
-        const centerY = this._creep.pos.y;
-        const creepRole = this._creepMemory.role;
-        const currentHp = this._creep.hits;
-        const maxHp = this._creep.hitsMax;
-        const currentTtl = this._creep.ticksToLive;
-        const maxTtl = 1500;
-        const ttlCirclesNumber = 5;
-        const ttlCircleSize = statusBarWidth / ttlCirclesNumber;
+    assignTask(task) {
+        this._creepMemory.task = task;
+    }
 
-        const hpRatio = 1 - ((maxHp - currentHp) / maxHp);
-        const ttlRatio = 1 - ((maxTtl - currentTtl) / maxTtl);
+    get role() {
+        return this._creepMemory.role;
+    }
 
-        for (let i = 0; i < ttlCirclesNumber; i++) {
-            const filled = 1 - ((ttlCirclesNumber - i) / ttlCirclesNumber) <= ttlRatio;
-            this._room.drawCircle(
-                centerX - (statusBarWidth / 2) + (ttlCircleSize / 2) + (i * ttlCircleSize),
-                centerY - (4 * statusBarHeight),
-                {
-                    stroke: filled ? "#ffffff" : "#aaaaaa",
-                    fill: filled ? "#ffffff" : "transparent",
-                    radius: ttlCircleSize / 2.5
-                }
-            );
-        }
+    get task() {
+        return this._creepMemory.task;
+    }
 
-        this._room.drawRectangle(
-            centerX - (statusBarWidth / 2),
-            centerY - (3 * statusBarHeight),
-            (1 - hpRatio) * statusBarWidth,
-            statusBarHeight,
-            {fill: "#ff0000"}
-        );
+    get action() {
+        return new Action(this._creepMemory.action);
+    }
 
-        this._room.drawRectangle(
-            centerX - (statusBarWidth / 2) + ((1 - hpRatio) * statusBarWidth),
-            centerY - (3 * statusBarHeight),
-            statusBarWidth * hpRatio,
-            statusBarHeight,
-            {fill: "#00ff00"}
-        );
+    get pos() {
+        return this._creep.pos;
+    }
 
-        const status = `${creepRole.charAt(0)} ${hpRatio * 100}%`;
-
-        this._room.drawText(
-            centerX,
-            centerY - (2 * statusBarHeight),
-            {font: statusBarHeight},
-            status
-        );
+    set action(action) {
+        this._creepMemory.action = action.toJSON();
     }
 
     _initializeMemory() {
-        if (!this._getAction()) {
-            this._setAction(Action.idle());
+        if (!this._creepMemory.action) {
+            this._creepMemory.action = Action.idle().toJSON();
         }
     }
 
-    _harvestBestSource() {
-        const sources = this._room.sources;
-        const bestSource = _.sortBy(
-            sources,
-            (source) => this._room.harvestersAssignedToSource(source)
-        )[0];
-
-        this._setAction(new Action(
-            actionTypes.HARVESTING,
-            bestSource.id
-        ));
-
-        this._room.assignHarvesterTo(bestSource);
-    }
-
-    _transferToBestSpawn() {
-        const currentAction = this._getAction();
-
-        if (currentAction.type == actionTypes.HARVESTING) {
-            // TODO cache objects by their ID
-            const source = Game.getObjectById(currentAction.targetId);
-            this._room.unassignHarvesterFrom(source);
-        }
-
-        const spawns = this._room.spawns;
-        const spawnsWithRemainingCapacity = _.filter(
-            spawns,
-            (spawn) => spawn.energy < spawn.energyCapacity
-        );
-
-        if (!spawnsWithRemainingCapacity.length) {
-            this._setAction(Action.idle());
+    _executeAssignedTask() {
+        if (!this.task) {
             return;
         }
-
-        const bestSpawn = spawnsWithRemainingCapacity[0];
-
-        this._setAction(new Action(
-            actionTypes.TRANSFERRING,
-            bestSpawn.id
-        ));
-    }
-
-    _buildBestStructure() {
-        const currentAction = this._getAction();
-
-        if (currentAction.type == actionTypes.HARVESTING) {
-            // TODO cache objects by their ID
-            const source = Game.getObjectById(currentAction.targetId);
-            this._room.unassignHarvesterFrom(source);
-        }
-
-        const constructionSites = this._room.constructionSites;
-
-        if (!constructionSites.length) {
-            this._setAction(Action.idle());
-            return;
-        }
-
-        const bestConstructionSite = constructionSites[0];
-
-        this._setAction(new Action(
-            actionTypes.BUILDING,
-            bestConstructionSite.id
-        ));
-    }
-
-    _upgradeController() {
-
-        const controller = this._room.controller;
-
-        this._setAction(new Action(
-            actionTypes.UPGRADING,
-            controller.id
-        ));
-    }
-
-    _setAction(action) {
-        if (typeof action != "object" || typeof action.type != "string") {
-            throw new Error("action type is not supported: " + action);
-        }
-        this._creep.memory.action = action;
-    }
-
-    _getAction() {
-        return this._creep.memory.action;
+        this._executeTask(this.task);
     }
 };
 

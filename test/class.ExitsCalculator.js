@@ -7,17 +7,17 @@ const obstacleTypes = require("../src/const.obstacleTypes");
 
 describe("ExitsCalculator", () => {
 
-    describe("#calculateTopExits", () => {
+    describe("#calculateTop", () => {
 
         it("throws exception when room is null", () => {
             expect(
-                () => new ExitsCalculator().calculateTopExits(null)
+                () => new ExitsCalculator().calculateTop(null)
             ).to.throw("room can't be null");
         });
 
         it("throws exception when room is undefined", () => {
             expect(
-                () => new ExitsCalculator().calculateTopExits(undefined)
+                () => new ExitsCalculator().calculateTop(undefined)
             ).to.throw("room can't be null");
         });
 
@@ -47,7 +47,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateTopExits(room);
+            const exits = exitsCalculator.calculateTop(room);
             expect(exits.length).to.equal(0);
         });
 
@@ -77,7 +77,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateTopExits(room);
+            const exits = exitsCalculator.calculateTop(room);
             expect(exits.length).to.equal(1);
             expect(exits[0].from.x).to.equal(4);
             expect(exits[0].from.y).to.equal(0);
@@ -111,7 +111,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateTopExits(room);
+            const exits = exitsCalculator.calculateTop(room);
             expect(exits.length).to.equal(1);
             expect(exits[0].from.x).to.equal(0);
             expect(exits[0].from.y).to.equal(0);
@@ -145,7 +145,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateTopExits(room);
+            const exits = exitsCalculator.calculateTop(room);
             expect(exits.length).to.equal(2);
             expect(exits[0].from.x).to.equal(2);
             expect(exits[0].from.y).to.equal(0);
@@ -183,7 +183,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateTopExits(room);
+            const exits = exitsCalculator.calculateTop(room);
             expect(exits.length).to.equal(2);
             expect(exits[0].from.x).to.equal(0);
             expect(exits[0].from.y).to.equal(0);
@@ -196,17 +196,17 @@ describe("ExitsCalculator", () => {
         });
     });
 
-    describe("#calculateBottomExits", () => {
+    describe("#calculateBottom", () => {
 
         it("throws exception when room is null", () => {
             expect(
-                () => new ExitsCalculator().calculateTopExits(null)
+                () => new ExitsCalculator().calculateTop(null)
             ).to.throw("room can't be null");
         });
 
         it("throws exception when room is undefined", () => {
             expect(
-                () => new ExitsCalculator().calculateTopExits(undefined)
+                () => new ExitsCalculator().calculateTop(undefined)
             ).to.throw("room can't be null");
         });
 
@@ -236,7 +236,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateBottomExits(room);
+            const exits = exitsCalculator.calculateBottom(room);
             expect(exits.length).to.equal(0);
         });
 
@@ -266,7 +266,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateBottomExits(room);
+            const exits = exitsCalculator.calculateBottom(room);
             expect(exits.length).to.equal(1);
             expect(exits[0].from.x).to.equal(4);
             expect(exits[0].from.y).to.equal(9);
@@ -300,7 +300,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateBottomExits(room);
+            const exits = exitsCalculator.calculateBottom(room);
             expect(exits.length).to.equal(1);
             expect(exits[0].from.x).to.equal(0);
             expect(exits[0].from.y).to.equal(9);
@@ -334,7 +334,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateBottomExits(room);
+            const exits = exitsCalculator.calculateBottom(room);
             expect(exits.length).to.equal(2);
             expect(exits[0].from.x).to.equal(2);
             expect(exits[0].from.y).to.equal(9);
@@ -372,7 +372,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateBottomExits(room);
+            const exits = exitsCalculator.calculateBottom(room);
             expect(exits.length).to.equal(2);
             expect(exits[0].from.x).to.equal(0);
             expect(exits[0].from.y).to.equal(9);
@@ -385,17 +385,17 @@ describe("ExitsCalculator", () => {
         });
     });
 
-    describe("#calculateLeftExits", () => {
+    describe("#calculateLeft", () => {
 
         it("throws exception when room is null", () => {
             expect(
-                () => new ExitsCalculator().calculateTopExits(null)
+                () => new ExitsCalculator().calculateTop(null)
             ).to.throw("room can't be null");
         });
 
         it("throws exception when room is undefined", () => {
             expect(
-                () => new ExitsCalculator().calculateTopExits(undefined)
+                () => new ExitsCalculator().calculateTop(undefined)
             ).to.throw("room can't be null");
         });
 
@@ -443,7 +443,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateLeftExits(room);
+            const exits = exitsCalculator.calculateLeft(room);
             expect(exits.length).to.equal(0);
         });
 
@@ -491,7 +491,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateLeftExits(room);
+            const exits = exitsCalculator.calculateLeft(room);
             expect(exits.length).to.equal(1);
             expect(exits[0].from.x).to.equal(0);
             expect(exits[0].from.y).to.equal(4);
@@ -543,7 +543,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateLeftExits(room);
+            const exits = exitsCalculator.calculateLeft(room);
             expect(exits.length).to.equal(1);
             expect(exits[0].from.x).to.equal(0);
             expect(exits[0].from.y).to.equal(0);
@@ -595,7 +595,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateLeftExits(room);
+            const exits = exitsCalculator.calculateLeft(room);
             expect(exits.length).to.equal(2);
             expect(exits[0].from.x).to.equal(0);
             expect(exits[0].from.y).to.equal(2);
@@ -651,7 +651,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateLeftExits(room);
+            const exits = exitsCalculator.calculateLeft(room);
             expect(exits.length).to.equal(2);
             expect(exits[0].from.x).to.equal(0);
             expect(exits[0].from.y).to.equal(0);
@@ -664,17 +664,17 @@ describe("ExitsCalculator", () => {
         });
     });
 
-    describe("#calculateRightExits", () => {
+    describe("#calculateRight", () => {
 
         it("throws exception when room is null", () => {
             expect(
-                () => new ExitsCalculator().calculateTopExits(null)
+                () => new ExitsCalculator().calculateTop(null)
             ).to.throw("room can't be null");
         });
 
         it("throws exception when room is undefined", () => {
             expect(
-                () => new ExitsCalculator().calculateTopExits(undefined)
+                () => new ExitsCalculator().calculateTop(undefined)
             ).to.throw("room can't be null");
         });
 
@@ -722,7 +722,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateRightExits(room);
+            const exits = exitsCalculator.calculateRight(room);
             expect(exits.length).to.equal(0);
         });
 
@@ -770,7 +770,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateRightExits(room);
+            const exits = exitsCalculator.calculateRight(room);
             expect(exits.length).to.equal(1);
             expect(exits[0].from.x).to.equal(9);
             expect(exits[0].from.y).to.equal(4);
@@ -822,7 +822,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateRightExits(room);
+            const exits = exitsCalculator.calculateRight(room);
             expect(exits.length).to.equal(1);
             expect(exits[0].from.x).to.equal(9);
             expect(exits[0].from.y).to.equal(0);
@@ -874,7 +874,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateRightExits(room);
+            const exits = exitsCalculator.calculateRight(room);
             expect(exits.length).to.equal(2);
             expect(exits[0].from.x).to.equal(9);
             expect(exits[0].from.y).to.equal(2);
@@ -930,7 +930,7 @@ describe("ExitsCalculator", () => {
                 }
             };
             const exitsCalculator = new ExitsCalculator();
-            const exits = exitsCalculator.calculateRightExits(room);
+            const exits = exitsCalculator.calculateRight(room);
             expect(exits.length).to.equal(2);
             expect(exits[0].from.x).to.equal(9);
             expect(exits[0].from.y).to.equal(0);

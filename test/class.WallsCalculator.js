@@ -7,17 +7,17 @@ const obstacleTypes = require("../src/const.obstacleTypes");
 
 describe("WallsCalculator", () => {
 
-    describe("#calculateTopWalls", () => {
+    describe("#calculateTop", () => {
 
         it("throws exception when room is null", () => {
             expect(
-                () => new WallsCalculator().calculateTopWalls(null)
+                () => new WallsCalculator().calculateTop(null)
             ).to.throw("room can't be null");
         });
 
         it("throws exception when room is undefined", () => {
             expect(
-                () => new WallsCalculator().calculateTopWalls(undefined)
+                () => new WallsCalculator().calculateTop(undefined)
             ).to.throw("room can't be null");
         });
 
@@ -43,7 +43,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateTopWalls(room);
+            const walls = wallsCalculator.calculateTop(room);
             expect(walls.length).to.equal(0);
         });
 
@@ -69,7 +69,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateTopWalls(room);
+            const walls = wallsCalculator.calculateTop(room);
             expect(walls.length).to.equal(1);
             expect(walls[0].from.x).to.equal(4);
             expect(walls[0].from.y).to.equal(2);
@@ -99,7 +99,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateTopWalls(room);
+            const walls = wallsCalculator.calculateTop(room);
             expect(walls.length).to.equal(1);
             expect(walls[0].from.x).to.equal(2);
             expect(walls[0].from.y).to.equal(2);
@@ -129,7 +129,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateTopWalls(room);
+            const walls = wallsCalculator.calculateTop(room);
             expect(walls.length).to.equal(2);
             expect(walls[0].from.x).to.equal(3);
             expect(walls[0].from.y).to.equal(2);
@@ -163,7 +163,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateTopWalls(room);
+            const walls = wallsCalculator.calculateTop(room);
             expect(walls.length).to.equal(2);
             expect(walls[0].from.x).to.equal(2);
             expect(walls[0].from.y).to.equal(2);
@@ -176,17 +176,17 @@ describe("WallsCalculator", () => {
         });
     });
 
-    describe("#calculateBottomWalls", () => {
+    describe("#calculateBottom", () => {
 
         it("throws exception when room is null", () => {
             expect(
-                () => new WallsCalculator().calculateBottomWalls(null)
+                () => new WallsCalculator().calculateBottom(null)
             ).to.throw("room can't be null");
         });
 
         it("throws exception when room is undefined", () => {
             expect(
-                () => new WallsCalculator().calculateBottomWalls(undefined)
+                () => new WallsCalculator().calculateBottom(undefined)
             ).to.throw("room can't be null");
         });
 
@@ -212,7 +212,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateBottomWalls(room);
+            const walls = wallsCalculator.calculateBottom(room);
             expect(walls.length).to.equal(0);
         });
 
@@ -238,7 +238,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateBottomWalls(room);
+            const walls = wallsCalculator.calculateBottom(room);
             expect(walls.length).to.equal(1);
             expect(walls[0].from.x).to.equal(4);
             expect(walls[0].from.y).to.equal(7);
@@ -268,7 +268,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateBottomWalls(room);
+            const walls = wallsCalculator.calculateBottom(room);
             expect(walls.length).to.equal(1);
             expect(walls[0].from.x).to.equal(2);
             expect(walls[0].from.y).to.equal(7);
@@ -298,7 +298,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateBottomWalls(room);
+            const walls = wallsCalculator.calculateBottom(room);
             expect(walls.length).to.equal(2);
             expect(walls[0].from.x).to.equal(3);
             expect(walls[0].from.y).to.equal(7);
@@ -332,7 +332,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateBottomWalls(room);
+            const walls = wallsCalculator.calculateBottom(room);
             expect(walls.length).to.equal(2);
             expect(walls[0].from.x).to.equal(2);
             expect(walls[0].from.y).to.equal(7);
@@ -345,17 +345,17 @@ describe("WallsCalculator", () => {
         });
     });
 
-    describe("#calculateLeftWalls", () => {
+    describe("#calculateLeft", () => {
 
         it("throws exception when room is null", () => {
             expect(
-                () => new WallsCalculator().calculateLeftWalls(null)
+                () => new WallsCalculator().calculateLeft(null)
             ).to.throw("room can't be null");
         });
 
         it("throws exception when room is undefined", () => {
             expect(
-                () => new WallsCalculator().calculateLeftWalls(undefined)
+                () => new WallsCalculator().calculateLeft(undefined)
             ).to.throw("room can't be null");
         });
 
@@ -391,7 +391,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateLeftWalls(room);
+            const walls = wallsCalculator.calculateLeft(room);
             expect(walls.length).to.equal(0);
         });
 
@@ -427,7 +427,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateLeftWalls(room);
+            const walls = wallsCalculator.calculateLeft(room);
             expect(walls.length).to.equal(1);
             expect(walls[0].from.x).to.equal(2);
             expect(walls[0].from.y).to.equal(4);
@@ -467,7 +467,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateLeftWalls(room);
+            const walls = wallsCalculator.calculateLeft(room);
             expect(walls.length).to.equal(1);
             expect(walls[0].from.x).to.equal(2);
             expect(walls[0].from.y).to.equal(2);
@@ -507,7 +507,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateLeftWalls(room);
+            const walls = wallsCalculator.calculateLeft(room);
             expect(walls.length).to.equal(2);
             expect(walls[0].from.x).to.equal(2);
             expect(walls[0].from.y).to.equal(3);
@@ -551,7 +551,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateLeftWalls(room);
+            const walls = wallsCalculator.calculateLeft(room);
             expect(walls.length).to.equal(2);
             expect(walls[0].from.x).to.equal(2);
             expect(walls[0].from.y).to.equal(2);
@@ -564,17 +564,17 @@ describe("WallsCalculator", () => {
         });
     });
 
-    describe("#calculateRightWalls", () => {
+    describe("#calculateRight", () => {
 
         it("throws exception when room is null", () => {
             expect(
-                () => new WallsCalculator().calculateRightWalls(null)
+                () => new WallsCalculator().calculateRight(null)
             ).to.throw("room can't be null");
         });
 
         it("throws exception when room is undefined", () => {
             expect(
-                () => new WallsCalculator().calculateRightWalls(undefined)
+                () => new WallsCalculator().calculateRight(undefined)
             ).to.throw("room can't be null");
         });
 
@@ -610,7 +610,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateRightWalls(room);
+            const walls = wallsCalculator.calculateRight(room);
             expect(walls.length).to.equal(0);
         });
 
@@ -646,7 +646,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateRightWalls(room);
+            const walls = wallsCalculator.calculateRight(room);
             expect(walls.length).to.equal(1);
             expect(walls[0].from.x).to.equal(7);
             expect(walls[0].from.y).to.equal(4);
@@ -686,7 +686,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateRightWalls(room);
+            const walls = wallsCalculator.calculateRight(room);
             expect(walls.length).to.equal(1);
             expect(walls[0].from.x).to.equal(7);
             expect(walls[0].from.y).to.equal(2);
@@ -726,7 +726,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateRightWalls(room);
+            const walls = wallsCalculator.calculateRight(room);
             expect(walls.length).to.equal(2);
             expect(walls[0].from.x).to.equal(7);
             expect(walls[0].from.y).to.equal(3);
@@ -770,7 +770,7 @@ describe("WallsCalculator", () => {
                 }
             };
             const wallsCalculator = new WallsCalculator();
-            const walls = wallsCalculator.calculateRightWalls(room);
+            const walls = wallsCalculator.calculateRight(room);
             expect(walls.length).to.equal(2);
             expect(walls[0].from.x).to.equal(7);
             expect(walls[0].from.y).to.equal(2);

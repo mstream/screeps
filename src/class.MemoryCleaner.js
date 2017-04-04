@@ -4,20 +4,20 @@ const _ = require("lodash");
 module.exports = class {
 
     constructor({
-        memory = require("./memory"),
-        game = require("./game")
+        memoryProvider = require("./memoryProvider"),
+        gameProvider = require("./gameProvider")
     } = {}) {
 
-        if (!memory) {
-            throw new Error("memory can't be null");
+        if (!memoryProvider) {
+            throw new Error("memoryProvider can't be null");
         }
 
-        if (!game) {
-            throw new Error("game can't be null");
+        if (!gameProvider) {
+            throw new Error("gameProvider can't be null");
         }
 
-        this._memory = memory;
-        this._game = game;
+        this._memoryProvider = memoryProvider;
+        this._gameProvider = gameProvider;
     }
 
     clearCreepsMemory() {
@@ -32,12 +32,12 @@ module.exports = class {
 
     _clearObjectsMemory(objectType) {
 
-        const objects = this._memory[objectType];
+        const objects = this._memoryProvider.get()[objectType];
 
         _.keys(objects).forEach((objectName) => {
-            const memoryShouldBeKept = this._game[objectType][objectName];
+            const memoryShouldBeKept = this._gameProvider.get()[objectType][objectName];
             if (!memoryShouldBeKept) {
-                delete this._memory[objectType][objectName];
+                delete this._memoryProvider.get()[objectType][objectName];
             }
         });
     }

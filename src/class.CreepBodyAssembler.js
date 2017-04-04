@@ -6,9 +6,7 @@ class CreepBodyAssembler {
 
     createBody(role) {
         switch (role) {
-        case roles.BUILDER:
-        case roles.HARVESTER:
-        case roles.UPGRADER:
+        case roles.WORKER:
             return [
                 bodyPartTypes.CARRY,
                 bodyPartTypes.MOVE,

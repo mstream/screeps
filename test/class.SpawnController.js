@@ -57,24 +57,24 @@ describe("SpawnController", () => {
             )).to.throw("spawn can't be null");
         });
 
-        it("throws exception during spawnController creation when game is null", () => {
+        it("throws exception during spawnController creation when gameProvider is null", () => {
             expect(() => new SpawnController(
                 stubSpawn(),
                 null,
                 stubCreepBodyAssembler(),
                 stubCreepBodyNameGenerator(),
                 stubLogger()
-            )).to.throw("game can't be null");
+            )).to.throw("gameProvider can't be null");
         });
 
-        it("throws exception during spawnController creation when game is undefined", () => {
+        it("throws exception during spawnController creation when gameProvider is undefined", () => {
             expect(() => new SpawnController(
                 stubSpawn(),
                 undefined,
                 stubCreepBodyAssembler(),
                 stubCreepBodyNameGenerator(),
                 stubLogger()
-            )).to.throw("game can't be null");
+            )).to.throw("gameProvider can't be null");
         });
 
         it("throws exception during spawnController creation when creepBodyAssembler is null", () => {
@@ -153,7 +153,7 @@ describe("SpawnController", () => {
             const creepNameGenerator = stubCreepBodyNameGenerator("creepName");
             const generateSpy = sinon.spy(creepNameGenerator, "generate");
 
-            const game = stubGame(
+            const gameProvider = stubGame(
                 123,
                 {
                     "room1": {
@@ -164,21 +164,17 @@ describe("SpawnController", () => {
                     }
                 },
                 {
-                    "creep1": stubCreep(roles.BUILDER),
-                    "creep2": stubCreep(roles.BUILDER),
-                    "creep3": stubCreep(roles.BUILDER),
-                    "creep4": stubCreep(roles.HARVESTER),
-                    "creep5": stubCreep(roles.HARVESTER),
-                    "creep6": stubCreep(roles.HARVESTER),
-                    "creep7": stubCreep(roles.UPGRADER),
-                    "creep8": stubCreep(roles.UPGRADER)
+                    "creep1": stubCreep(roles.WORKER),
+                    "creep2": stubCreep(roles.WORKER),
+                    "creep3": stubCreep(roles.WORKER),
+                    "creep4": stubCreep(roles.WORKER)
                 }
             );
 
             const logger = stubLogger();
 
             const spawnController = new SpawnController(
-                spawn, game, creepBodyAssembler, creepNameGenerator, logger
+                spawn, gameProvider, creepBodyAssembler, creepNameGenerator, logger
             );
 
             spawnController.execute();
@@ -187,17 +183,17 @@ describe("SpawnController", () => {
             expect(generateSpy.callCount).to.equal(1);
             expect(createCreepSpy.callCount).to.equal(1);
 
-            expect(createBodySpy.calledWith(roles.UPGRADER)).to.be.true;
+            expect(createBodySpy.calledWith(roles.WORKER)).to.be.true;
 
             expect(generateSpy.calledWith(
-                roles.UPGRADER,
+                roles.WORKER,
                 [bodyPartTypes.CARRY, bodyPartTypes.MOVE, bodyPartTypes.WORK]
             )).to.be.true;
 
             expect(createCreepSpy.calledWith(
                 [bodyPartTypes.CARRY, bodyPartTypes.MOVE, bodyPartTypes.WORK],
                 "creepName",
-                sinon.match({role: roles.UPGRADER})
+                sinon.match({role: roles.WORKER})
             )).to.be.true;
         });
 
@@ -214,7 +210,7 @@ describe("SpawnController", () => {
             const creepNameGenerator = stubCreepBodyNameGenerator("creepName");
             const generateSpy = sinon.spy(creepNameGenerator, "generate");
 
-            const game = stubGame(
+            const gameProvider = stubGame(
                 123,
                 {
                     "room1": {
@@ -225,21 +221,17 @@ describe("SpawnController", () => {
                     }
                 },
                 {
-                    "creep1": stubCreep(roles.BUILDER),
-                    "creep2": stubCreep(roles.BUILDER),
-                    "creep3": stubCreep(roles.BUILDER),
-                    "creep4": stubCreep(roles.HARVESTER),
-                    "creep5": stubCreep(roles.HARVESTER),
-                    "creep6": stubCreep(roles.HARVESTER),
-                    "creep7": stubCreep(roles.UPGRADER),
-                    "creep8": stubCreep(roles.UPGRADER)
+                    "creep1": stubCreep(roles.WORKER),
+                    "creep2": stubCreep(roles.WORKER),
+                    "creep3": stubCreep(roles.WORKER),
+                    "creep4": stubCreep(roles.WORKER)
                 }
             );
 
             const logger = stubLogger();
 
             const spawnController = new SpawnController(
-                spawn, game, creepBodyAssembler, creepNameGenerator, logger
+                spawn, gameProvider, creepBodyAssembler, creepNameGenerator, logger
             );
 
             spawnController.execute();
@@ -248,7 +240,7 @@ describe("SpawnController", () => {
             expect(generateSpy.callCount).to.equal(0);
             expect(createCreepSpy.callCount).to.equal(0);
 
-            expect(createBodySpy.calledWith(roles.UPGRADER)).to.be.true;
+            expect(createBodySpy.calledWith(roles.WORKER)).to.be.true;
         });
     });
 });

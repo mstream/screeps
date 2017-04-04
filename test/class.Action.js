@@ -1,27 +1,17 @@
 const expect = require("chai").expect;
 const Action = require("../src/class.Action");
-const actionTypes = require("../src/const.actionTypes");
 
 
 describe("Action", () => {
 
-    describe("#fromJSON()", () => {
-
-        it("creates action from JSON", () => {
-            const action = Action.fromJSON({
-                type: actionTypes.BUILDING,
-                targetId: "targetId"
-            });
-            expect(action.type).to.equal(actionTypes.BUILDING);
-            expect(action.targetId).to.equal("targetId");
-        });
-    });
-
     describe("#toJSON()", () => {
 
         it("serializes to JSON", () => {
-            const serializedAction = new Action(actionTypes.BUILDING, "targetId").toJSON();
-            expect(serializedAction.type).to.equal(actionTypes.BUILDING);
+            const serializedAction = new Action({
+                type: Action.types.BUILDING,
+                targetId: "targetId"
+            }).toJSON();
+            expect(serializedAction.type).to.equal(Action.types.BUILDING);
             expect(serializedAction.targetId).to.equal("targetId");
         });
     });
@@ -30,7 +20,7 @@ describe("Action", () => {
 
         it("creates idle action", () => {
             const action = Action.idle();
-            expect(action.type).to.equal(actionTypes.IDLE);
+            expect(action.type).to.equal(Action.types.IDLE);
             expect(action.targetId).to.be.null;
         });
     });
@@ -38,31 +28,31 @@ describe("Action", () => {
     describe("constructor", () => {
 
         it("creates building action", () => {
-            const action = new Action(actionTypes.BUILDING, "targetId");
-            expect(action.type).to.equal(actionTypes.BUILDING);
+            const action = new Action(Action.types.BUILDING, "targetId");
+            expect(action.type).to.equal(Action.types.BUILDING);
             expect(action.targetId).to.equal("targetId");
         });
 
         it("creates transferring action", () => {
-            const action = new Action(actionTypes.TRANSFERRING, "targetId");
-            expect(action.type).to.equal(actionTypes.TRANSFERRING);
+            const action = new Action(Action.types.TRANSFERRING, "targetId");
+            expect(action.type).to.equal(Action.types.TRANSFERRING);
             expect(action.targetId).to.equal("targetId");
         });
 
         it("creates harvesting action", () => {
-            const action = new Action(actionTypes.HARVESTING, "targetId");
-            expect(action.type).to.equal(actionTypes.HARVESTING);
+            const action = new Action(Action.types.HARVESTING, "targetId");
+            expect(action.type).to.equal(Action.types.HARVESTING);
             expect(action.targetId).to.equal("targetId");
         });
 
         it("creates idle action", () => {
-            const action = new Action(actionTypes.IDLE, null);
-            expect(action.type).to.equal(actionTypes.IDLE);
+            const action = new Action(Action.types.IDLE, null);
+            expect(action.type).to.equal(Action.types.IDLE);
         });
 
         it("creates upgrading action", () => {
-            const action = new Action(actionTypes.UPGRADING, "targetId");
-            expect(action.type).to.equal(actionTypes.UPGRADING);
+            const action = new Action(Action.types.UPGRADING, "targetId");
+            expect(action.type).to.equal(Action.types.UPGRADING);
             expect(action.targetId).to.equal("targetId");
         });
 
@@ -84,19 +74,19 @@ describe("Action", () => {
 
         it("throws exception during action creation when target ID is null", () => {
             expect(
-                () => new Action(actionTypes.BUILDING, null)
+                () => new Action(Action.types.BUILDING, null)
             ).to.throw("targetId can't be null");
         });
 
         it("throws exception during action creation when target ID is undefined", () => {
             expect(
-                () => new Action(actionTypes.BUILDING, undefined)
+                () => new Action(Action.types.BUILDING, undefined)
             ).to.throw("targetId can't be null");
         });
 
         it("throws exception during action creation when target ID is not a string", () => {
             expect(
-                () => new Action(actionTypes.BUILDING, {})
+                () => new Action(Action.types.BUILDING, {})
             ).to.throw("targetId should be a string");
         });
     });

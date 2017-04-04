@@ -10,10 +10,11 @@ module.exports = class {
 
     constructor({
         room,
-        game,
-        memory,
+        gameProvider,
+        memoryProvider,
         taskScheduler,
         taskExecutor,
+        workerTaskScheduler,
         spawnControllerFactory,
         extensionsBuilder,
         roadsBuilder,
@@ -24,11 +25,11 @@ module.exports = class {
             throw new Error("room can't be null");
         }
 
-        if (!game) {
-            throw new Error("game can't be null");
+        if (!gameProvider) {
+            throw new Error("gameProvider can't be null");
         }
 
-        if (!memory) {
+        if (!memoryProvider) {
             throw new Error("memory can't be null");
         }
 
@@ -38,6 +39,10 @@ module.exports = class {
 
         if (!taskExecutor) {
             throw new Error("taskExecutor can't be null");
+        }
+
+        if (!workerTaskScheduler) {
+            throw new Error("workerTaskScheduler can't be null");
         }
 
         if (!spawnControllerFactory) {
@@ -57,9 +62,10 @@ module.exports = class {
         }
 
         this._room = room;
-        this._game = game;
+        this._gameProvider = gameProvider;
         this._taskScheduler = taskScheduler;
         this._taskExecutor = taskExecutor;
+        this._workerTaskScheduler = workerTaskScheduler;
         this._spawnControllerFactory = spawnControllerFactory;
         this._extensionsBuilder = extensionsBuilder;
         this._roadsBuilder = roadsBuilder;
@@ -67,15 +73,17 @@ module.exports = class {
 
         this._objectsByType = {};
 
-        if (!memory.rooms) {
-            memory.rooms = {};
+        if (!memoryProvider.get().rooms) {
+            memoryProvider.get().rooms = {};
         }
 
-        if (!memory.rooms[room.name]) {
-            memory.rooms[room.name] = {};
+        if (!memoryProvider.get().rooms[room.name]) {
+            memoryProvider.get().rooms[room.name] = {};
         }
 
-        this._memory = memory.rooms[room.name];
+        this._memoryProvider = {
+            get: () => memoryProvider.get().rooms[room.name]
+        };
     }
 
     execute() {
@@ -86,16 +94,16 @@ module.exports = class {
     }
 
     _initializeMemory() {
-        if (!this._memory.objects) {
-            this._memory.objects = {};
+        if (!this._memoryProvider.get().objects) {
+            this._memoryProvider.get().objects = {};
         }
 
-        if (!this._memory.paths) {
-            this._memory.paths = {};
+        if (!this._memoryProvider.get().paths) {
+            this._memoryProvider.get().paths = {};
         }
 
-        if (!this._memory.exits) {
-            this._memory.exits = {
+        if (!this._memoryProvider.get().exits) {
+            this._memoryProvider.get().exits = {
                 top: null,
                 right: null,
                 bottom: null,
@@ -103,8 +111,8 @@ module.exports = class {
             };
         }
 
-        if (!this._memory.walls) {
-            this._memory.walls = {
+        if (!this._memoryProvider.get().walls) {
+            this._memoryProvider.get().walls = {
                 top: null,
                 right: null,
                 bottom: null,
@@ -112,13 +120,48 @@ module.exports = class {
             };
         }
 
-        if (!this._memory.extensions) {
-            this._memory.extensions = {};
+        if (!this._memoryProvider.get().extensions) {
+            this._memoryProvider.get().extensions = {};
+        }
+
+        if (!this._memoryProvider.get().creepTasks) {
+            this._memoryProvider.get().creepTasks = {};
+        }
+
+        if (!this._memoryProvider.get().creepTaskAssignments) {
+            this._memoryProvider.get().creepTaskAssignments = {};
         }
     }
 
     _executeTasks() {
         this._taskExecutor.execute(this);
+    }
+
+    addCreepTask(role, priority, task) {
+
+        const taskHash = task.hash;
+
+        if (!this._memoryProvider.get().creepTasks[role]) {
+            this._memoryProvider.get().creepTasks[role] = {};
+        }
+
+        if (!this._memoryProvider.get().creepTasks[role][priority]) {
+            this._memoryProvider.get().creepTasks[role][priority] = {};
+        }
+
+        if (this._memoryProvider.get().creepTasks[role][priority][taskHash]) {
+            return;
+        }
+
+        this._memoryProvider.get().creepTasks[role][priority][taskHash] = task.toJSON();
+    }
+
+    get creepTaskAssignments() {
+        return this._memoryProvider.get().creepTaskAssignments;
+    }
+
+    assignCreepToTask(creep, task) {
+        this._memoryProvider.get().creepTaskAssignments[task.hash] = creep.name;
     }
 
     findObjectsAt(x, y) {
@@ -131,7 +174,7 @@ module.exports = class {
 
     harvestersAssignedToSource(source) {
         const sourceId = source.id;
-        const sourceMemory = this._memory.objects[sourceId];
+        const sourceMemory = this._memoryProvider.objects[sourceId];
         if (!sourceMemory || !sourceMemory.harvesters) {
             return 0;
         }
@@ -140,17 +183,17 @@ module.exports = class {
 
     assignHarvesterTo(source) {
         const sourceId = source.id;
-        if (!this._memory.objects[sourceId]) {
-            this._memory.objects[sourceId] = {
+        if (!this._memoryProvider.get().objects[sourceId]) {
+            this._memoryProvider.get().objects[sourceId] = {
                 harvesters: 0
             };
         }
-        this._memory.objects[sourceId].harvesters++;
+        this._memoryProvider.objects[sourceId].harvesters++;
     }
 
     unassignHarvesterFrom(source) {
         const sourceId = source.id;
-        const sourceMemory = this._memory.objects[sourceId];
+        const sourceMemory = this._memoryProvider.get().objects[sourceId];
         if (!sourceMemory || !sourceMemory.harvesters) {
             throw new Error(
                 `no harvester has ever being assign to source ${sourceId}`);
@@ -159,7 +202,7 @@ module.exports = class {
     }
 
     buildExtensions() {
-        const extensions = this._memory.extensions;
+        const extensions = this._memoryProvider.get().extensions;
         if (!extensions || !extensions.length) {
             return;
         }
@@ -167,7 +210,7 @@ module.exports = class {
     }
 
     buildRoads() {
-        const paths = _.values(this._memory.paths);
+        const paths = _.values(this._memoryProvider.get().paths);
         if (!paths || !paths.length) {
             return;
         }
@@ -175,7 +218,7 @@ module.exports = class {
     }
 
     buildWalls() {
-        const walls = _.flatten(_.values(this._memory.walls));
+        const walls = _.flatten(_.values(this._memoryProvider.get().walls));
         if (!walls || !walls.length) {
             return;
         }
@@ -195,15 +238,15 @@ module.exports = class {
     }
 
     setExtensions(extensions) {
-        this._memory.extensions = extensions;
+        this._memoryProvider.get().extensions = extensions;
     }
 
     setPathSegments(pathHash, pathSegments) {
-        this._memory.paths[pathHash] = pathSegments;
+        this._memoryProvider.get().paths[pathHash] = pathSegments;
     }
 
     setEdgeObjects(objectType, edge, objects) {
-        this._memory[objectType][edge] = objects;
+        this._memoryProvider.get()[objectType][edge] = objects;
     }
 
     drawCircle(x, y, style) {
@@ -223,39 +266,39 @@ module.exports = class {
     }
 
     isPathRequested(path) {
-        return this._memory.paths[path.hash] == REQUESTED;
+        return this._memoryProvider.get().paths[path.hash] == REQUESTED;
     }
 
     isPathComputed(path) {
-        return this._memory.paths[path.hash] != null;
+        return this._memoryProvider.get().paths[path.hash] != null;
     }
 
     requestPath(path) {
-        return this._memory.paths[path.hash] = REQUESTED;
+        return this._memoryProvider.get().paths[path.hash] = REQUESTED;
     }
 
     areExitsRequested(edge) {
-        return this._memory.exits[edge] == REQUESTED;
+        return this._memoryProvider.get().exits[edge] == REQUESTED;
     }
 
     areExitsComputed(edge) {
-        return this._memory.exits[edge] != null;
+        return this._memoryProvider.get().exits[edge] != null;
     }
 
     requestExits(edge) {
-        return this._memory.exits[edge] = REQUESTED;
+        return this._memoryProvider.get().exits[edge] = REQUESTED;
     }
 
     areWallsRequested(edge) {
-        return this._memory.walls[edge] == REQUESTED;
+        return this._memoryProvider.get().walls[edge] == REQUESTED;
     }
 
     areWallsComputed(edge) {
-        return this._memory.walls[edge] != null;
+        return this._memoryProvider.get().walls[edge] != null;
     }
 
     requestWalls(edge) {
-        return this._memory.walls[edge] = REQUESTED;
+        return this._memoryProvider.get().walls[edge] = REQUESTED;
     }
 
     get name() {
@@ -286,8 +329,15 @@ module.exports = class {
         return this._findObjects(FIND_CONSTRUCTION_SITES);
     }
 
+    get creepTasks() {
+        return this._memoryProvider.get().creepTasks;
+    }
+
     _scheduleTasks() {
         this._taskScheduler.schedule(this);
+        if (this._gameProvider.get().time % 10) {
+            this._workerTaskScheduler.schedule(this);
+        }
     }
 
     _delegateWorkToSpawns() {

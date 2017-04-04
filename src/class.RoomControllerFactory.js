@@ -4,22 +4,23 @@ const RoomController = require("./class.RoomController");
 module.exports = class {
 
     constructor({
-        game = require("./game"),
-        memory = require("./memory"),
+        gameProvider = require("./gameProvider"),
+        memoryProvider = require("./memoryProvider"),
         taskScheduler = require("./taskScheduler"),
         taskExecutor = require("./taskExecutor"),
+        workerTaskScheduler = require("./workerTaskScheduler"),
         spawnControllerFactory = require("./spawnControllerFactory"),
         extensionsBuilder = require("./extensionsBuilder"),
         roadsBuilder = require("./roadsBuilder"),
         wallsBuilder = require("./wallsBuilder")
     } = {}) {
 
-        if (!game) {
-            throw new Error("game can't be null");
+        if (!gameProvider) {
+            throw new Error("gameProvider can't be null");
         }
 
-        if (!memory) {
-            throw new Error("memory can't be null");
+        if (!memoryProvider) {
+            throw new Error("memoryProvider can't be null");
         }
 
         if (!taskScheduler) {
@@ -28,6 +29,10 @@ module.exports = class {
 
         if (!taskExecutor) {
             throw new Error("taskExecutor can't be null");
+        }
+
+        if (!workerTaskScheduler) {
+            throw new Error("workerTaskScheduler can't be null");
         }
 
         if (!spawnControllerFactory) {
@@ -46,10 +51,11 @@ module.exports = class {
             throw new Error("wallsBuilder can't be null");
         }
 
-        this._game = game;
-        this._memory = memory;
+        this._gameProvider = gameProvider;
+        this._memoryProvider = memoryProvider;
         this._taskScheduler = taskScheduler;
         this._taskExecutor = taskExecutor;
+        this._workerTaskScheduler = workerTaskScheduler;
         this._spawnControllerFactory = spawnControllerFactory;
         this._extensionsBuilder = extensionsBuilder;
         this._roadsBuilder = roadsBuilder;
@@ -64,10 +70,11 @@ module.exports = class {
 
         return new RoomController({
             room: room,
-            game: this._game,
-            memory: this._memory,
+            gameProvider: this._gameProvider,
+            memoryProvider: this._memoryProvider,
             taskScheduler: this._taskScheduler,
             taskExecutor: this._taskExecutor,
+            workerTaskScheduler: this._workerTaskScheduler,
             spawnControllerFactory: this._spawnControllerFactory,
             extensionsBuilder: this._extensionsBuilder,
             roadsBuilder: this._roadsBuilder,

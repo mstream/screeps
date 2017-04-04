@@ -10,18 +10,18 @@ const Path = require("./class.Path");
 module.exports = class {
 
     constructor({
-        game = require("./game"),
-        memory = require("./memory"),
+        gameProvider = require("./gameProvider"),
+        memoryProvider = require("./memoryProvider"),
         taskFactory = require("./taskFactory"),
         logger = require("./logger")
     } = {}) {
 
-        if (!game) {
-            throw new Error("game can't be null");
+        if (!gameProvider) {
+            throw new Error("gameProvider can't be null");
         }
 
-        if (!memory) {
-            throw new Error("memory can't be null");
+        if (!memoryProvider) {
+            throw new Error("memoryProvider can't be null");
         }
 
         if (!taskFactory) {
@@ -32,15 +32,17 @@ module.exports = class {
             throw new Error("logger can't be null");
         }
 
-        this._game = game;
+        this._gameProvider = gameProvider;
         this._taskFactory = taskFactory;
         this._logger = logger;
 
-        if (!memory.schedule) {
-            memory.schedule = {};
+        if (!memoryProvider.get().schedule) {
+            memoryProvider.get().schedule = {};
         }
 
-        this._memory = memory.schedule;
+        this._memoryProvider = {
+            get: () => memoryProvider.get().schedule
+        };
 
         this._schedulingFrequencies = {
             [taskTypes.EXTENSIONS_BUILDING]: 100,
@@ -71,35 +73,35 @@ module.exports = class {
         this._requestWallsCalculation(room);
 
         _.forOwn(this._schedulingFrequencies, (frequency, taskType) => {
-            const lastUpdate = this._memory.lastUpdates[taskType];
-            if (lastUpdate && this._game.time - lastUpdate < frequency) {
+            const lastUpdate = this._memoryProvider.get().lastUpdates[taskType];
+            if (lastUpdate && this._gameProvider.time - lastUpdate < frequency) {
                 return;
             }
             this._schedulingMethods[taskType].bind(this)(room);
-            this._memory.lastUpdates[taskType] = this._game.time;
+            this._memoryProvider.get().lastUpdates[taskType] = this._gameProvider.time;
         });
     }
 
     nextTask() {
-        if (!this._memory.tasks.length) {
+        if (!this._memoryProvider.get().tasks.length) {
             return;
         }
-        return this._taskFactory.fromJSON(this._memory.tasks[0]);
+        return this._taskFactory.fromJSON(this._memoryProvider.get().tasks[0]);
     }
 
     completeLastTask() {
-        if (!this._memory.tasks.length) {
+        if (!this._memoryProvider.get().tasks.length) {
             throw new Error("no queued tasks");
         }
-        this._memory.tasks.shift();
+        this._memoryProvider.get().tasks.shift();
     }
 
     _initializeMemory() {
-        if (!this._memory.lastUpdates) {
-            this._memory.lastUpdates = {};
+        if (!this._memoryProvider.get().lastUpdates) {
+            this._memoryProvider.get().lastUpdates = {};
         }
-        if (!this._memory.tasks) {
-            this._memory.tasks = [];
+        if (!this._memoryProvider.get().tasks) {
+            this._memoryProvider.get().tasks = [];
         }
     }
 
@@ -152,7 +154,7 @@ module.exports = class {
                 {edge}
             ));
 
-            this._memory.lastUpdates[taskTypes.EXITS_COMPUTING] = this._game.time;
+            this._memory.lastUpdates[taskTypes.EXITS_COMPUTING] = this._gameProvider.time;
         });
     }
 
@@ -175,16 +177,16 @@ module.exports = class {
                 {edge}
             ));
 
-            this._memory.lastUpdates[taskTypes.WALL] = this._game.time;
+            this._memoryProvider.get().lastUpdates[taskTypes.WALL] = this._gameProvider.time;
         });
     }
 
     _queueTask(task) {
-        if (!this._memory.tasks) {
-            this._memory.tasks = [task];
+        if (!this._memoryProvider.get().tasks) {
+            this._memoryProvider.get().tasks = [task];
             return;
         }
-        this._memory.tasks.push(task);
+        this._memoryProvider.get().tasks.push(task);
     }
 };
 

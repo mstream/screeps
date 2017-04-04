@@ -4,18 +4,18 @@ const _ = require("lodash");
 module.exports = class {
 
     constructor({
-        game = require("./game"),
-        memory = require("./memory"),
+        gameProvider = require("./gameProvider"),
+        memoryProvider = require("./memoryProvider"),
         roomControllerFactory = require("./roomControllerFactory"),
         creepControllerFactory = require("./creepControllerFactory")
     } = {}) {
 
-        if (!game) {
-            throw new Error("game can't be null");
+        if (!gameProvider) {
+            throw new Error("gameProvider can't be null");
         }
 
-        if (!memory) {
-            throw new Error("memory can't be null");
+        if (!memoryProvider) {
+            throw new Error("memoryProvider can't be null");
         }
 
         if (!roomControllerFactory) {
@@ -26,11 +26,11 @@ module.exports = class {
             throw new Error("creepControllerFactory can't be null");
         }
 
-        this._game = game;
-        this._memory = memory;
+        this._gameProvider = gameProvider;
+        this._memoryProvider = memoryProvider;
         this._creepControllerFactory = creepControllerFactory;
 
-        this._rooms = _.mapValues(game.rooms, (room) =>
+        this._rooms = _.mapValues(gameProvider.get().rooms, (room) =>
             roomControllerFactory.createFor(room)
         );
     }
@@ -41,13 +41,25 @@ module.exports = class {
 
             room.execute();
 
-            _.forOwn(this._game.creeps, (creep) => {
+            _.forOwn(this._gameProvider.get().creeps, (creep) => {
 
                 if (room.name != creep.room.name) {
                     return;
                 }
 
-                const creepController = this._creepControllerFactory.createFor(creep, room);
+                const creepController = this._creepControllerFactory.createFor(
+                    creep, room
+                );
+
+                if (!creepController.task) {
+                    const task = this._chooseMostImportantUnassignedTaskForCreep(
+                        creepController, room
+                    );
+                    if (task) {
+                        creepController.assignTask(task);
+                        room.assignCreepToTask(creepController, task);
+                    }
+                }
                 creepController.execute();
             });
         });
@@ -58,7 +70,28 @@ module.exports = class {
     }
 
     get time() {
-        return this._game.time;
+        return this._gameProvider.get().time;
+    }
+
+    _chooseMostImportantUnassignedTaskForCreep(creep, room) {
+        const tasksForCreep = room.creepTasks[creep.role];
+
+        const tasksPriorities = _.keys(tasksForCreep);
+        if (!tasksPriorities.length) {
+            return;
+        }
+
+        tasksPriorities.sort((a, b) => b - a);
+
+        const tasksInPriorityOrder = _.flatten(_.map(tasksPriorities, priority => tasksForCreep[priority]));
+        const taskHashesInPriorityOrder = _.flatten(_.map(tasksInPriorityOrder, (tasks) => _.keys(tasks)));
+        const unassignedTaskHashes = _.filter(taskHashesInPriorityOrder, (taskHash) => {
+            return !room.creepTaskAssignments[taskHash];
+        });
+
+        const taskHash = unassignedTaskHashes[0];
+
+        return _.find(tasksInPriorityOrder, (tasks) => tasks[taskHash])[taskHash];
     }
 };
 

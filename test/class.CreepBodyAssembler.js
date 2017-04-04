@@ -16,22 +16,8 @@ describe("CreepBodyAssembler", () => {
             ).to.throw("unknown role: unknown");
         });
 
-        it("creates proper body for the builder role", () => {
-            const body = new CreepBodyAssembler().createBody(roles.BUILDER);
-            expect(body[0]).to.equal(bodyPartTypes.CARRY);
-            expect(body[1]).to.equal(bodyPartTypes.MOVE);
-            expect(body[2]).to.equal(bodyPartTypes.WORK);
-        });
-
-        it("creates proper body for the harvester role", () => {
-            const body = new CreepBodyAssembler().createBody(roles.HARVESTER);
-            expect(body[0]).to.equal(bodyPartTypes.CARRY);
-            expect(body[1]).to.equal(bodyPartTypes.MOVE);
-            expect(body[2]).to.equal(bodyPartTypes.WORK);
-        });
-
         it("creates proper body for the worker role", () => {
-            const body = new CreepBodyAssembler().createBody(roles.UPGRADER);
+            const body = new CreepBodyAssembler().createBody(roles.WORKER);
             expect(body[0]).to.equal(bodyPartTypes.CARRY);
             expect(body[1]).to.equal(bodyPartTypes.MOVE);
             expect(body[2]).to.equal(bodyPartTypes.WORK);

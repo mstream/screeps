@@ -4,6 +4,9 @@
     "include": [
         "src/**/class.*.js"
     ],
+    "reporters": [
+        "text-summary"
+    ],
     "lines": 80,
     "statements": 80,
     "functions": 80,

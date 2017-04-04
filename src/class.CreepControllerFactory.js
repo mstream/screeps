@@ -1,13 +1,22 @@
 const roles = require("./const.roles");
 
 const roomControllers = {
-    [roles.BUILDER]: require("./class.HarvesterController"),
-    [roles.HARVESTER]: require("./class.HarvesterController"),
-    [roles.UPGRADER]: require("./class.UpgraderController")
+    [roles.WORKER]: require("./class.WorkerController")
 };
 
 
 module.exports = class {
+
+    constructor({
+        statusRenderer = require("./creepStatusRenderer")
+    } = {}) {
+
+        if (!statusRenderer) {
+            throw new Error("statusRenderer can't be null");
+        }
+
+        this._statusRenderer = statusRenderer;
+    }
 
     createFor(creep, room) {
 
@@ -31,7 +40,13 @@ module.exports = class {
             throw new Error(`undefined controller for role: ${creepRole}`);
         }
 
-        return new Controller(creep, room);
+        return new Controller({
+            creep,
+            room,
+            statusRenderer: this._statusRenderer
+        });
     }
+
+
 };
 

@@ -1,29 +1,39 @@
 const _ = require("lodash");
 
-const actionTypes = require("./const.actionTypes");
-
 
 class Action {
 
-    static fromJSON({type, targetId}) {
-        return new Action(type, targetId);
+    static get types() {
+        return {
+            BUILDING: "building",
+            HARVESTING: "harvesting",
+            IDLE: "idle",
+            TRANSFERRING: "transferring",
+            UPGRADING: "upgrading"
+        };
     }
 
     static idle() {
-        return new Action(actionTypes.IDLE, null);
+        return new Action({
+            type: Action.types.IDLE,
+            targetId: null
+        });
     }
 
-    constructor(type, targetId) {
+    constructor({
+        type,
+        targetId
+    } = {}) {
 
         if (!type) {
             throw new Error("type can't be null");
         }
 
-        if (!_.include(_.values(actionTypes), type)) {
+        if (!_.include(_.values(Action.types), type)) {
             throw new Error("unknown action type: " + type);
         }
 
-        if (type != actionTypes.IDLE) {
+        if (type != Action.types.IDLE) {
 
             if (!targetId) {
                 throw new Error("targetId can't be null");
@@ -34,12 +44,23 @@ class Action {
             }
         }
 
-        this.type = type;
-        this.targetId = targetId;
+        this._type = type;
+        this._targetId = targetId;
     }
 
     toJSON() {
-        return {type: this.type, targetId: this.targetId};
+        return {
+            type: this.type,
+            targetId: this.targetId
+        };
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get targetId() {
+        return this._targetId;
     }
 }
 

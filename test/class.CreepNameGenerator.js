@@ -13,12 +13,12 @@ describe("CreepNameGenerator", () => {
 
     describe("constructor", () => {
 
-        it("throws exception when game is null", () => {
+        it("throws exception when gameProvider is null", () => {
             expect(
                 () => new CreepNameGenerator({
-                    game: null
+                    gameProvider: null
                 })
-            ).to.throw("game can't be null");
+            ).to.throw("gameProvider can't be null");
         });
     });
 
@@ -42,38 +42,38 @@ describe("CreepNameGenerator", () => {
         ];
 
         it("throws exception when role is null", () => {
-            const game = stubGame(0);
+            const gameProvider = stubGame(0);
             expect(
-                () => new CreepNameGenerator({game}).generate(null, body)
+                () => new CreepNameGenerator({gameProvider}).generate(null, body)
             ).to.throw("role can't be null");
         });
 
         it("throws exception when role is unknown", () => {
-            const game = stubGame(0);
+            const gameProvider = stubGame(0);
             expect(
-                () => new CreepNameGenerator({game}).generate("unknown", body)
+                () => new CreepNameGenerator({gameProvider}).generate("unknown", body)
             ).to.throw("unknown role: unknown");
         });
 
         it("throws exception when body is null", () => {
-            const game = stubGame(0);
+            const gameProvider = stubGame(0);
             expect(
-                () => new CreepNameGenerator({game}).generate(roles.BUILDER, null)
+                () => new CreepNameGenerator({gameProvider}).generate(roles.WORKER, null)
             ).to.throw("body can't be null");
         });
 
         it("throws exception when one of the body parts unknown", () => {
-            const game = stubGame(0);
+            const gameProvider = stubGame(0);
             expect(
-                () => new CreepNameGenerator({game}).generate(roles.BUILDER, ["unknown"])
+                () => new CreepNameGenerator({gameProvider}).generate(roles.WORKER, ["unknown"])
             ).to.throw("unknown bodyPart: unknown");
         });
 
         it("generates properly formatted name", () => {
-            const game = stubGame(123);
-            const creepNameGenerator = new CreepNameGenerator({game});
-            const creepName = creepNameGenerator.generate(roles.BUILDER, body);
-            expect(creepName).to.equal("builder_3he3mo2at2wo1ca1cl1ra1to_123");
+            const gameProvider = stubGame(123);
+            const creepNameGenerator = new CreepNameGenerator({gameProvider});
+            const creepName = creepNameGenerator.generate(roles.WORKER, body);
+            expect(creepName).to.equal("worker_3he3mo2at2wo1ca1cl1ra1to_123");
         });
     });
 });

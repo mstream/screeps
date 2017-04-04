@@ -1,3 +1,3 @@
 module.exports = {
-    WORKER: "worker"
+    get: () => Game
 };

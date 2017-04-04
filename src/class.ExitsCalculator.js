@@ -7,7 +7,7 @@ const Path = require("./class.Path");
 
 module.exports = class {
 
-    calculateTopExits(room) {
+    calculateTop(room) {
 
         if (!room) {
             throw new Error("room can't be null");
@@ -47,7 +47,7 @@ module.exports = class {
         return exits;
     }
 
-    calculateRightExits(room) {
+    calculateRight(room) {
 
         if (!room) {
             throw new Error("room can't be null");
@@ -86,7 +86,7 @@ module.exports = class {
         return exits;
     }
 
-    calculateBottomExits(room) {
+    calculateBottom(room) {
 
         if (!room) {
             throw new Error("room can't be null");
@@ -126,7 +126,7 @@ module.exports = class {
         return exits;
     }
 
-    calculateLeftExits(room) {
+    calculateLeft(room) {
 
         if (!room) {
             throw new Error("room can't be null");

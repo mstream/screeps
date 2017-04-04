@@ -11,7 +11,7 @@ module.exports = class {
 
     constructor({
         taskScheduler = require("./taskScheduler"),
-        game = require("./game"),
+        gameProvider = require("./gameProvider"),
         exitsCalculator = require("./exitsCalculator"),
         extensionsCalculator = require("./extensionsCalculator"),
         wallsCalculator = require("./wallsCalculator"),
@@ -23,8 +23,8 @@ module.exports = class {
             throw new Error("taskScheduler can't be null");
         }
 
-        if (!game) {
-            throw new Error("game can't be null");
+        if (!gameProvider) {
+            throw new Error("gameProvider can't be null");
         }
 
         if (!exitsCalculator) {
@@ -48,7 +48,7 @@ module.exports = class {
         }
 
         this._taskScheduler = taskScheduler;
-        this._game = game;
+        this._gameProvider = gameProvider;
         this._exitsCalculator = exitsCalculator;
         this._extensionsCalculator = extensionsCalculator;
         this._wallsCalculator = wallsCalculator;
@@ -64,7 +64,7 @@ module.exports = class {
             return;
         }
 
-        const shouldExecute = this._game.time % task.cost == 0;
+        const shouldExecute = this._gameProvider.get().time % task.cost == 0;
 
         if (!shouldExecute) {
             return;
@@ -95,28 +95,21 @@ module.exports = class {
             break;
         }
 
-        case taskTypes.EXITS_COMPUTING:
-        case taskTypes.WALLS_COMPUTING: {
-
-            const objectKeyword = taskType.split("_")[0].toLowerCase();
+        case taskTypes.EXITS_COMPUTING: {
             const edge = task.options.edge;
+            const exits = this._computeEdge(
+                room, this._exitsCalculator, edge
+            );
+            room.setEdgeObjects("exits", edge, exits);
+            break;
+        }
 
-            if (!roomEdges.includes(edge)) {
-                throw new Error(`unknown room edge ${edge}`);
-            }
-
-            const upperFirstEdge =
-                edge.charAt(0).toUpperCase() + edge.slice(1);
-
-            const upperFirstObjectKeyword =
-                objectKeyword.charAt(0).toUpperCase() + objectKeyword.slice(1);
-
-            const calculationMethod = `calculate${upperFirstEdge}${upperFirstObjectKeyword}`;
-            this._logger.info(`started ${objectKeyword} calculation: ${edge}`);
-            const calculator = new this[`_${objectKeyword}Calculator`](room);
-            const objects = calculator[calculationMethod]();
-            room.setEdgeObjects(objectKeyword, edge, objects);
-            this._logger.info(`finished ${objectKeyword} calculation: ${edge}`);
+        case taskTypes.WALLS_COMPUTING: {
+            const edge = task.options.edge;
+            const walls = this._computeEdge(
+                room, this._wallsCalculator, edge
+            );
+            room.setEdgeObjects("walls", edge, walls);
             break;
         }
 
@@ -144,5 +137,11 @@ module.exports = class {
             throw new Error(`unknown task type in the queue: ${taskType}`);
         }
         this._taskScheduler.completeLastTask();
+    }
+
+    _computeEdge(room, calculator, edge) {
+        const upperFirstEdge = edge.charAt(0).toUpperCase() + edge.slice(1);
+        const calculationMethod = `calculate${upperFirstEdge}`;
+        return calculator[calculationMethod](room);
     }
 };

@@ -3,18 +3,28 @@ const sinon = require("sinon");
 
 const GameController = require("../src/class.GameController");
 
+const roles = require("../src/const.roles");
+const WorkerTask = require("../src/class.WorkerTask");
+
 
 const stubGame = (time = 0, rooms = {}, creeps = {}) => ({time, rooms, creeps});
 
 const stubMemory = () => ({});
 
-const stubRoomControllerFactory = (executeSpies = []) => {
+const stubRoomControllerFactory = (executeSpies = [],
+                                   creepTasks = [],
+                                   creepTaskAssignments = []) => {
     let spyIdx = 0;
     return {
-        createFor: (room) => ({
-            name: room.name,
-            execute: executeSpies[spyIdx++]
-        })
+        createFor: (room) => {
+            const idx = spyIdx++;
+            return {
+                name: room.name,
+                execute: executeSpies[idx],
+                creepTasks: creepTasks[idx],
+                creepTaskAssignments: creepTaskAssignments[idx]
+            };
+        }
     };
 };
 
@@ -34,18 +44,18 @@ describe("GameController", () => {
 
     describe("constructor", () => {
 
-        it("throws exception during gameController.js creation when game is null", () => {
+        it("throws exception during gameController.js creation when gameProvider is null", () => {
             expect(() => new GameController({
-                game: null,
+                gameProvider: null,
                 memory: stubMemory(),
                 roomControllerFactory: stubRoomControllerFactory(),
                 creepControllerFactory: stubCreepControllerFactory()
-            })).to.throw("game can't be null");
+            })).to.throw("gameProvider can't be null");
         });
 
         it("throws exception during gameController.js creation when memory is null", () => {
             expect(() => new GameController({
-                game: stubGame(),
+                gameProvider: stubGame(),
                 memory: null,
                 roomControllerFactory: stubRoomControllerFactory(),
                 creepControllerFactory: stubCreepControllerFactory()
@@ -54,7 +64,7 @@ describe("GameController", () => {
 
         it("throws exception during gameController.js creation when roomControllerFactory is null", () => {
             expect(() => new GameController({
-                game: stubGame(),
+                gameProvider: stubGame(),
                 memory: stubMemory(),
                 roomControllerFactory: null,
                 creepControllerFactory: stubCreepControllerFactory()
@@ -63,7 +73,7 @@ describe("GameController", () => {
 
         it("throws exception during gameController.js creation when creepControllerFactory is null", () => {
             expect(() => new GameController({
-                game: stubGame(),
+                gameProvider: stubGame(),
                 memory: stubMemory(),
                 roomControllerFactory: stubRoomControllerFactory(),
                 creepControllerFactory: null
@@ -78,7 +88,7 @@ describe("GameController", () => {
             const room1 = stubRoom("room1");
             const room2 = stubRoom("room2");
 
-            const game = stubGame(
+            const gameProvider = stubGame(
                 123,
                 {room1, room2},
                 {
@@ -89,13 +99,51 @@ describe("GameController", () => {
             );
             const memory = stubMemory();
             const roomExecuteSpies = [sinon.spy(), sinon.spy()];
-            const roomControllerFactory = stubRoomControllerFactory(roomExecuteSpies);
+            const creepTasks = [{
+                [roles.WORKER]: {
+                    1: {
+                        "hash1": {
+                            type: WorkerTask.types.UPGRADING,
+                            sourceId: "source1",
+                            controllerId: "controllerId"
+                        },
+                        "hash2": {
+                            type: WorkerTask.types.UPGRADING,
+                            sourceId: "source2",
+                            controllerId: "controllerId"
+                        }
+                    },
+                    2: {
+                        "hash3": {
+                            type: WorkerTask.types.UPGRADING,
+                            sourceId: "source3",
+                            controllerId: "controllerId"
+                        },
+                        "hash4": {
+                            type: WorkerTask.types.UPGRADING,
+                            sourceId: "source4",
+                            controllerId: "controllerId"
+                        }
+                    }
+                }
+            },
+                {},
+                {}
+            ];
+            const creepTaskAssignments = [{
+                "hash1": "creep1",
+                "hash3": "creep2"
+            }, {}, {}];
+
+            const roomControllerFactory = stubRoomControllerFactory(
+                roomExecuteSpies, creepTasks, creepTaskAssignments
+            );
             const roomCreateForSpy = sinon.spy(roomControllerFactory, "createFor");
             const creepExecuteSpies = [sinon.spy(), sinon.spy(), sinon.spy()];
             const creepControllerFactory = stubCreepControllerFactory(creepExecuteSpies);
             const creepCreateForSpy = sinon.spy(creepControllerFactory, "createFor");
             const gameController = new GameController({
-                game,
+                gameProvider,
                 memory,
                 roomControllerFactory,
                 creepControllerFactory
@@ -110,7 +158,8 @@ describe("GameController", () => {
             expect(creepExecuteSpies[2].callCount).to.equal(1);
         });
     });
-});
+})
+;
 
 
 

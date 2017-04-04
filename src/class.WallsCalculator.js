@@ -10,7 +10,7 @@ const margin = 2;
 
 module.exports = class {
 
-    calculateTopWalls(room) {
+    calculateTop(room) {
 
         if (!room) {
             throw new Error("room can't be null");
@@ -53,7 +53,7 @@ module.exports = class {
         return walls;
     }
 
-    calculateRightWalls(room) {
+    calculateRight(room) {
 
         if (!room) {
             throw new Error("room can't be null");
@@ -96,7 +96,7 @@ module.exports = class {
         return walls;
     }
 
-    calculateBottomWalls(room) {
+    calculateBottom(room) {
 
         if (!room) {
             throw new Error("room can't be null");
@@ -139,7 +139,7 @@ module.exports = class {
         return walls;
     }
 
-    calculateLeftWalls(room) {
+    calculateLeft(room) {
 
         if (!room) {
             throw new Error("room can't be null");

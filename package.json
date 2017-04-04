@@ -4,7 +4,7 @@
   "scripts": {
     "lint": "eslint src test",
     "pretest": "npm run lint",
-    "test": "nyc mocha"
+    "test": "nyc mocha --reporter min"
   },
   "repository": {
     "type": "git",

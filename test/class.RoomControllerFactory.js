@@ -8,6 +8,7 @@ const stubGame = () => ({});
 const stubMemory = () => ({});
 const stubTaskScheduler = () => ({});
 const stubTaskExecutor = () => ({});
+const stubWorkerTaskScheduler = () => ({});
 const stubSpawnControllerFactory = () => ({});
 const stubExtensionsBuilder = () => ({});
 const stubRoadsBuilder = () => ({});
@@ -18,25 +19,27 @@ describe("RoomControllerFactory", () => {
 
     describe("constructor", () => {
 
-        it("throws an exception when game is null", () => {
+        it("throws an exception when gameProvider is null", () => {
             expect(() => new RoomControllerFactory({
-                game: null,
+                gameProvider: null,
                 memory: stubMemory(),
                 taskScheduler: stubTaskScheduler(),
                 taskExecutor: stubTaskExecutor(),
+                workerTaskScheduler: stubWorkerTaskScheduler(),
                 spawnControllerFactory: stubSpawnControllerFactory(),
                 extensionsBuilder: stubExtensionsBuilder(),
                 roadsBuilder: stubRoadsBuilder(),
                 wallsBuilder: stubWallsBuilder()
-            })).to.throw("game can't be null");
+            })).to.throw("gameProvider can't be null");
         });
 
         it("throws an exception when memory is null", () => {
             expect(() => new RoomControllerFactory({
-                game: stubGame(),
+                gameProvider: stubGame(),
                 memory: null,
                 taskScheduler: stubTaskScheduler(),
                 taskExecutor: stubTaskExecutor(),
+                workerTaskScheduler: stubWorkerTaskScheduler(),
                 spawnControllerFactory: stubSpawnControllerFactory(),
                 extensionsBuilder: stubExtensionsBuilder(),
                 roadsBuilder: stubRoadsBuilder(),
@@ -46,10 +49,11 @@ describe("RoomControllerFactory", () => {
 
         it("throws an exception when taskScheduler is null", () => {
             expect(() => new RoomControllerFactory({
-                game: stubGame(),
+                gameProvider: stubGame(),
                 memory: stubMemory(),
                 taskScheduler: null,
                 taskExecutor: stubTaskExecutor(),
+                workerTaskScheduler: stubWorkerTaskScheduler(),
                 spawnControllerFactory: stubSpawnControllerFactory(),
                 extensionsBuilder: stubExtensionsBuilder(),
                 roadsBuilder: stubRoadsBuilder(),
@@ -59,10 +63,11 @@ describe("RoomControllerFactory", () => {
 
         it("throws an exception when taskExecutor is null", () => {
             expect(() => new RoomControllerFactory({
-                game: stubGame(),
+                gameProvider: stubGame(),
                 memory: stubMemory(),
                 taskScheduler: stubTaskScheduler(),
                 taskExecutor: null,
+                workerTaskScheduler: stubWorkerTaskScheduler(),
                 spawnControllerFactory: stubSpawnControllerFactory(),
                 extensionsBuilder: stubExtensionsBuilder(),
                 roadsBuilder: stubRoadsBuilder(),
@@ -72,10 +77,11 @@ describe("RoomControllerFactory", () => {
 
         it("throws an exception when spawnControllerFactory is null", () => {
             expect(() => new RoomControllerFactory({
-                game: stubGame(),
+                gameProvider: stubGame(),
                 memory: stubMemory(),
                 taskScheduler: stubTaskScheduler(),
                 taskExecutor: stubTaskExecutor(),
+                workerTaskScheduler: stubWorkerTaskScheduler(),
                 spawnControllerFactory: null,
                 extensionsBuilder: stubExtensionsBuilder(),
                 roadsBuilder: stubRoadsBuilder(),
@@ -85,10 +91,11 @@ describe("RoomControllerFactory", () => {
 
         it("throws an exception when extensionsBuilder is null", () => {
             expect(() => new RoomControllerFactory({
-                game: stubGame(),
+                gameProvider: stubGame(),
                 memory: stubMemory(),
                 taskScheduler: stubTaskScheduler(),
                 taskExecutor: stubTaskExecutor(),
+                workerTaskScheduler: stubWorkerTaskScheduler(),
                 spawnControllerFactory: stubSpawnControllerFactory(),
                 extensionsBuilder: null,
                 roadsBuilder: stubRoadsBuilder(),
@@ -98,10 +105,11 @@ describe("RoomControllerFactory", () => {
 
         it("throws an exception when roadsBuilder is null", () => {
             expect(() => new RoomControllerFactory({
-                game: stubGame(),
+                gameProvider: stubGame(),
                 memory: stubMemory(),
                 taskScheduler: stubTaskScheduler(),
                 taskExecutor: stubTaskExecutor(),
+                workerTaskScheduler: stubWorkerTaskScheduler(),
                 spawnControllerFactory: stubSpawnControllerFactory(),
                 extensionsBuilder: stubExtensionsBuilder(),
                 roadsBuilder: null,
@@ -111,10 +119,11 @@ describe("RoomControllerFactory", () => {
 
         it("throws an exception when wallsBuilder is null", () => {
             expect(() => new RoomControllerFactory({
-                game: stubGame(),
+                gameProvider: stubGame(),
                 memory: stubMemory(),
                 taskScheduler: stubTaskScheduler(),
                 taskExecutor: stubTaskExecutor(),
+                workerTaskScheduler: stubWorkerTaskScheduler(),
                 spawnControllerFactory: stubSpawnControllerFactory(),
                 extensionsBuilder: stubExtensionsBuilder(),
                 roadsBuilder: stubRoadsBuilder(),
@@ -127,10 +136,11 @@ describe("RoomControllerFactory", () => {
 
         it("throws an exception when room is null", () => {
             const roomControllerFactory = new RoomControllerFactory({
-                game: stubGame(),
+                gameProvider: stubGame(),
                 memory: stubMemory(),
                 taskScheduler: stubTaskScheduler(),
                 taskExecutor: stubTaskExecutor(),
+                workerTaskScheduler: stubWorkerTaskScheduler(),
                 spawnControllerFactory: stubSpawnControllerFactory(),
                 extensionsBuilder: stubExtensionsBuilder(),
                 roadsBuilder: stubRoadsBuilder(),
@@ -143,20 +153,22 @@ describe("RoomControllerFactory", () => {
 
         it("returns an executable controller", () => {
             const room = stubRoom();
-            const game = stubGame();
+            const gameProvider = stubGame();
             const memory = stubMemory();
 
             const taskScheduler = stubTaskScheduler();
             const taskExecutor = stubTaskExecutor();
+            const workerTaskScheduler = stubWorkerTaskScheduler();
             const spawnControllerFactory = stubSpawnControllerFactory();
             const extensionsBuilder = stubExtensionsBuilder();
             const roadsBuilder = stubRoadsBuilder();
             const wallsBuilder = stubWallsBuilder();
             const roomControllerFactory = new RoomControllerFactory({
-                game,
+                gameProvider,
                 memory,
                 taskScheduler,
                 taskExecutor,
+                workerTaskScheduler,
                 spawnControllerFactory,
                 extensionsBuilder,
                 roadsBuilder,

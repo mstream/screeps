@@ -6,14 +6,14 @@ const roles = require("./const.roles");
 
 module.exports = class {
 
-    constructor(spawn, game, creepBodyAssembler, creepNameGenerator, logger) {
+    constructor(spawn, gameProvider, creepBodyAssembler, creepNameGenerator, logger) {
 
         if (!spawn) {
             throw new Error("spawn can't be null");
         }
 
-        if (!game) {
-            throw new Error("game can't be null");
+        if (!gameProvider) {
+            throw new Error("gameProvider can't be null");
         }
 
         if (!creepBodyAssembler) {
@@ -29,22 +29,20 @@ module.exports = class {
         }
 
         this._spawn = spawn;
-        this._game = game;
+        this._gameProvider = gameProvider;
         this._creepBodyAssembler = creepBodyAssembler;
         this._creepNameGenerator = creepNameGenerator;
         this._logger = logger;
     }
 
     execute() {
-        const sourcesNumber = _.chain(_.values(this._game.rooms))
+        const sourcesNumber = _.chain(_.values(this._gameProvider.get().rooms))
             .map(room => room.sources)
             .flatten()
             .value().length;
 
         const creepsDemand = {
-            [roles.HARVESTER]: sourcesNumber,
-            [roles.UPGRADER]: sourcesNumber,
-            [roles.BUILDER]: sourcesNumber
+            [roles.WORKER]: sourcesNumber + 2
         };
 
         this._buildCreepsIfNeeded(creepsDemand);
@@ -54,7 +52,7 @@ module.exports = class {
 
         const existingRolesCounter = {};
 
-        _.forOwn(this._game.creeps, (creep) => {
+        _.forOwn(this._gameProvider.get().creeps, (creep) => {
             const role = creep.memory.role;
             const prevCount = existingRolesCounter[role];
             existingRolesCounter[role] = prevCount ? prevCount + 1 : 1;
