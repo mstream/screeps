@@ -2,9 +2,10 @@
   "name": "screeps",
   "description": "screeps bot",
   "scripts": {
-    "lint": "eslint src test",
-    "pretest": "npm run lint",
-    "test": "nyc mocha --reporter min"
+    "lint-main": "eslint --fix -c eslint-main.json src/main",
+    "lint-test": "eslint --fix -c eslint-test.json src/test",
+    "pretest": "npm run lint-main && npm run lint-test",
+    "test": "mocha --reporter spec 'src/test/*.js'"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,21 @@
+module.exports = {
+    CONTAINER: "container",
+    CONTROLLER: "controller",
+    EXTENSION: "extension",
+    EXTRACTOR: "extractor",
+    KEEPER_LAIR: "keeperLair",
+    LAB: "lab",
+    LINK: "link",
+    NUKER: "nuker",
+    OBSERVER: "observer",
+    PORTAL: "portal",
+    POWER_BANK: "powerBank",
+    POWER_SPAWN: "powerSpawn",
+    RAMPART: "rampart",
+    ROAD: "road",
+    SPAWN: "spawn",
+    STORAGE: "storage",
+    TERMINAL: "terminal",
+    TOWER: "tower",
+    WALL: "constructedWall"
+};
